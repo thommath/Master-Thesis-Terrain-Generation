@@ -1,0 +1,94 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
+using System;
+
+[CustomEditor(typeof(SplineTerrain))]
+public class TerrainInspector : Editor
+{
+    SplineTerrain terrain;
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+        terrain = target as SplineTerrain;
+
+        if (GUILayout.Button("Run solver"))
+        {
+            //Undo.RecordObject(spline, "Add Curve");
+            foreach ( BezierSpline spline in terrain.splines)
+            {
+                if (spline.rasterizingData != null)
+                {
+                    DestroyImmediate(spline.rasterizingData.go);
+                    DestroyImmediate(spline.rasterizingData.goL);
+                    DestroyImmediate(spline.rasterizingData.goR);
+                    spline.rasterizingData = null;
+                }
+            }
+            terrain.runSolver();
+
+            if (terrain.deleteConstructedItems)
+            {
+                foreach (BezierSpline spline in terrain.splines)
+                {
+                    if (spline.rasterizingData != null)
+                    {
+                        DestroyImmediate(spline.rasterizingData.go);
+                        DestroyImmediate(spline.rasterizingData.goL);
+                        DestroyImmediate(spline.rasterizingData.goR);
+                        spline.rasterizingData = null;
+                    }
+                }
+            }
+
+
+
+
+            //EditorUtility.SetDirty(spline);
+        }
+        /*
+        if (GUILayout.Button("Init erosion"))
+        {
+            if (terrain.erosion == null)
+            {
+                terrain.erosion = new HydraulicErosion();
+            }
+            terrain.initializeErosion();
+        }
+        */
+        if (GUILayout.Button("Step erosion"))
+        {
+            if (terrain.erosion == null)
+            {
+                terrain.erosion = new HydraulicErosion();
+                terrain.initializeErosion();
+            }
+            terrain.stepErosion();
+        }
+
+
+        if (GUILayout.Button("Save RAW"))
+        {
+            terrain.saveRAW();
+        }
+    }
+
+    public void OnEnable()
+    {
+        // Subscribe to callback
+        EditorApplication.update += MyUpdate;
+
+    }
+
+    public void OnDisable()
+    {
+        // Unsubscribe from callback
+        EditorApplication.update -= MyUpdate;
+    }
+
+    private void MyUpdate()
+    {
+        terrain = target as SplineTerrain;
+    }
+}

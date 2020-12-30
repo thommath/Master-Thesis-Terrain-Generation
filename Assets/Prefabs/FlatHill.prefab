@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4592813616161576510
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4592813616161576511}
+  - component: {fileID: 4592813616161576508}
+  m_Layer: 0
+  m_Name: FlatHill
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4592813616161576511
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4592813616161576510}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 94.2, y: 0.05859375, z: 5.3352757}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4592813616161576508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4592813616161576510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -99.89487, y: 20.322464, z: 99.34284}
+  - {x: -99.954956, y: 42.871994, z: 79.002815}
+  - {x: -96.02313, y: 86.808846, z: 75.24269}
+  - {x: -94.1251, y: 86.27316, z: 7.815325}
+  - {x: -87.81467, y: 88.87226, z: -19.188906}
+  - {x: -84.76474, y: 48.92131, z: -6.206314}
+  - {x: -85.312874, y: 18.613014, z: -75.196304}
+  leftGradientEnabled: 1
+  rightGradientEnabled: 1
+  lineRadius: 0
+  gradientLengthLeft: 17.6
+  gradientAngleLeft: 0
+  gradientLengthRight: 13.9
+  gradientAngleRight: 0
