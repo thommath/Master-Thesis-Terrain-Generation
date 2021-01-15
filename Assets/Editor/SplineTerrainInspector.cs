@@ -13,7 +13,7 @@ public class TerrainInspector : Editor
         DrawDefaultInspector();
         terrain = target as SplineTerrain;
 
-        if (GUILayout.Button("Run solver"))
+        if (GUILayout.Button("Solve terrain"))
         {
             //Undo.RecordObject(spline, "Add Curve");
             foreach ( BezierSpline spline in terrain.splines)
@@ -41,30 +41,7 @@ public class TerrainInspector : Editor
                     }
                 }
             }
-
-
-
-
             //EditorUtility.SetDirty(spline);
-        }
-        /*
-        if (GUILayout.Button("Init erosion"))
-        {
-            if (terrain.erosion == null)
-            {
-                terrain.erosion = new HydraulicErosion();
-            }
-            terrain.initializeErosion();
-        }
-        */
-        if (GUILayout.Button("Step erosion"))
-        {
-            if (terrain.erosion == null)
-            {
-                terrain.erosion = new HydraulicErosion();
-                terrain.initializeErosion();
-            }
-            terrain.stepErosion();
         }
 
 

@@ -1,32 +1,38 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.IO;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class HydraulicErosion
+public class HydraulicErosion : MonoBehaviour
 {
-
+    [HideInInspector]
     public RenderTexture _stateTexture;
-    RenderTexture _waterFluxTexture;
-    RenderTexture _velocityTexture; 
-    RenderTexture _terrainFluxTexture;
+    [HideInInspector]
+    public RenderTexture _waterFluxTexture;
+    [HideInInspector]
+    public RenderTexture _velocityTexture;
+    [HideInInspector]
+    public RenderTexture _terrainFluxTexture;
 
-    ComputeShader hydraulicShader;
+    public ComputeShader hydraulicShader;
 
     int RainAndControl;
     int FluxComputation;
     int FluxApply;
+    int TiltAngle;
     int HydraulicErosionKernel;
     int SedimentAdvection;
 
-    public float timeDelta = 0.2f;
+    public ErosionSetting settings;
 
-    public void initializeTextures(RenderTexture heightmap, ComputeShader hydraulicShader)
+    [HideInInspector]
+    public UnityEvent updatedData;
+
+    public void initializeTextures()
     {
-        this.hydraulicShader = hydraulicShader;
+        RenderTexture heightmap = this.gameObject.GetComponent<SplineTerrain>().heightmap;
 
         int Width = heightmap.width;
         int Height = heightmap.height;
-
 
         /* ========= Setup computation =========== */
         // If there are already existing textures - release them
@@ -65,7 +71,7 @@ public class HydraulicErosion
         };
 
         // Velocity texture
-        _velocityTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.RGHalf)
+        _velocityTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.RGFloat)
         {
             enableRandomWrite = true,
             filterMode = FilterMode.Point,
@@ -84,43 +90,9 @@ public class HydraulicErosion
         if (!_velocityTexture.IsCreated())
             _velocityTexture.Create();
 
-
-
         Graphics.Blit(heightmap, _stateTexture);
 
         exportImages();
-
-
-        hydraulicShader.SetInt("_Width", _stateTexture.width);
-        hydraulicShader.SetInt("_Height", _stateTexture.height);
-        hydraulicShader.SetFloat("_TimeDelta", 0.2f);
-
-        hydraulicShader.SetFloat("_PipeArea", 10f);
-        hydraulicShader.SetFloat("_Gravity", 9.81f);
-        hydraulicShader.SetFloat("_PipeLength", 1f);
-        hydraulicShader.SetVector("_CellSize", new Vector2(1f, 1f));
-
-        // Hydraulic erosion
-        hydraulicShader.SetFloat("_SedimentCapacity", 0.2f);
-        hydraulicShader.SetFloat("_SuspensionRate", 0.5f);
-        hydraulicShader.SetFloat("_DepositionRate", 0.5f);
-
-        hydraulicShader.SetFloat("_Evaporation", 0.01f);
-
-
-
-        // Unused floats
-        hydraulicShader.SetFloat("_RainRate", 0.012f);
-        hydraulicShader.SetFloat("_SedimentSofteningRate", 40f);
-        hydraulicShader.SetFloat("_MaxErosionDepth", 1f);
-
-        // Thermal erosion
-        hydraulicShader.SetFloat("_ThermalErosionRate", 1f);
-        hydraulicShader.SetFloat("_TalusAngleTangentCoeff", 0.8f);
-        hydraulicShader.SetFloat("_TalusAngleTangentBias", 0.1f);
-        hydraulicShader.SetFloat("_ThermalErosionTimeScale", 1f);
-
-
 
         RainAndControl = hydraulicShader.FindKernel("RainAndControl");
         hydraulicShader.SetTexture(RainAndControl, "HeightMap", _stateTexture);
@@ -140,6 +112,12 @@ public class HydraulicErosion
         hydraulicShader.SetTexture(FluxApply, "FluxMap", _waterFluxTexture);
         hydraulicShader.SetTexture(FluxApply, "TerrainFluxMap", _terrainFluxTexture);
 
+        TiltAngle = hydraulicShader.FindKernel("TiltAngle");
+        hydraulicShader.SetTexture(TiltAngle, "HeightMap", _stateTexture);
+        hydraulicShader.SetTexture(TiltAngle, "VelocityMap", _velocityTexture);
+        hydraulicShader.SetTexture(TiltAngle, "FluxMap", _waterFluxTexture);
+        hydraulicShader.SetTexture(TiltAngle, "TerrainFluxMap", _terrainFluxTexture);
+
         HydraulicErosionKernel = hydraulicShader.FindKernel("HydraulicErosion");
         hydraulicShader.SetTexture(HydraulicErosionKernel, "HeightMap", _stateTexture);
         hydraulicShader.SetTexture(HydraulicErosionKernel, "VelocityMap", _velocityTexture);
@@ -152,23 +130,87 @@ public class HydraulicErosion
         hydraulicShader.SetTexture(SedimentAdvection, "FluxMap", _waterFluxTexture);
         hydraulicShader.SetTexture(SedimentAdvection, "TerrainFluxMap", _terrainFluxTexture);
 
+        updateShaderValues();
+
+        updatedData.Invoke();
     }
 
+    private void updateShaderValues()
+    {
+        hydraulicShader.SetInt("_Width", _stateTexture.width);
+        hydraulicShader.SetInt("_Height", _stateTexture.height);
+
+        hydraulicShader.SetFloat("_TimeDelta", settings.TimeDelta);
+
+        hydraulicShader.SetFloat("_PipeArea", settings.PipeArea);
+        hydraulicShader.SetFloat("_Gravity", settings.Gravity);
+        hydraulicShader.SetFloat("_PipeLength", settings.PipeLength);
+        hydraulicShader.SetVector("_CellSize", new Vector2(settings.CellSize, settings.CellSize));
+
+        // Hydraulic erosion
+        // bad paper! --> from http://graphics.uni-konstanz.de/publikationen/Neidhold2005InteractivePhysicallyBased/Neidhold2005InteractivePhysicallyBased.pdf
+        hydraulicShader.SetFloat("_SedimentCapacity", settings.SedimentCapacity);
+        hydraulicShader.SetFloat("_SuspensionRate", settings.SuspensionRate);
+        hydraulicShader.SetFloat("_DepositionRate", settings.DepositionRate);
+
+        hydraulicShader.SetFloat("_Evaporation", settings.Evaporation);
+
+
+        // Unused floats
+        hydraulicShader.SetFloat("_RainRate", 0.012f);
+        hydraulicShader.SetFloat("_SedimentSofteningRate", 40f);
+        hydraulicShader.SetFloat("_MaxErosionDepth", 1f);
+
+        // Thermal erosion
+        hydraulicShader.SetFloat("_ThermalErosionRate", 1f);
+        hydraulicShader.SetFloat("_TalusAngleTangentCoeff", 0.8f);
+        hydraulicShader.SetFloat("_TalusAngleTangentBias", 0.1f);
+        hydraulicShader.SetFloat("_ThermalErosionTimeScale", 1f);
+    }
+
+
+    public void runErosion()
+    {
+        updateShaderValues();
+        for (int i = 0; i < settings.IterationsEachStep; i++)
+        {
+            runStep();
+        }
+        saveState();
+        exportImages();
+        updatedData.Invoke();
+    }
+
+    float lastRaindrop = 0f;
+    float time = 0f;
     public void runStep()
     {
-        // Update values
-        hydraulicShader.SetFloat("_TimeDelta", timeDelta);
+        time += settings.TimeDelta;
 
-        // Add random rain
-        hydraulicShader.SetFloat("raindropStrength", 1f);
-        hydraulicShader.SetFloat("raindropRadius", 5f);
-        hydraulicShader.SetVector("raindropLocation", new Vector2(Random.Range(0f, _stateTexture.width), Random.Range(0f, _stateTexture.height)));
+        if (time - lastRaindrop > settings.RainFrequency)
+        {
+            hydraulicShader.SetFloat("raindropStrength", Random.Range(settings.MinRainIntensity, settings.MaxRainIntensity) / 25);
+            hydraulicShader.SetFloat("raindropRadius", Random.Range(settings.MinRainSize, settings.MaxRainSize));
 
-        hydraulicShader.Dispatch(RainAndControl, _stateTexture.width, _stateTexture.height, 1);
+            // Add random rain
+            if (settings.RandomizedRain)
+            {
+                hydraulicShader.SetVector("raindropLocation", new Vector2(Random.Range(0f, _stateTexture.width), Random.Range(0f, _stateTexture.height)));
+            } else
+            {
+                hydraulicShader.SetVector("raindropLocation", new Vector2(_stateTexture.width / 2f, _stateTexture.width / 2f));
+            }
+            lastRaindrop = time;
+
+            // Only run rain shader if rain should be added
+            hydraulicShader.Dispatch(RainAndControl, _stateTexture.width, _stateTexture.height, 1);
+        }
 
         hydraulicShader.Dispatch(FluxComputation, _stateTexture.width, _stateTexture.height, 1);
 
         hydraulicShader.Dispatch(FluxApply, _stateTexture.width, _stateTexture.height, 1);
+
+        hydraulicShader.Dispatch(TiltAngle, _stateTexture.width, _stateTexture.height, 1);
 
         hydraulicShader.Dispatch(HydraulicErosionKernel, _stateTexture.width, _stateTexture.height, 1);
 
@@ -176,12 +218,27 @@ public class HydraulicErosion
 
     }
 
+    public void loadState()
+    {
+        loadImage("_stateTexture", _stateTexture, TextureFormat.RGBAFloat);
+        loadImage("_velocityTexture", _velocityTexture, TextureFormat.RGBAFloat);
+        loadImage("_waterFluxTexture", _waterFluxTexture, TextureFormat.RGBAFloat);
+        loadImage("_terrainFluxTexture", _terrainFluxTexture, TextureFormat.RGBAFloat);
+    }
+    public void saveState()
+    {
+        saveImage("_stateTexture", _stateTexture, TextureFormat.RGBAFloat, false);
+        saveImage("_velocityTexture", _velocityTexture, TextureFormat.RGBAFloat, false);
+        saveImage("_waterFluxTexture", _waterFluxTexture, TextureFormat.RGBAFloat, false);
+        saveImage("_terrainFluxTexture", _terrainFluxTexture, TextureFormat.RGBAFloat, false);
+    }
+
     public void exportImages()
     {
-        saveImage("_stateTexture", _stateTexture, TextureFormat.RGBAFloat);
-        saveImage("_velocityTexture", _velocityTexture, TextureFormat.RGBAFloat);
-        saveImage("_waterFluxTexture", _waterFluxTexture, TextureFormat.RGBAFloat);
-        saveImage("_terrainFluxTexture", _terrainFluxTexture, TextureFormat.RGBAFloat);
+        saveImage("stateTexture", _stateTexture, TextureFormat.RGBAFloat);
+        saveImage("velocityTexture", _velocityTexture, TextureFormat.RGBAFloat);
+        saveImage("waterFluxTexture", _waterFluxTexture, TextureFormat.RGBAFloat);
+        saveImage("terrainFluxTexture", _terrainFluxTexture, TextureFormat.RGBAFloat);
     }
 
 
@@ -232,7 +289,40 @@ public class HydraulicErosion
         }
 
 
-        System.IO.File.WriteAllBytes(Application.dataPath + "/Images/Erosion/" + name + ".png", tex2D.EncodeToPNG());
+        File.WriteAllBytes(Application.dataPath + "/Images/Erosion/" + name + ".png", tex2D.EncodeToPNG());
         Debug.Log("Wrote image to " + Application.dataPath + "/Images/Erosion/" + name + ".png");
+    }
+
+    private void saveImageNoLoss(string name, RenderTexture rt, TextureFormat tf = TextureFormat.RGBAFloat)
+    {
+
+        int width = rt.width;
+        int height = rt.height;
+        string filepath = Application.dataPath + "/Images/Erosion/" + name + ".exr";
+
+        Texture2D tex = new Texture2D(width, height, tf, false);
+
+        // Read screen contents into the texture
+        Graphics.SetRenderTarget(rt);
+        tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        tex.Apply();
+
+        // Encode texture into the EXR
+        byte[] bytes = tex.EncodeToEXR(Texture2D.EXRFlags.CompressZIP);
+        File.WriteAllBytes(filepath, bytes);
+
+        Object.Destroy(tex);
+
+    }
+    private void loadImage(string name, RenderTexture tex, TextureFormat tf = TextureFormat.RGBAFloat, bool normalize = true)
+    {
+        Texture2D tempTex = new Texture2D(tex.width, tex.height, tf, false);
+        string filepath = Application.dataPath + "/Images/Erosion/" + name + ".exr";
+        if (File.Exists(filepath))
+        {
+            tempTex.LoadImage(File.ReadAllBytes(filepath));
+            Debug.Log("Loaded image from " + filepath);
+            Graphics.Blit(tempTex, tex);
+        }
     }
 }

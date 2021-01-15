@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+
 
 public class SplineTerrain : MonoBehaviour
 {
-    [Header("Nessecary objects")]
-    public Terrain terrain;
-    public ComputeShader hydraulicShader;
-
-
     [Header("Splines creating the terrain")]
     public BezierSpline[] splines;
 
     [Header("Size of the terrain")]
     public int height = 100;
     public int size = 512;
-
 
     [Header("Rasterizing")]
     public int resolution = 10;
@@ -35,69 +31,10 @@ public class SplineTerrain : MonoBehaviour
     // public bool updateTerrain = false;
     public bool saveImages = false;
 
-
-    [Header("Hydraulic erosion")]
-    [Range(0.001f, 0.2f)]
-    public float erosionTimeDelta = 0.02f;
-    [Range(0, 5000)]
-    public int erosionIterationsEachStep = 1;
-
-
-    RenderTexture heightmap;
-    public HydraulicErosion erosion;
-
-
-    public void Update()
-    {
-    }
-
-    private void Reset()
-    {}
-
-
-    public void initializeErosion()
-    {
-        if (this.erosion != null)
-        {
-            erosion.initializeTextures(heightmap, hydraulicShader);
-        }
-    }
-    public void stepErosion()
-    {
-        erosion.timeDelta = erosionTimeDelta;
-        for (int n = 0; n < erosionIterationsEachStep; n++)
-        {
-            erosion.runStep();
-        }
-        erosion.exportImages();
-
-        Graphics.Blit(erosion._stateTexture, heightmap);
-        copyToTerrain(heightmap);
-        return;
-
-        // Copy other state to terrain
-        RenderTexture.active = erosion._stateTexture;
-        Texture2D tex = new Texture2D(erosion._stateTexture.width, erosion._stateTexture.height, TextureFormat.RGBAFloat, false);
-        tex.ReadPixels(new Rect(0, 0, erosion._stateTexture.width, erosion._stateTexture.height), 0, 0, false);
-        tex.Apply();
-        RenderTexture.active = null;
-
-        float[,] heights = new float[size, size];
-        for (int y = 0; y < tex.height - 1; y++)
-        {
-            for (int x = 0; x < tex.width - 1; x++)
-            {
-                Color c = tex.GetPixel(x, y);
-                // set height to height + water
-                heights[y, x] = c.r + c.g;
-            }
-        }
-
-        terrain.gameObject.transform.position = new Vector3(-(size / zoom) / 2, 0, -(size / zoom) / 2);
-        terrain.terrainData.heightmapResolution = size;
-        terrain.terrainData.size = new Vector3(size / zoom, height, size / zoom);
-        terrain.terrainData.SetHeights(0, 0, heights);
-    }
+    [HideInInspector]
+    public RenderTexture heightmap;
+    [HideInInspector]
+    public RenderTexture normals;
 
     public void runSolver()
     {
@@ -114,21 +51,38 @@ public class SplineTerrain : MonoBehaviour
         {
             l.poissonStep(splines, normals, heightmap, 1, this.height);
         }
-        saveImage("result normals", normals);
-        saveImage("result heightmap", heightmap, TextureFormat.RFloat);
-
-        copyToTerrain(heightmap);
 
         this.heightmap = heightmap;
+        this.normals = normals;
 
-        initializeErosion();
+        saveState();
     }
 
+    private void saveState()
+    {
+        saveImage("_normals", normals);
+        saveImage("_heightmap", heightmap, TextureFormat.RFloat);
+    }
+    private void loadState()
+    {
+        loadImage("_normals", normals);
+        loadImage("_heightmap", heightmap, TextureFormat.RFloat);
+    }
+
+    private void loadImage(string name, RenderTexture tex, TextureFormat tf = TextureFormat.RGBAFloat)
+    {
+        Texture2D tempTex = new Texture2D(tex.width, tex.height, tf, false);
+        string filepath = Application.dataPath + "/Images/" + name + ".png";
+        if (File.Exists(filepath))
+        {
+            tempTex.LoadImage(File.ReadAllBytes(filepath));
+            Debug.Log("Loaded image from " + Application.dataPath + "/Images/" + name + ".png");
+            Graphics.Blit(tempTex, tex);
+        }
+    }
 
     private void saveImage(string name, RenderTexture tex, TextureFormat tf = TextureFormat.RGBA32)
     {
-        if (!saveImages) return;
-
         // Now you can read it back to a Texture2D and save it
         RenderTexture.active = tex;
         Texture2D tex2D = new Texture2D(tex.width, tex.height, tf, true);
@@ -138,30 +92,6 @@ public class SplineTerrain : MonoBehaviour
         System.IO.File.WriteAllBytes(Application.dataPath + "/Images/" + name + ".png", tex2D.EncodeToPNG());
         Debug.Log("Wrote image to " + Application.dataPath + "/Images/" + name + ".png");
     }
-
-    private void copyToTerrain(RenderTexture rawTex)
-    {
-        RenderTexture.active = rawTex;
-        Texture2D tex = new Texture2D(rawTex.width, rawTex.height, TextureFormat.RFloat, true);
-        tex.ReadPixels(new Rect(0, 0, rawTex.width, rawTex.height), 0, 0, false);
-        tex.Apply();
-        RenderTexture.active = null;
-
-        float[,] heights = new float[size,size];
-        for (int y = 0; y < tex.height-1; y++)
-        {
-            for (int x = 0; x < tex.width-1; x++)
-            {
-                heights[y, x] = tex.GetPixel(x, y).r;
-            }
-        }
-
-        terrain.gameObject.transform.position = new Vector3(-(size / zoom) / 2, 0, -(size / zoom )/ 2);
-        terrain.terrainData.heightmapResolution = size;
-        terrain.terrainData.size = new Vector3(size / zoom, height, size / zoom);
-        terrain.terrainData.SetHeights(0, 0, heights);
-    }
-
 
     public void saveRAW()
     {
