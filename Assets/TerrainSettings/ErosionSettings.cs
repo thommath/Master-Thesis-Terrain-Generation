@@ -19,8 +19,8 @@ public class ErosionSetting : ScriptableObject
     [Range(0.1f, 1f)]
     public float SuspensionRate = 0.7f;
     [Range(0.1f, 1f)]
-    public float DepositionRate = 0.7f;
-
+    public float DepositionRate = 0.7f; 
+     
     [Header("Rain and evaporation")]
     [Range(0, 1f)]
     public float Evaporation = 0.1f;

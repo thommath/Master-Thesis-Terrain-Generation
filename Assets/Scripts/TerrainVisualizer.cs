@@ -55,6 +55,12 @@ public class TerrainVisualizer : MonoBehaviour
         heightTexture.Apply();
         RenderTexture.active = null;
 
+        RenderTexture.active = erosion._terrainFluxTexture;
+        Texture2D terrainFlux = new Texture2D(erosion._terrainFluxTexture.width, erosion._terrainFluxTexture.height, TextureFormat.RGBAFloat, false);
+        terrainFlux.ReadPixels(new Rect(0, 0, erosion._terrainFluxTexture.width, erosion._terrainFluxTexture.height), 0, 0, false);
+        terrainFlux.Apply();
+        RenderTexture.active = null;
+
         float[,] heights = new float[height, width];
         for (int y = 0; y < height - 1; y++)
         {
@@ -81,7 +87,7 @@ public class TerrainVisualizer : MonoBehaviour
                         heights[y, x] = eroColor.g;
                         break;
                     case ViewMode.Sediment:
-                        heights[y, x] = eroColor.b;
+                        heights[y, x] = eroColor.b * 100;
                         break;
                     case ViewMode.HeightMapWithSediment:
                         heights[y, x] = eroColor.b + eroColor.r;
@@ -92,14 +98,8 @@ public class TerrainVisualizer : MonoBehaviour
 
                     case ViewMode.TerrainAngle:
                         // Copy other state to terrain
-                        RenderTexture.active = erosion._terrainFluxTexture;
-                        Texture2D terrainFlux = new Texture2D(erosion._terrainFluxTexture.width, erosion._terrainFluxTexture.height, TextureFormat.RGBAFloat, false);
-                        terrainFlux.ReadPixels(new Rect(0, 0, erosion._terrainFluxTexture.width, erosion._terrainFluxTexture.height), 0, 0, false);
-                        terrainFlux.Apply();
-                        RenderTexture.active = null;
-
                         Color terrainFluxColor = terrainFlux.GetPixel(x, y);
-                        heights[y, x] = terrainFluxColor.r;
+                        heights[y, x] = terrainFluxColor.r * 100;
                         break;
                 }
             }

@@ -16,15 +16,15 @@ MonoBehaviour:
   Gravity: 9.81
   PipeLength: 1
   CellSize: 1
-  SedimentCapacity: 1
-  SuspensionRate: 1
-  DepositionRate: 1
-  Evaporation: 0.1
-  MaxRainIntensity: 0.843
-  MinRainIntensity: 0.58
-  MaxRainSize: 6.94
+  SedimentCapacity: 0.5
+  SuspensionRate: 0.763
+  DepositionRate: 0.633
+  Evaporation: 0.024
+  MaxRainIntensity: 0.375
+  MinRainIntensity: 0.114
+  MaxRainSize: 5.4
   MinRainSize: 4.63
   RainFrequency: 0.045
   RandomizedRain: 1
-  TimeDelta: 0.001
-  IterationsEachStep: 1008
+  TimeDelta: 0.0134
+  IterationsEachStep: 11

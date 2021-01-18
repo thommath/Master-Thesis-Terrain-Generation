@@ -199,7 +199,7 @@ void FluxApply(uint3 id : SV_DispatchThreadID)
 	CURRENT_SAMPLE(HeightMap) = state;
 
 	// Compute new velocity from flux to the VelocityMap
-	if (waterHeightBefore < 0.00001 && WATER_HEIGHT(state) < 0.00001) {
+	if (waterHeightBefore < 0.001 && WATER_HEIGHT(state) < 0.001) {
 		CURRENT_SAMPLE(VelocityMap) = float2(0, 0);
 	}
 	else
@@ -217,8 +217,8 @@ void FluxApply(uint3 id : SV_DispatchThreadID)
 			(BDIR(inputFlux) - BDIR(outputFlux) + TDIR(outputFlux) - TDIR(inputFlux)))
 			/ (_CellSize.x * _TimeDelta);
 
-		if (length(CURRENT_SAMPLE(VelocityMap)) * _TimeDelta > _CellSize.x) {
-			CURRENT_SAMPLE(VelocityMap) = _CellSize;
+		if (length(CURRENT_SAMPLE(VelocityMap)) * _TimeDelta > 1) {
+			CURRENT_SAMPLE(VelocityMap) = float2(sign(CURRENT_SAMPLE(VelocityMap).x), sign(CURRENT_SAMPLE(VelocityMap).y));
 		}
 		//CURRENT_SAMPLE(VelocityMap) = float2(min(1, CURRENT_SAMPLE(VelocityMap).x), min(1, CURRENT_SAMPLE(VelocityMap).y));
 	}
@@ -253,14 +253,14 @@ void TiltAngle(uint3 id : SV_DispatchThreadID)
 	));
 	*/
 
-	float dx = (max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateRight)) + 
+	float dx = 5 * (max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateRight)) + 
 			   max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateLeft)));
 
-	float dy = (max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateTop))) +
+	float dy = 5 * (max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateTop))) +
 			   max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateBottom))));
 
 	// Fancy trigonometry
-	float sinangle = max(0, (dx * dx + dy * dy) / sqrt(dx * dx + dy * dy + 1));
+	float sinangle = min(1, max(0, (dx * dx + dy * dy) / sqrt(dx * dx + dy * dy + 1)));
 	TerrainFluxMap[id.xy] = float4(sinangle, TerrainFluxMap[id.xy].gba);
 }
 
@@ -275,7 +275,7 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 	// Tilt angle computation
 	// Might want a condition to this, if it is bigger than 0. If it is 0 it might be uphill
 	// This min value should be able to be changed to a diffused value similar to the noise value in the other paper
-	float sinangle = max(0, TerrainFluxMap[id.xy].r);
+	float sinangle = max(0.001, TerrainFluxMap[id.xy].r);
 
 	float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle;
 	
