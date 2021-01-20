@@ -211,14 +211,21 @@ void FluxApply(uint3 id : SV_DispatchThreadID)
 			(BDIR(inputFlux) - BDIR(outputFlux) + TDIR(outputFlux) - TDIR(inputFlux)))
 			/ (_CellSize.x * (2 * waterHeightBefore + _TimeDelta * volumeDelta / (_CellSize.x * _CellSize.y)));
 		*/
-		// In the powerpoint
-		CURRENT_SAMPLE(VelocityMap) = float2(
+		CURRENT_SAMPLE(VelocityMap) = 2* float2(
 			(LDIR(inputFlux) - LDIR(outputFlux) + RDIR(outputFlux) - RDIR(inputFlux)),
 			(BDIR(inputFlux) - BDIR(outputFlux) + TDIR(outputFlux) - TDIR(inputFlux)))
 			/ (_CellSize.x * _TimeDelta);
+		
+		/*
+		// Alternative from https://www.researchgate.net/publication/308824247_Fractal_Nature_-_Generating_Realistic_Terrains_for_Games#pf4
+		CURRENT_SAMPLE(VelocityMap) = float2(
+			(LDIR(inputFlux) - LDIR(outputFlux) + RDIR(outputFlux) - RDIR(inputFlux)),
+			(BDIR(inputFlux) - BDIR(outputFlux) + TDIR(outputFlux) - TDIR(inputFlux)))
+			/ (_CellSize.x);
+		*/
 
-		if (length(CURRENT_SAMPLE(VelocityMap)) * _TimeDelta > 1) {
-			CURRENT_SAMPLE(VelocityMap) = float2(sign(CURRENT_SAMPLE(VelocityMap).x), sign(CURRENT_SAMPLE(VelocityMap).y));
+		if (length(CURRENT_SAMPLE(VelocityMap)) * _TimeDelta > 0.5) {
+			CURRENT_SAMPLE(VelocityMap) = 0.5 * float2(sign(CURRENT_SAMPLE(VelocityMap).x), sign(CURRENT_SAMPLE(VelocityMap).y));
 		}
 		//CURRENT_SAMPLE(VelocityMap) = float2(min(1, CURRENT_SAMPLE(VelocityMap).x), min(1, CURRENT_SAMPLE(VelocityMap).y));
 	}
@@ -253,15 +260,36 @@ void TiltAngle(uint3 id : SV_DispatchThreadID)
 	));
 	*/
 
+	/*
 	float dx = 5 * (max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateRight)) + 
 			   max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateLeft)));
 
-	float dy = 5 * (max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateTop))) +
+	float dy = 5* (max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateTop))) +
 			   max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateBottom))));
 
 	// Fancy trigonometry
-	float sinangle = min(1, max(0, (dx * dx + dy * dy) / sqrt(dx * dx + dy * dy + 1)));
+	float sinangle = min(1, max(0, (dx * dx + dy * dy) / sqrt(dx * dx + dy * dy + 1) ));
 	TerrainFluxMap[id.xy] = float4(sinangle, TerrainFluxMap[id.xy].gba);
+
+	*/
+
+	float dx = 100 * (max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateRight)) +
+		max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateLeft)));
+
+	float dy = 100 * (max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateTop))) +
+		max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateBottom))));
+
+	// Fancy trigonometry
+	float sinangle = min(dx * dx + dy * dy, 1);
+	TerrainFluxMap[id.xy] = float4(sinangle, TerrainFluxMap[id.xy].gba);
+
+
+
+	float3 normal = float3(1, 1, 1) * float3((TERRAIN_HEIGHT(stateRight) - TERRAIN_HEIGHT(stateLeft)) / 2, (TERRAIN_HEIGHT(stateBottom) - TERRAIN_HEIGHT(stateTop)) / 2, -1);
+	float3 straightUp = float3(1, 1, 0);
+
+	float sina = dot(straightUp, normal) / (length(straightUp) * length(normal));
+	TerrainFluxMap[id.xy] = float4(abs(sina), TerrainFluxMap[id.xy].gba);
 }
 
 /* Pass 4. Terrain hydraulic erosion and deposition */
@@ -309,6 +337,7 @@ void SedimentAdvection(uint3 id : SV_DispatchThreadID)
 	float2 velocity = CURRENT_SAMPLE(VelocityMap);
 	//velocity *= 0.1;
 	// Sediment advection
+	// What the paper describes that has mass loss
 	SEDIMENT(state) = HARDNESS(SampleBilinear(HeightMap, id.xy - velocity * _TimeDelta));
 	//SEDIMENT(state) = HARDNESS(state);
 

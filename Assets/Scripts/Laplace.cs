@@ -103,14 +103,14 @@ public class Laplace : MonoBehaviour
 
         // Create rendertextures
         RenderTexture seedHeightmap;
-        seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 32, RenderTextureFormat.ARGBFloat);
+        seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 1, heightmap.format);
         seedHeightmap.enableRandomWrite = true;
         seedHeightmap.autoGenerateMips = false;
         seedHeightmap.Create();
 
-        RenderTexture seedNormals = createRenderTexture(normals.width, 0, 32);
+        RenderTexture seedNormals = createRenderTexture(normals.width, 0, 1);
         // RenderTexture seedHeightmap = createRenderTexture(heightmap.width, 0, 32);
-        RenderTexture restrictions = createRenderTexture(heightmap.width, 0, 32);
+        RenderTexture restrictions = createRenderTexture(heightmap.width, 0, 1);
 
         // Copy to rendertextures
         Graphics.Blit(tseedHeightmap, seedHeightmap);
@@ -132,8 +132,11 @@ public class Laplace : MonoBehaviour
         saveImage("restrictions " + h, restrictions);
         saveImage("heightmap " + h + " pre", heightmap);
 
-        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, 12*(10-h));
+        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, 2*12*(10-h));
         saveImage("heightmap " + h + " post", heightmap);
+
+        RestrictedSmoothing(heightmap, seedHeightmap, 0);
+        saveImage("heightmap " + h + " smooth", heightmap);
     }
 
 
@@ -197,6 +200,25 @@ public class Laplace : MonoBehaviour
         for (int n = 0; n < iterations; n++)
         {
             laplace.Dispatch(relaxKernelHandle, outputImage.width, outputImage.height, 1);
+        }
+    }
+    public void ImageSmoothing(RenderTexture image, int iterations)
+    {
+        int smoothKernelHandle = laplace.FindKernel("Smooth");
+        laplace.SetTexture(smoothKernelHandle, "result", image);
+        for (int n = 0; n < iterations; n++)
+        {
+            laplace.Dispatch(smoothKernelHandle, image.width, image.height, 1);
+        }
+    }
+    public void RestrictedSmoothing(RenderTexture image, RenderTexture seedTexture, int iterations)
+    {
+        int RestrictedSmoothingKernelHandle = laplace.FindKernel("RestrictedSmoothing");
+        laplace.SetTexture(RestrictedSmoothingKernelHandle, "result", image);
+        laplace.SetTexture(RestrictedSmoothingKernelHandle, "seedTexture", seedTexture);
+        for (int n = 0; n < iterations; n++)
+        {
+            laplace.Dispatch(RestrictedSmoothingKernelHandle, image.width, image.height, 1);
         }
     }
 

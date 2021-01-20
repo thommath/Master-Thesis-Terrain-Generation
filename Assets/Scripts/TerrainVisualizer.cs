@@ -16,19 +16,49 @@ public class TerrainVisualizer : MonoBehaviour
         {
             if (isListeningForChanges)
             {
-                this.gameObject.GetComponent<HydraulicErosion>().updatedData.RemoveListener(exportToTerrain);
+                this.gameObject.GetComponent<HydraulicErosion>().updatedData.RemoveListener(fastExport);
             }
             else
             {
-                this.gameObject.GetComponent<HydraulicErosion>().updatedData.AddListener(exportToTerrain);
+                this.gameObject.GetComponent<HydraulicErosion>().updatedData.AddListener(fastExport);
             }
             isListeningForChanges = !isListeningForChanges;
         }
+        fastExport();
 
-        exportToTerrain();
+        //exportToTerrain();
     }
 
-    private void exportToTerrain()
+    public void fastExport()
+    {
+        HydraulicErosion erosion = this.gameObject.GetComponent<HydraulicErosion>();
+        RenderTexture heightmap = this.gameObject.GetComponent<SplineTerrain>().heightmap;
+
+        int size = this.gameObject.GetComponent<SplineTerrain>().size;
+        int zoom = this.gameObject.GetComponent<SplineTerrain>().zoom;
+        int terrainHeight = this.gameObject.GetComponent<SplineTerrain>().height;
+
+        terrain.gameObject.transform.position = new Vector3(-(size / zoom) / 2, 0, -(size / zoom) / 2);
+        terrain.terrainData.heightmapResolution = size;
+        terrain.terrainData.size = new Vector3(size / zoom, terrainHeight, size / zoom);
+
+        RenderTexture.active = erosion._stateTexture;
+        terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, erosion._stateTexture.width, erosion._stateTexture.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
+
+        terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
+        terrain.materialTemplate.SetTexture("_OriginalTex", heightmap);
+        
+        //RenderTexture.active = erosion._stateTexture;
+        //terrain.terrainData.CopyActiveRenderTextureToTexture("_StateTex", 0, new RectInt(0, 0, erosion._stateTexture.width, erosion._stateTexture.height), new Vector2Int(0, 0), false);
+
+        //RenderTexture.active = erosion._stateTexture;
+        //terrain.terrainData.CopyActiveRenderTextureToTexture("_OriginalTex", 0, new RectInt(0, 0, erosion._stateTexture.width, erosion._stateTexture.height), new Vector2Int(0, 0), false);
+
+        //terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
+        //terrain.materialTemplate.SetTexture("_OriginalTex", this.gameObject.GetComponent<SplineTerrain>().heightmap);
+    }
+
+    public void exportToTerrain()
     {
         RenderTexture heightmap = this.gameObject.GetComponent<SplineTerrain>().heightmap;
         HydraulicErosion erosion = this.gameObject.GetComponent<HydraulicErosion>();
@@ -40,6 +70,7 @@ public class TerrainVisualizer : MonoBehaviour
         {
             return;
         }
+
 
         // Copy other state to terrain
         RenderTexture.active = erosion._stateTexture;
@@ -117,5 +148,6 @@ public class TerrainVisualizer : MonoBehaviour
         terrain.materialTemplate.SetTexture("_StateTex", ero);
         terrain.materialTemplate.SetTexture("_OriginalTex", heightTexture);
     }
+
 
 }

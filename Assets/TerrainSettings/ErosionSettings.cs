@@ -3,6 +3,10 @@
 [CreateAssetMenu(fileName = "ErosionSetting", menuName = "ScriptableObjects/ErosionSetting", order = 1)]
 public class ErosionSetting : ScriptableObject
 {
+    [Header("Terrain")]
+    [Range(0, 500)]
+    public int SmoothingIterationsOnStart = 100;
+
     [Header("Flow settings")]
     [Range(0.1f, 10f)]
     public float PipeArea = 1f;
@@ -22,6 +26,9 @@ public class ErosionSetting : ScriptableObject
     public float DepositionRate = 0.7f; 
      
     [Header("Rain and evaporation")]
+    
+    public bool AddWater = true;
+
     [Range(0, 1f)]
     public float Evaporation = 0.1f;
 
@@ -36,6 +43,9 @@ public class ErosionSetting : ScriptableObject
 
     [Range(0f, 1f)]
     public float RainFrequency = 0.01f;
+
+    [Range(0f, 10000f)]
+    public float StopRainAfterTime = 0.01f;
 
     public bool RandomizedRain = true;
 

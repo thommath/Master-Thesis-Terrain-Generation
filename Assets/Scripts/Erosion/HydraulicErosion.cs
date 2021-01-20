@@ -27,6 +27,10 @@ public class HydraulicErosion : MonoBehaviour
     [HideInInspector]
     public UnityEvent updatedData;
 
+
+    float lastRaindrop = 0f;
+    public float time = 0f;
+
     public void initializeTextures()
     {
         RenderTexture heightmap = this.gameObject.GetComponent<SplineTerrain>().heightmap;
@@ -92,6 +96,10 @@ public class HydraulicErosion : MonoBehaviour
 
         Graphics.Blit(heightmap, _stateTexture);
 
+
+        Laplace l = this.GetComponent<Laplace>();
+        l.ImageSmoothing(_stateTexture, settings.SmoothingIterationsOnStart);
+
         exportImages();
 
         RainAndControl = hydraulicShader.FindKernel("RainAndControl");
@@ -133,6 +141,15 @@ public class HydraulicErosion : MonoBehaviour
         updateShaderValues();
 
         updatedData.Invoke();
+
+        time = 0f;
+        lastRaindrop = 0f;
+
+        RenderBehaviour rb = this.GetComponent<RenderBehaviour>();
+        if (rb != null)
+        {
+            rb.initiateFilm();
+        }
     }
 
     private void updateShaderValues()
@@ -168,26 +185,31 @@ public class HydraulicErosion : MonoBehaviour
         hydraulicShader.SetFloat("_ThermalErosionTimeScale", 1f);
     }
 
-
     public void runErosion()
     {
+        RenderBehaviour rb = this.GetComponent<RenderBehaviour>();
+
         updateShaderValues();
         for (int i = 0; i < settings.IterationsEachStep; i++)
         {
             runStep();
+
+            if (rb != null)
+            {
+                rb.filmStep(time);
+            }
+
         }
         saveState();
         exportImages();
         updatedData.Invoke();
     }
 
-    float lastRaindrop = 0f;
-    float time = 0f;
     public void runStep()
     {
         time += settings.TimeDelta;
 
-        if (time - lastRaindrop > settings.RainFrequency)
+        if (settings.AddWater && settings.StopRainAfterTime > time && time - lastRaindrop > settings.RainFrequency)
         {
             hydraulicShader.SetFloat("raindropStrength", Random.Range(settings.MinRainIntensity, settings.MaxRainIntensity) / 25);
             hydraulicShader.SetFloat("raindropRadius", Random.Range(settings.MinRainSize, settings.MaxRainSize));
@@ -325,4 +347,6 @@ public class HydraulicErosion : MonoBehaviour
             Graphics.Blit(tempTex, tex);
         }
     }
+
+
 }

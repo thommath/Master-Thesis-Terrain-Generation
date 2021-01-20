@@ -12,19 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: ErosionSetting
   m_EditorClassIdentifier: Assembly-CSharp::ErosionSetting
+  SmoothingIterationsOnStart: 0
   PipeArea: 1
   Gravity: 9.81
   PipeLength: 1
   CellSize: 1
-  SedimentCapacity: 0.5
-  SuspensionRate: 0.763
-  DepositionRate: 0.633
+  SedimentCapacity: 0.3
+  SuspensionRate: 0.632
+  DepositionRate: 0.506
+  AddWater: 1
   Evaporation: 0.024
-  MaxRainIntensity: 0.375
+  MaxRainIntensity: 0.204
   MinRainIntensity: 0.114
-  MaxRainSize: 5.4
-  MinRainSize: 4.63
-  RainFrequency: 0.045
+  MaxRainSize: 9.39
+  MinRainSize: 6.22
+  RainFrequency: 0.011
+  StopRainAfterTime: 10
   RandomizedRain: 1
   TimeDelta: 0.0134
-  IterationsEachStep: 11
+  IterationsEachStep: 483

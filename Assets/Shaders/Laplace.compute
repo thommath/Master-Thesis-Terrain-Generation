@@ -3,6 +3,8 @@
 #pragma kernel Relaxation
 #pragma kernel Restrict
 #pragma kernel Interpolate
+#pragma kernel Smooth
+#pragma kernel RestrictedSmoothing
 
 RWTexture2D<float4> result;
 
@@ -72,7 +74,7 @@ void Relaxation(uint3 id : SV_DispatchThreadID)
 RWTexture2D<float4> restrictionsTexture;
 RWTexture2D<float4> normals;
 
-RWTexture2D<float> terrainHeight;
+RWTexture2D<unorm float> terrainHeight;
 
 [numthreads(8, 8, 1)]
 void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
@@ -112,15 +114,8 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 
 
 
-
-
-
-
-
-
 RWTexture2D<float4> image;
 int image_size;
-
 
 [numthreads(8, 8, 1)]
 void Restrict(uint3 id : SV_DispatchThreadID)
@@ -222,6 +217,29 @@ void Interpolate(uint3 id : SV_DispatchThreadID)
 }
 
 
+[numthreads(8, 8, 1)]
+void Smooth(uint3 id : SV_DispatchThreadID)
+{
+    result[id.xy] = (1 - restrictionsTexture[id.xy].x) * 0.25 * (
+        result[id.xy - uint2(0, 1)] +
+        result[id.xy - uint2(1, 0)] +
+        result[id.xy - uint2(-1, 0)] +
+        result[id.xy - uint2(0, -1)]);
+}
+
+
+[numthreads(8, 8, 1)]
+void RestrictedSmoothing(uint3 id : SV_DispatchThreadID)
+{
+    result[id.xy] = (seedTexture[id.xy].x > 0 ? 1 : 0) * 0.25 * (
+        result[id.xy - uint2(0, 1)] +
+        result[id.xy - uint2(1, 0)] +
+        result[id.xy - uint2(-1, 0)] +
+        result[id.xy - uint2(0, -1)])
+        +
+        (seedTexture[id.xy].x > 0 ? 0 : 1) * result[id.xy]
+        ;
+}
 
 
 

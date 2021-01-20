@@ -43,13 +43,13 @@ public class SplineTerrain : MonoBehaviour
         normals.enableRandomWrite = true;
         normals.autoGenerateMips = false;
         normals.Create();
-        RenderTexture heightmap = new RenderTexture(size + 1, size + 1, 32, RenderTextureFormat.RFloat);
+        RenderTexture heightmap = new RenderTexture(size + 1, size + 1, 1, RenderTextureFormat.RFloat);
         heightmap.enableRandomWrite = true;
         heightmap.autoGenerateMips = false;
         heightmap.Create();
         for (int n = 0; n < diffusionIterations; n++)
         {
-            l.poissonStep(splines, normals, heightmap, 1, this.height);
+            l.poissonStep(splines, normals, heightmap, 1, this.height *2);
         }
 
         this.heightmap = heightmap;
