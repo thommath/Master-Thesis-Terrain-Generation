@@ -17,10 +17,12 @@ public class TerrainVisualizer : MonoBehaviour
             if (isListeningForChanges)
             {
                 this.gameObject.GetComponent<HydraulicErosion>().updatedData.RemoveListener(fastExport);
+                this.gameObject.GetComponent<SplineTerrain>().updatedData.RemoveListener(fastExport);
             }
             else
             {
                 this.gameObject.GetComponent<HydraulicErosion>().updatedData.AddListener(fastExport);
+                this.gameObject.GetComponent<SplineTerrain>().updatedData.AddListener(fastExport);
             }
             isListeningForChanges = !isListeningForChanges;
         }
@@ -42,11 +44,19 @@ public class TerrainVisualizer : MonoBehaviour
         terrain.terrainData.heightmapResolution = size;
         terrain.terrainData.size = new Vector3(size / zoom, terrainHeight, size / zoom);
 
-        RenderTexture.active = erosion._stateTexture;
-        terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, erosion._stateTexture.width, erosion._stateTexture.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
+        if (this.viewMode == ViewMode.HeightmapNoErosion)
+        {
+            RenderTexture.active = heightmap;
+            terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, heightmap.width, heightmap.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
+        } else
+        {
+            RenderTexture.active = erosion._stateTexture;
+            terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, erosion._stateTexture.width, erosion._stateTexture.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
 
-        terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
-        terrain.materialTemplate.SetTexture("_OriginalTex", heightmap);
+            terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
+            terrain.materialTemplate.SetTexture("_OriginalTex", heightmap);
+        }
+
         
         //RenderTexture.active = erosion._stateTexture;
         //terrain.terrainData.CopyActiveRenderTextureToTexture("_StateTex", 0, new RectInt(0, 0, erosion._stateTexture.width, erosion._stateTexture.height), new Vector2Int(0, 0), false);

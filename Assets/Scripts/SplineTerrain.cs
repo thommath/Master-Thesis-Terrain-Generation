@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-
+using UnityEngine.Events;
 
 public class SplineTerrain : MonoBehaviour
 {
@@ -36,6 +36,10 @@ public class SplineTerrain : MonoBehaviour
     [HideInInspector]
     public RenderTexture normals;
 
+
+    [HideInInspector]
+    public UnityEvent updatedData;
+
     public void runSolver()
     {
         Laplace l = this.GetComponent<Laplace>();
@@ -55,6 +59,7 @@ public class SplineTerrain : MonoBehaviour
         this.heightmap = heightmap;
         this.normals = normals;
 
+        updatedData.Invoke();
         saveState();
     }
 
