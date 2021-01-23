@@ -5,6 +5,8 @@ public class BezierSpline : MonoBehaviour {
 
 	public Vector3[] points;
 
+	public SplineMetaPoint[] metaPoints;
+
 	public bool leftGradientEnabled;
 	public bool rightGradientEnabled;
 
@@ -75,6 +77,16 @@ public class BezierSpline : MonoBehaviour {
 		points[points.Length - 1] = point;
 	}
 	
+	public void AddMetaPoint ()
+	{
+		if (metaPoints == null)
+		{
+			metaPoints = new SplineMetaPoint[0];
+		}
+		Array.Resize(ref metaPoints, metaPoints.Length + 1);
+		metaPoints[metaPoints.Length - 1] = new SplineMetaPoint();
+	}
+
 	public void Reset () {
 		points = new Vector3[] {
 			new Vector3(-20f, 0f, 0f),
@@ -82,6 +94,7 @@ public class BezierSpline : MonoBehaviour {
 			new Vector3(10f, 0f, 0f),
 			new Vector3(20f, 0f, 0f)
 		};
+		metaPoints = new SplineMetaPoint[0];
 	}
 
 
@@ -136,4 +149,14 @@ public class BezierSpline : MonoBehaviour {
 	private void OnDrawGizmosSelected()
 	{
 	}
+
+
+	public Vector2 GetPerpendicular(float t)
+	{
+		Vector3 lastPoint = this.GetPoint(t-0.01f);
+		Vector3 point = this.GetPoint(t+0.01f);
+
+		return Vector2.Perpendicular(new Vector2(lastPoint.x - point.x, lastPoint.z - point.z)).normalized;
+	}
+
 }

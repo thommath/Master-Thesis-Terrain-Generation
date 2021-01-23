@@ -14,12 +14,20 @@ public class BezierSplineInspector : Editor {
 	private Quaternion handleRotation;
 	private int selectedIndex = -1;
 
+	private MetaPointHandle metaHandler;
+
 	public override void OnInspectorGUI () {
 		DrawDefaultInspector();
 		spline = target as BezierSpline;
 		if (GUILayout.Button("Add Curve")) {
 			Undo.RecordObject(spline, "Add Curve");
 			spline.AddCurve();
+			EditorUtility.SetDirty(spline);
+		}
+		if (GUILayout.Button("Add MetaPoint"))
+		{
+			Undo.RecordObject(spline, "Add MetaPoint");
+			spline.AddMetaPoint();
 			EditorUtility.SetDirty(spline);
 		}
 	}
@@ -29,7 +37,9 @@ public class BezierSplineInspector : Editor {
 		handleTransform = spline.transform;
 		handleRotation = Tools.pivotRotation == PivotRotation.Local ?
 			handleTransform.rotation : Quaternion.identity;
-		
+
+		metaHandler = new MetaPointHandle();
+
 		Vector3 p0 = ShowPoint(0);
 		for (int i = 1; i < spline.points.Length; i += 3) {
 			Vector3 p1 = ShowPoint(i);
@@ -44,6 +54,22 @@ public class BezierSplineInspector : Editor {
 			p0 = p3;
 		}
 		ShowDirections();
+
+		if (spline.metaPoints == null)
+		{
+			spline.metaPoints = new SplineMetaPoint[0];
+		}
+
+		for (int i = 0; i < spline.metaPoints.Length; i += 1)
+		{
+			Vector3 p1 = ShowMetaPoint(spline.points.Length + i, spline.metaPoints[i]);
+			// Debug.Log(spline.metaPoints[i].gradientLengthLeft);
+			Vector2 perpendicular = spline.GetPerpendicular(spline.metaPoints[i].position);
+
+			Handles.color = Color.green;
+			Handles.DrawLine(p1, p1 + new Vector3(perpendicular.x, 0, perpendicular.y) * spline.metaPoints[i].gradientLengthLeft);
+			Handles.DrawLine(p1, p1 - new Vector3(perpendicular.x, 0, perpendicular.y) * spline.metaPoints[i].gradientLengthRight);
+		}
 	}
 
 	private void ShowDirections () {
@@ -71,6 +97,54 @@ public class BezierSplineInspector : Editor {
 				Undo.RecordObject(spline, "Move Point");
 				EditorUtility.SetDirty(spline);
 				spline.points[index] = handleTransform.InverseTransformPoint(point);
+			}
+		}
+		return point;
+	}
+
+	private Vector3 ShowMetaPoint(int index, SplineMetaPoint metaPoint)
+	{
+		Vector3 point = spline.GetPoint(metaPoint.position);
+
+		Vector3 dir = spline.GetVelocity(metaPoint.position);
+
+		Vector2 perpendicular = spline.GetPerpendicular(metaPoint.position);
+
+
+		Vector3 gradientRightEnd = point - new Vector3(perpendicular.x, 0, perpendicular.y) * metaPoint.gradientLengthRight;
+		Vector3 gradientLeftEnd = point + new Vector3(perpendicular.x, 0, perpendicular.y) * metaPoint.gradientLengthLeft;
+
+		float size = HandleUtility.GetHandleSize(point);
+		Handles.color = Color.red;
+		if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.CircleCap))
+		{
+			selectedIndex = index;
+		}
+		if (selectedIndex == index)
+		{
+			EditorGUI.BeginChangeCheck();
+
+			Vector3 leftHandlePos = MetaPointHandle.DragHandle(gradientLeftEnd, perpendicular, size, Color.yellow);
+
+			if (EditorGUI.EndChangeCheck())
+			{
+				Undo.RecordObject(spline, "Move MetaPoint");
+				EditorUtility.SetDirty(spline);
+
+				metaPoint.gradientLengthLeft = Vector3.Project(leftHandlePos - point, perpendicular).magnitude;
+			}
+
+			EditorGUI.BeginChangeCheck();
+
+			Vector3 rightHandlePos = MetaPointHandle.DragHandle(gradientRightEnd, -perpendicular, size, Color.yellow);
+
+
+			if (EditorGUI.EndChangeCheck())
+			{
+				Undo.RecordObject(spline, "Move MetaPoint");
+				EditorUtility.SetDirty(spline);
+
+				metaPoint.gradientLengthRight = Vector3.Project(rightHandlePos - point, perpendicular).magnitude;
 			}
 		}
 		return point;
