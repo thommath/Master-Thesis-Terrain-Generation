@@ -100,6 +100,9 @@ public class Laplace : MonoBehaviour
         }
         Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, 0.5f, maxHeight);
 
+        tseedHeightmap.Apply();
+        tseedNormals.Apply();
+        tRestrictions.Apply();
 
         // Create rendertextures
         RenderTexture seedHeightmap;
@@ -229,7 +232,7 @@ public class Laplace : MonoBehaviour
         if (useExr)
         {
             RenderTexture.active = tex;
-            Texture2D tex2D = new Texture2D(tex.width, tex.height, TextureFormat.RGBAHalf, false);
+            Texture2D tex2D = new Texture2D(tex.width, tex.height, TextureFormat.RGBAFloat, false);
             tex2D.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0, false);
             tex2D.Apply();
             RenderTexture.active = null;

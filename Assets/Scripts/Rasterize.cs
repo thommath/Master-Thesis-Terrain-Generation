@@ -25,8 +25,8 @@ using UnityEngine;
         RenderTexture renderTexture = new RenderTexture(heightmap.width, heightmap.height, 32, RenderTextureFormat.ARGBFloat);
         camera.targetTexture = renderTexture;
 
-        float lineWidthMultiplier = 1f;
-
+        Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
+        Color gradientColorEnd = new Color(1f, 0.0f, 0, 1f);
 
         foreach (BezierSpline spline in splines)
         {
@@ -57,13 +57,7 @@ using UnityEngine;
             int[] trianglesLine = new int[(resolution * spline.CurveCount) * 2 * 3];
             Color[] colorsLineHeight = new Color[(resolution * spline.CurveCount + 1) * 2];
             Color[] colorsLineNormals = new Color[(resolution * spline.CurveCount + 1) * 2];
-            Color[] colorsLineRestrictions = new Color[(resolution * spline.CurveCount + 1) * 2];
 
-            Color[] colorsGradientRestrictionsLeft = new Color[(resolution * spline.CurveCount + 1) * 2];
-            Color[] colorsGradientRestrictionsRight = new Color[(resolution * spline.CurveCount + 1) * 2];
-
-            Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
-            Color gradientColorEnd = new Color(1f, 0.0f, 0, 1f);
 
             // How many lines the spline should be cut into
             for (int n = 0; n <= resolution * spline.CurveCount; n++)
@@ -83,14 +77,12 @@ using UnityEngine;
                     perpendicular = Vector2.Perpendicular(new Vector2(lastPoint.x - point.x, lastPoint.z - point.z)).normalized;
                 }
 
-                verteciesLine[n * 2] = point + lineWidthMultiplier * 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                verteciesLine[n * 2 + 1] = point - lineWidthMultiplier * 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                verteciesLine[n * 2] = point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                verteciesLine[n * 2 + 1] = point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
                 colorsLineHeight[n * 2] = new Color(point.y / maxHeight, 0, 0, 1);
                 colorsLineHeight[n * 2 + 1] = new Color(point.y / maxHeight, 0, 0, 1);
                 colorsLineNormals[n * 2] = new Color((1 + perpendicular.x) / 2, (1 + perpendicular.y) / 2, 0.5f);
                 colorsLineNormals[n * 2 + 1] = new Color((1 + perpendicular.x) / 2, (1 + perpendicular.y) / 2, 0.5f);
-                colorsLineRestrictions[n * 2] = new Color(0, 0, 0, 1);
-                colorsLineRestrictions[n * 2 + 1] = new Color(0, 0, 0, 1);
 
                 if (n > 0)
                 {
@@ -108,12 +100,10 @@ using UnityEngine;
 
                 if (spline.rightGradientEnabled)
                 {
-                    verteciesRight[n * 2] = point + lineWidthMultiplier * 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    verteciesRight[n * 2 + 1] = point + lineWidthMultiplier * 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized + spline.gradientLengthRight * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                    verteciesRight[n * 2] = point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                    verteciesRight[n * 2 + 1] = point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized + spline.gradientLengthRight * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
                     colorsRight[n * 2] = new Color(0f, 0f, 0.5f + spline.gradientAngleRight * 0.001f);
                     colorsRight[n * 2 + 1] = new Color(0f, 0f, 0.5f + spline.gradientAngleRight * 0.001f);
-                    colorsGradientRestrictionsRight[n * 2] = gradientColorStart;
-                    colorsGradientRestrictionsRight[n * 2 + 1] = gradientColorEnd;
 
                     if (n > 0)
                     {
@@ -130,12 +120,10 @@ using UnityEngine;
                 }
                 if (spline.leftGradientEnabled)
                 {
-                    verteciesLeft[n * 2] = point - lineWidthMultiplier * 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    verteciesLeft[n * 2 + 1] = point - lineWidthMultiplier * 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized - spline.gradientLengthLeft * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                    verteciesLeft[n * 2] = point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                    verteciesLeft[n * 2 + 1] = point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized - spline.gradientLengthLeft * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
                     colorsLeft[n * 2] = new Color(0f, 0f, 0.5f + spline.gradientAngleLeft * 0.001f);
                     colorsLeft[n * 2 + 1] = new Color(0f, 0f, 0.5f + spline.gradientAngleLeft * 0.001f);
-                    colorsGradientRestrictionsLeft[n * 2] = gradientColorStart;
-                    colorsGradientRestrictionsLeft[n * 2 + 1] = gradientColorEnd;
 
                     if (n > 0)
                     {
@@ -166,162 +154,101 @@ using UnityEngine;
             meshLine.triangles = trianglesLine;
             meshLine.colors = colorsLineHeight;
 
-            splineData.colors = new Color[][] { colorsLineHeight, colorsLineNormals, colorsLineRestrictions };
-            splineData.colorsGradientRestrictionsLeft = colorsGradientRestrictionsLeft;
-            splineData.colorsGradientRestrictionsRight = colorsGradientRestrictionsRight;
-
-            GameObject goR = splineData.goR;
-            goR.layer = 8;
-            goR.transform.parent = camera.gameObject.transform;
-
-            MeshFilter mfR;
-            if (!goR.TryGetComponent(out mfR))
-            {
-                mfR = goR.AddComponent<MeshFilter>();
-            }
-            mfR.mesh = meshRight;
-            MeshRenderer mrR;
-            if (!goR.TryGetComponent(out mrR))
-            {
-                mrR = goR.AddComponent<MeshRenderer>();
-            }
-            mrR.material = new Material(Shader.Find("Sprites/Default"));
-
-
-            GameObject goL = splineData.goL;
-            goL.layer = 8;
-            goL.transform.parent = camera.gameObject.transform;
-
-            MeshFilter mfL;
-            if (!goL.TryGetComponent(out mfL))
-            {
-                mfL = goL.AddComponent<MeshFilter>();
-            }
-            MeshRenderer mrL;
-            if (!goL.TryGetComponent(out mrL))
-            {
-                mrL = goL.AddComponent<MeshRenderer>();
-            }
-            mfL.mesh = meshLeft;
-            mrL.material = new Material(Shader.Find("Sprites/Default"));
-
-
-            GameObject go = splineData.go;
-            go.layer = 10;
-            go.transform.parent = camera.gameObject.transform;
-            MeshFilter mf;
-            if (!go.TryGetComponent(out mf))
-            {
-                mf = go.AddComponent<MeshFilter>();
-            } 
-            MeshRenderer mr;
-            if (!go.TryGetComponent(out mr))
-            {
-                mr = go.AddComponent<MeshRenderer>();
-            }
-            mf.mesh = meshLine;
-            mr.material = new Material(lineShader);
-
+            splineData.colors = new Color[][] { colorsLineHeight };
         }
 
-        // For each size
 
-        // Take one image of the meshes
-        // Take one image of the lines
-        // Convert both to texture 2d
-
-        // Iterate over each pixel in the meshes image
-        // On every not-0 pixel add color to normal and restrictions
-
-        // Iterate over each pixel in the lines image
-        // On every not-0 pixel add color to heightmap, normal and restrictions
-
-        // Then apply and return the results
-        camera.cullingMask = 1 << 9;
-        camera.backgroundColor = new Color(0, 0, 0, 0);
-        camera.Render();
-        saveImage("rasterized_lines_" + heightmap.width, renderTexture);
-
-        RenderTexture.active = renderTexture;
-        heightmap.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0, false);
-
-
-
-        foreach( BezierSpline spline in splines)
-        {
-            RasterizingSplineData data = spline.rasterizingData;
-            data.meshLine.colors = data.colors[1];
-            data.meshLine.MarkModified();
-        }
-        camera.cullingMask = 1 << 8 | 1 << 9;
-        camera.backgroundColor = new Color(0, 0, 0, 0);
-        camera.Render();
-        saveImage("rasterized_gradients_" + heightmap.width, renderTexture);
-
-        RenderTexture.active = renderTexture;
-        normals.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0, false);
-        RenderTexture.active = null;
-
-        /*
-         * If it acts up, this can be enabled to remove miscolors
-        for (int x = 0; x < normals.width; x++)
-        {
-            for (int y = 0; y < normals.height; y++)
-            {
-                Color c = normals.GetPixel(x, y);
-                if (0.3f > c.b || c.b > 0.7f)
-                {
-                    normals.SetPixel(x, y, new Color(0.0f, 0.0f, 0f, 0f));
-                }
-            }
-        }
-        */
+        Color[] seed = new Color[heightmap.width * heightmap.height];
+        Color[] restriction = new Color[heightmap.width * heightmap.height];
+        Color[] normal = new Color[heightmap.width * heightmap.height];
+        ushort[] counter = new ushort[heightmap.width * heightmap.height];
 
         foreach (BezierSpline spline in splines)
         {
             RasterizingSplineData data = spline.rasterizingData;
-            data.meshLine.colors = data.colors[2];
-            data.meshLeft.colors = data.colorsGradientRestrictionsLeft;
-            data.meshRight.colors = data.colorsGradientRestrictionsRight;
-            data.meshRight.MarkModified();
-            data.meshLine.MarkModified();
-            data.meshLeft.MarkModified();
-        }
-        camera.cullingMask = 1 << 8 | 1 << 9;
-        camera.backgroundColor = new Color(1, 0, 0, 0);
-        camera.Render();
-        saveImage("rasterized_restrictions_" + heightmap.width, renderTexture);
 
-        RenderTexture.active = renderTexture;
-        restrictions.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0, false);
-        RenderTexture.active = null;
+            // Rasterize Shoulders
+            int[][] indices = { data.meshLeft.triangles, data.meshRight.triangles };
+            Vector3[][] vertices = { data.meshLeft.vertices, data.meshRight.vertices };
+            Color[][] vertColors = { data.meshLeft.colors, data.meshRight.colors };
 
-        for(int x = 0; x < restrictions.width; x++)
-        {
-            for(int y = 0; y < restrictions.height; y++)
+            for (int item = 0; item < indices.Length; item += 1)
             {
-                Color c = restrictions.GetPixel(x, y);
-                if (c.a == 1)
+                for (int n = 0; n < indices[item].Length; n += 3)
                 {
-                    Vector2 v = new Vector2(c.r, c.g).normalized;
-                    restrictions.SetPixel(x, y, new Color(v.x* v.x, v.y* v.y, 0, 1f));
+                    foreach (PixelData pixel in TriangleRenderer.RasterizeTriangle(heightmap.width, heightmap.height,
+                        new Vector2(128 + vertices[item][indices[item][n]].x, 128 + vertices[item][indices[item][n]].z) / (256f / heightmap.width),
+                        new Vector2(128 + vertices[item][indices[item][n + 1]].x, 128 + vertices[item][indices[item][n + 1]].z) / (256f / heightmap.width),
+                        new Vector2(128 + vertices[item][indices[item][n + 2]].x, 128 + vertices[item][indices[item][n + 2]].z) / (256f / heightmap.width)))
+                    {
+                        counter[pixel.position] += 1;
+
+                        Color[] currentColorForRestriction =
+                        {
+                            indices[item][n] % 2 == 0 ? gradientColorStart : gradientColorEnd,
+                            indices[item][n+1] % 2 == 0 ? gradientColorStart : gradientColorEnd,
+                            indices[item][n+2] % 2 == 0 ? gradientColorStart : gradientColorEnd
+                        };
+                        restriction[pixel.position] = pixel.getColor(currentColorForRestriction[0], currentColorForRestriction[1], currentColorForRestriction[2]);
+
+                        normal[pixel.position] = pixel.getColor(
+                            vertColors[item][indices[item][n]],
+                            vertColors[item][indices[item][n + 1]],
+                            vertColors[item][indices[item][n + 2]]);
+                        
+                    }
+                }
+            }
+
+            // Rasterize lines
+            indices = new int[][]{ data.meshLine.triangles };
+            vertices = new Vector3[][] { data.meshLine.vertices };
+            vertColors = new Color[][] { data.meshLine.colors };
+
+            for (int item = 0; item < indices.Length; item += 1)
+            {
+                for (int n = 0; n < indices[item].Length; n += 3)
+                {
+                    foreach (PixelData pixel in TriangleRenderer.RasterizeTriangle(heightmap.width, heightmap.height,
+                        new Vector2(128 + vertices[item][indices[item][n]].x, 128 + vertices[item][indices[item][n]].z) / (256f / heightmap.width),
+                        new Vector2(128 + vertices[item][indices[item][n + 1]].x, 128 + vertices[item][indices[item][n + 1]].z) / (256f / heightmap.width),
+                        new Vector2(128 + vertices[item][indices[item][n + 2]].x, 128 + vertices[item][indices[item][n + 2]].z) / (256f / heightmap.width)))
+                    {
+                        counter[pixel.position] = 1;
+
+                        seed[pixel.position] = pixel.getColor(vertColors[item][indices[item][n]],
+                            vertColors[item][indices[item][n + 1]],
+                            vertColors[item][indices[item][n + 2]]);
+
+                        if (pixel.getColor(vertColors[item][indices[item][n]],
+                            vertColors[item][indices[item][n + 1]],
+                            vertColors[item][indices[item][n + 2]]).r < 3f / maxHeight)
+                        {
+                            Debug.LogError("Pixel height is 0 at position " + pixel.position.ToString());
+                        }
+
+                        // seed[pixel.position] = vertColors[item][indices[item][n+2]];
+
+                        restriction[pixel.position] = new Color(0, 0, 0, 1);
+                    }
                 }
             }
         }
-        Graphics.Blit(restrictions, renderTexture);
-        saveImage("rasterized_restrictions_" + heightmap.width, renderTexture);
+        
 
-
-
-        heightmap.Apply();
-        normals.Apply();
-        restrictions.Apply();
-
-
-        /*foreach (Transform child in camera.gameObject.transform)
+        for(int n = 0; n < restriction.Length; n += 1)
         {
-            Object.Destroy(child.gameObject);
-        }*/
+
+            if (counter[n] != 1)
+            {
+                restriction[n] = new Color(1, 0, 0, 1);
+                normal[n] = new Color(0, 0, 0, 0);
+            }
+        }
+
+        heightmap.SetPixels(0, 0, heightmap.width, heightmap.height, seed);
+        restrictions.SetPixels(0, 0, heightmap.width, heightmap.height, restriction);
+        normals.SetPixels(0, 0, heightmap.width, heightmap.height, normal);
     }
 
 
@@ -399,12 +326,13 @@ using UnityEngine;
         {
             for (int y = 0; y < normals.height; y++)
             {
-                if (heightValues[x, y, 1] > 0)
+                Color oldSeedColor = heightmap.GetPixel(x, y);
+                if (oldSeedColor.r == 0)
                 {
                     heightColors[x + y*normals.width] = new Color(heightValues[x, y, 0] / heightValues[x, y, 1], 0, 0, 1);
                 } else
                 {
-                    heightColors[x + y * normals.width] = defaultHeightmap;
+                    heightColors[x + y * normals.width] = oldSeedColor;
                 }
             }
         }
@@ -429,9 +357,6 @@ using UnityEngine;
         normals.SetPixels(0, 0, normals.width, normals.height, normalColors);
 
 
-        heightmap.Apply();
-        normals.Apply();
-        restrictions.Apply();
     }
 
     /**

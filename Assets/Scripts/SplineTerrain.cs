@@ -43,7 +43,7 @@ public class SplineTerrain : MonoBehaviour
         normals.enableRandomWrite = true;
         normals.autoGenerateMips = false;
         normals.Create();
-        RenderTexture heightmap = new RenderTexture(size + 1, size + 1, 1, RenderTextureFormat.RFloat);
+        RenderTexture heightmap = new RenderTexture(size + 1, size + 1, 1, RenderTextureFormat.ARGBFloat);
         heightmap.enableRandomWrite = true;
         heightmap.autoGenerateMips = false;
         heightmap.Create();

@@ -22,12 +22,12 @@ MonoBehaviour:
   DepositionRate: 0.506
   AddWater: 1
   Evaporation: 0.024
-  MaxRainIntensity: 0.204
-  MinRainIntensity: 0.114
-  MaxRainSize: 9.39
-  MinRainSize: 6.22
-  RainFrequency: 0.011
-  StopRainAfterTime: 10
+  MaxRainIntensity: 0.114
+  MinRainIntensity: 0.078
+  MaxRainSize: 8.42
+  MinRainSize: 7.41
+  RainFrequency: 0.001
+  StopRainAfterTime: 20
   RandomizedRain: 1
-  TimeDelta: 0.0134
-  IterationsEachStep: 483
+  TimeDelta: 0.0106
+  IterationsEachStep: 213
