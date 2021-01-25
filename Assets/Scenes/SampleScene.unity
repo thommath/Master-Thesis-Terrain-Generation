@@ -1139,12 +1139,23 @@ MonoBehaviour:
   - {x: -84.76474, y: 48.92131, z: -6.206314}
   - {x: -85.312874, y: 18.613014, z: -75.196304}
   metaPoints:
-  - position: 0.48
-    testPos: {x: 11.125826, y: 89.519554, z: 19.4}
-    lineRadius: 0
-    gradientLengthLeft: 5.112451
+  - position: 0.1
+    lineRadius: 1.9966922
+    gradientLengthLeft: 3.4479547
+    gradientAngleLeft: -1.3248501
+    gradientLengthRight: 2.5108712
+    gradientAngleRight: 1.1592693
+  - position: 1
+    lineRadius: 3.7223427
+    gradientLengthLeft: 9.905195
+    gradientAngleLeft: -4.551857
+    gradientLengthRight: 8.353701
+    gradientAngleRight: -4.791916
+  - position: 1.9
+    lineRadius: 2.1478162
+    gradientLengthLeft: 0.8747753
     gradientAngleLeft: 0
-    gradientLengthRight: 11.391308
+    gradientLengthRight: 0.9490154
     gradientAngleRight: 0
   leftGradientEnabled: 0
   rightGradientEnabled: 1

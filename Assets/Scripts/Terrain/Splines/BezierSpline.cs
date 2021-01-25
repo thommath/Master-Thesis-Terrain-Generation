@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 public class BezierSpline : MonoBehaviour {
 
@@ -162,6 +163,58 @@ public class BezierSpline : MonoBehaviour {
 	public float metaGetTime(int metaIndex)
 	{
 		return this.metaPoints[metaIndex].getSplineTime(this.CurveCount);
+	}
+
+	public List<SplineMetaPoint> getSortedMetaPoints()
+	{
+		List<SplineMetaPoint> list = new List<SplineMetaPoint>(metaPoints);
+		list.Sort((x, y) => x.position.CompareTo(y.position));
+		return list;
+	}
+
+	public SplineMetaPoint getMetaPointInterpolated(float time)
+	{
+		SplineMetaPoint last = null;
+		foreach(SplineMetaPoint metaPoint in getSortedMetaPoints())
+		{
+			if (last == null)
+			{
+				last = metaPoint;
+			}
+
+			float metaPointTime = metaPoint.getSplineTime(CurveCount);
+			if (time < metaPointTime)
+			{
+				if (last == metaPoint)
+				{
+					SplineMetaPoint point = new SplineMetaPoint();
+					point.position = time * CurveCount;
+					point.lineRadius = last.lineRadius;
+					point.gradientLengthLeft = last.gradientLengthLeft;
+					point.gradientAngleLeft = last.gradientAngleLeft;
+					point.gradientLengthRight = last.gradientLengthRight;
+					point.gradientAngleRight = last.gradientAngleRight;
+					return point;
+				}
+
+				float t = (time - last.getSplineTime(CurveCount)) / (metaPointTime - last.getSplineTime(CurveCount));
+
+				return SplineMetaPoint.Lerp(last, metaPoint, t);
+			}
+
+			last = metaPoint;
+		}
+		{
+			SplineMetaPoint point = new SplineMetaPoint();
+			point.position = time * CurveCount;
+			point.lineRadius = last.lineRadius;
+			point.gradientLengthLeft = last.gradientLengthLeft;
+			point.gradientAngleLeft = last.gradientAngleLeft;
+			point.gradientLengthRight = last.gradientLengthRight;
+			point.gradientAngleRight = last.gradientAngleRight;
+
+			return point;
+		}
 	}
 
 }

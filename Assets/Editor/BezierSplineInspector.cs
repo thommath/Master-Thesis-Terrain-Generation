@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(BezierSpline))]
@@ -63,7 +64,10 @@ public class BezierSplineInspector : Editor {
 		for (int i = 0; i < spline.metaPoints.Length; i += 1)
 		{
 			Vector3 p1 = ShowMetaPoint(spline.points.Length + i, spline.metaPoints[i]);
+
 			// Debug.Log(spline.metaPoints[i].gradientLengthLeft);
+
+			/*
 			Vector2 perpendicular = spline.GetPerpendicular(spline.metaGetTime(i));
 			Vector3 perendicular3D = new Vector3(perpendicular.x, 0, perpendicular.y);
 
@@ -74,8 +78,66 @@ public class BezierSplineInspector : Editor {
 			Handles.color = Color.blue;
 			Handles.DrawLine(p1, p1 + perendicular3D * spline.metaPoints[i].lineRadius);
 			Handles.DrawLine(p1, p1 - perendicular3D * spline.metaPoints[i].lineRadius);
-
+			*/
+			DrawMetaPoint(spline.metaPoints[i]);
 		}
+		if (spline.metaPoints.Length > 0)
+		{
+			DrawMetaPoint(spline.getMetaPointInterpolated(0));
+			DrawMetaPoint(spline.getMetaPointInterpolated(1));
+		}
+
+		float last = 0;
+		float maxStepSize = 0.05f;
+		List<SplineMetaPoint> metaPoints = spline.getSortedMetaPoints();
+		for (int i = 0; i <= metaPoints.Count; i += 1)
+		{
+			SplineMetaPoint metaPoint;
+			if (metaPoints.Count == i)
+			{
+				metaPoint = spline.getMetaPointInterpolated(1);
+			}
+			else
+			{
+				metaPoint = metaPoints[i];
+			}
+
+			while (last < metaPoint.getSplineTime(spline.CurveCount))
+			{
+				float current = Mathf.Min(metaPoint.getSplineTime(spline.CurveCount), last + maxStepSize);
+
+				SplineMetaPoint startPoint = spline.getMetaPointInterpolated(last);
+				SplineMetaPoint endPoint = spline.getMetaPointInterpolated(current);
+
+
+				Handles.color = Color.blue;
+				Handles.DrawLine(startPoint.getLineLeftEnd(spline), endPoint.getLineLeftEnd(spline));
+				Handles.DrawLine(startPoint.getLineRightEnd(spline), endPoint.getLineRightEnd(spline));
+				Handles.DrawLine(startPoint.getPoint(spline), endPoint.getLineLeftEnd(spline));
+				Handles.DrawLine(startPoint.getPoint(spline), endPoint.getLineRightEnd(spline));
+
+				Handles.color = Color.green;
+				Handles.DrawLine(startPoint.getGradientLeftEnd(spline), endPoint.getGradientLeftEnd(spline));
+				Handles.DrawLine(startPoint.getGradientRightEnd(spline), endPoint.getGradientRightEnd(spline));
+				Handles.DrawLine(startPoint.getLineLeftEnd(spline), endPoint.getGradientLeftEnd(spline));
+				Handles.DrawLine(startPoint.getLineRightEnd(spline), endPoint.getGradientRightEnd(spline));
+
+				DrawMetaPoint(spline.getMetaPointInterpolated(current));
+
+				last = current;
+			}
+		}
+	}
+
+	private void DrawMetaPoint(SplineMetaPoint metaPoint)
+	{
+		Handles.color = Color.green;
+		Handles.DrawLine(metaPoint.getLineLeftEnd(spline), metaPoint.getGradientLeftEnd(spline));
+		Handles.DrawLine(metaPoint.getLineRightEnd(spline), metaPoint.getGradientRightEnd(spline));
+
+		Handles.color = Color.blue;
+		Handles.DrawLine(metaPoint.getPoint(spline), metaPoint.getLineLeftEnd(spline));
+		Handles.DrawLine(metaPoint.getPoint(spline), metaPoint.getLineRightEnd(spline));
 	}
 
 	private void ShowDirections () {
@@ -110,20 +172,19 @@ public class BezierSplineInspector : Editor {
 
 	private Vector3 ShowMetaPoint(int index, SplineMetaPoint metaPoint)
 	{
-		Vector3 point = spline.GetPoint(metaPoint.getSplineTime(spline.CurveCount));
-		Vector3 dir = spline.GetVelocity(metaPoint.getSplineTime(spline.CurveCount));
+		Vector3 point = metaPoint.getPoint(spline);
 		Vector2 perpendicular = spline.GetPerpendicular(metaPoint.getSplineTime(spline.CurveCount));
-		Vector3 perendicular3D = new Vector3(perpendicular.x, 0, perpendicular.y);
+		Vector3 perendicular3D = metaPoint.getPerpendicular3D(spline);
 
-		Vector3 lineRightEnd = point - perendicular3D * metaPoint.lineRadius;
-		Vector3 lineLeftEnd = point + perendicular3D * metaPoint.lineRadius;
+		Vector3 lineRightEnd = metaPoint.getLineRightEnd(spline);
+		Vector3 lineLeftEnd = metaPoint.getLineLeftEnd(spline);
 
-		Vector3 gradientRightEnd = lineRightEnd - perendicular3D * metaPoint.gradientLengthRight + metaPoint.gradientAngleRight * Vector3.up;
-		Vector3 gradientLeftEnd = lineLeftEnd + perendicular3D * metaPoint.gradientLengthLeft + metaPoint.gradientAngleLeft * Vector3.up;
+		Vector3 gradientRightEnd = metaPoint.getGradientRightEnd(spline);
+		Vector3 gradientLeftEnd = metaPoint.getGradientLeftEnd(spline);
 
 		float size = HandleUtility.GetHandleSize(point);
 		Handles.color = Color.red;
-		if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.CircleCap))
+		if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.DotCap))
 		{
 			selectedIndex = index;
 		}
