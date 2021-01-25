@@ -27,6 +27,8 @@ using UnityEngine;
 
         Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
         Color gradientColorEnd = new Color(1f, 0.0f, 0, 1f);
+        //Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
+        //Color gradientColorEnd = new Color(0.5f, 0.5f, 0, 1f);
 
         foreach (BezierSpline spline in splines)
         {
@@ -56,7 +58,6 @@ using UnityEngine;
             Vector3[] verteciesLine = new Vector3[(resolution * spline.CurveCount + 1) * 2];
             int[] trianglesLine = new int[(resolution * spline.CurveCount) * 2 * 3];
             Color[] colorsLineHeight = new Color[(resolution * spline.CurveCount + 1) * 2];
-            Color[] colorsLineNormals = new Color[(resolution * spline.CurveCount + 1) * 2];
 
 
             // How many lines the spline should be cut into
@@ -66,23 +67,12 @@ using UnityEngine;
                 float distOnSpline = (1f * n) / (resolution);
 
                 Vector3 point = spline.GetPoint(distOnSpline);
-                Vector2 perpendicular;
-                if (lastPoint == Vector3.zero)
-                {
-                    Vector3 nextPoint = spline.GetPoint((1f * n + 1) / (resolution));
-                    perpendicular = Vector2.Perpendicular(new Vector2(point.x - nextPoint.x, point.z - nextPoint.z)).normalized;
-                }
-                else
-                {
-                    perpendicular = Vector2.Perpendicular(new Vector2(lastPoint.x - point.x, lastPoint.z - point.z)).normalized;
-                }
+                SplineMetaPoint metaPoint = spline.getMetaPointInterpolated(distOnSpline);
 
-                verteciesLine[n * 2] = point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                verteciesLine[n * 2 + 1] = point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                verteciesLine[n * 2] = metaPoint.getLineLeftEnd(spline);// point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                verteciesLine[n * 2 + 1] = metaPoint.getLineRightEnd(spline); //point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
                 colorsLineHeight[n * 2] = new Color(point.y / maxHeight, 0, 0, 1);
                 colorsLineHeight[n * 2 + 1] = new Color(point.y / maxHeight, 0, 0, 1);
-                colorsLineNormals[n * 2] = new Color((1 + perpendicular.x) / 2, (1 + perpendicular.y) / 2, 0.5f);
-                colorsLineNormals[n * 2 + 1] = new Color((1 + perpendicular.x) / 2, (1 + perpendicular.y) / 2, 0.5f);
 
                 if (n > 0)
                 {
@@ -97,13 +87,11 @@ using UnityEngine;
                     trianglesLine[n * 2 * 3 + 1] = n * 2 + 1;
                 }
 
-
-                if (spline.rightGradientEnabled)
                 {
-                    verteciesRight[n * 2] = point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    verteciesRight[n * 2 + 1] = point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized + spline.gradientLengthRight * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    colorsRight[n * 2] = new Color(0f, 0f, 0.5f + spline.gradientAngleRight * 0.001f);
-                    colorsRight[n * 2 + 1] = new Color(0f, 0f, 0.5f + spline.gradientAngleRight * 0.001f);
+                    verteciesRight[n * 2] = metaPoint.getLineRightEnd(spline); //point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                    verteciesRight[n * 2 + 1] = metaPoint.getGradientRightEnd(spline); //point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized + spline.gradientLengthRight * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                    colorsRight[n * 2] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleRight / metaPoint.gradientLengthRight) / maxHeight);
+                    colorsRight[n * 2 + 1] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleRight / metaPoint.gradientLengthRight) / maxHeight);
 
                     if (n > 0)
                     {
@@ -118,12 +106,11 @@ using UnityEngine;
                         trianglesRight[n * 2 * 3 + 2] = n * 2 + 1;
                     }
                 }
-                if (spline.leftGradientEnabled)
                 {
-                    verteciesLeft[n * 2] = point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    verteciesLeft[n * 2 + 1] = point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized - spline.gradientLengthLeft * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    colorsLeft[n * 2] = new Color(0f, 0f, 0.5f + spline.gradientAngleLeft * 0.001f);
-                    colorsLeft[n * 2 + 1] = new Color(0f, 0f, 0.5f + spline.gradientAngleLeft * 0.001f);
+                    verteciesLeft[n * 2] = metaPoint.getLineLeftEnd(spline); //point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                    verteciesLeft[n * 2 + 1] = metaPoint.getGradientLeftEnd(spline); // point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized - spline.gradientLengthLeft * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
+                    colorsLeft[n * 2] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleLeft / metaPoint.gradientLengthLeft) / maxHeight);
+                    colorsLeft[n * 2 + 1] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleLeft / metaPoint.gradientLengthLeft) / maxHeight);
 
                     if (n > 0)
                     {
@@ -138,8 +125,6 @@ using UnityEngine;
                         trianglesLeft[n * 2 * 3 + 1] = n * 2 + 1;
                     }
                 }
-
-                lastPoint = point;
             }
 
             meshRight.vertices = verteciesRight;

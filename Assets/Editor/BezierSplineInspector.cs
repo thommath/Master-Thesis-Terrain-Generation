@@ -191,33 +191,32 @@ public class BezierSplineInspector : Editor {
 
 		if (selectedIndex == index)
 		{
-
 			EditorGUI.BeginChangeCheck();
-			Vector3 leftLineHandlePos = MetaPointHandle.DragHandle(lineLeftEnd, perpendicular, size, Color.blue);
+			Vector3 leftLineHandlePos = MetaPointHandle.DragHandle(lineLeftEnd, perendicular3D, size, Color.blue);
 			if (EditorGUI.EndChangeCheck())
 			{
 				Undo.RecordObject(spline, "Move MetaPoint");
 				EditorUtility.SetDirty(spline);
-				metaPoint.lineRadius = Vector3.Project(leftLineHandlePos - point, perpendicular).magnitude;
+				metaPoint.lineRadius = Vector3.Project(leftLineHandlePos - point, perendicular3D).magnitude;
 			}
 
 
 			EditorGUI.BeginChangeCheck();
-			Vector3 leftHandlePos = MetaPointHandle.DragHandle(gradientLeftEnd, perpendicular, size, Color.yellow);
+			Vector3 leftHandlePos = MetaPointHandle.DragHandle(gradientLeftEnd, perendicular3D, size, Color.yellow);
 			if (EditorGUI.EndChangeCheck())
 			{
 				Undo.RecordObject(spline, "Move MetaPoint");
 				EditorUtility.SetDirty(spline);
-				metaPoint.gradientLengthLeft = Vector3.Project(leftHandlePos - lineLeftEnd, perpendicular).magnitude;
+				metaPoint.gradientLengthLeft = Vector3.Project(leftHandlePos - lineLeftEnd, perendicular3D).magnitude;
 			}
 
 			EditorGUI.BeginChangeCheck();
-			Vector3 rightHandlePos = MetaPointHandle.DragHandle(gradientRightEnd, -perpendicular, size, Color.yellow);
+			Vector3 rightHandlePos = MetaPointHandle.DragHandle(gradientRightEnd, -perendicular3D, size, Color.yellow);
 			if (EditorGUI.EndChangeCheck())
 			{
 				Undo.RecordObject(spline, "Move MetaPoint");
 				EditorUtility.SetDirty(spline);
-				metaPoint.gradientLengthRight = Vector3.Project(rightHandlePos - lineRightEnd, perpendicular).magnitude;
+				metaPoint.gradientLengthRight = Vector3.Project(rightHandlePos - lineRightEnd, perendicular3D).magnitude;
 			}
 
 

@@ -9,12 +9,12 @@ public class SplineMetaPoint
 
 	public float lineRadius = 0;
 
-	public float gradientLengthLeft = 1;
+	public float gradientLengthLeft = 0;
 	public float gradientAngleLeft = 0;
 
-	public float gradientLengthRight = 1;
+	public float gradientLengthRight = 0;
 	public float gradientAngleRight = 0;
-
+	
 	public static SplineMetaPoint Lerp(SplineMetaPoint a, SplineMetaPoint b, float t)
 	{
 		SplineMetaPoint point = new SplineMetaPoint();

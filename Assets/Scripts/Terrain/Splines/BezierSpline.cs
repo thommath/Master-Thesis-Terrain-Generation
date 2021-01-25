@@ -174,6 +174,11 @@ public class BezierSpline : MonoBehaviour {
 
 	public SplineMetaPoint getMetaPointInterpolated(float time)
 	{
+		if (metaPoints.Length == 0)
+		{
+			return new SplineMetaPoint();
+		}
+
 		SplineMetaPoint last = null;
 		foreach(SplineMetaPoint metaPoint in getSortedMetaPoints())
 		{
