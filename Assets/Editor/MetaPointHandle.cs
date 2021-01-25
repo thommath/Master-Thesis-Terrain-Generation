@@ -54,14 +54,14 @@ public class MetaPointHandle
                     
                     position = Handles.matrix.inverse.MultiplyPoint(Camera.current.ScreenToWorldPoint(position2));
                     
-
+                    /*
                     if (Camera.current.transform.forward == Vector3.forward || Camera.current.transform.forward == -Vector3.forward)
                         position.z = s_DragHandleWorldStart.z;
                     if (Camera.current.transform.forward == Vector3.up || Camera.current.transform.forward == -Vector3.up)
                         position.y = s_DragHandleWorldStart.y;
                     if (Camera.current.transform.forward == Vector3.right || Camera.current.transform.forward == -Vector3.right)
                         position.x = s_DragHandleWorldStart.x;
-
+                        */
                     position = Vector3.Project(position - s_DragHandleWorldStart, direction) + s_DragHandleWorldStart;
 
                     s_DragHandleHasMoved = true;
@@ -85,7 +85,7 @@ public class MetaPointHandle
 
             case EventType.Layout:
                 Handles.matrix = Matrix4x4.identity;
-                HandleUtility.AddControl(id, HandleUtility.DistanceToCircle(screenPosition, handleSize));
+                HandleUtility.AddControl(id, HandleUtility.DistanceToLine(position, position + direction * handleSize) / 2f);
                 Handles.matrix = cachedMatrix;
                 break;
         }

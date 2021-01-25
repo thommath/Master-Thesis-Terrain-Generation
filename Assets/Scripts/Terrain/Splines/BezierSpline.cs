@@ -159,4 +159,9 @@ public class BezierSpline : MonoBehaviour {
 		return Vector2.Perpendicular(new Vector2(lastPoint.x - point.x, lastPoint.z - point.z)).normalized;
 	}
 
+	public float metaGetTime(int metaIndex)
+	{
+		return this.metaPoints[metaIndex].getSplineTime(this.CurveCount);
+	}
+
 }
