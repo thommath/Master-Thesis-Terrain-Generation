@@ -35,6 +35,8 @@ public class SplineTerrain : MonoBehaviour
     public RenderTexture heightmap;
     [HideInInspector]
     public RenderTexture normals;
+    [HideInInspector]
+    public RenderTexture noise;
 
 
     [HideInInspector]
@@ -51,13 +53,42 @@ public class SplineTerrain : MonoBehaviour
         heightmap.enableRandomWrite = true;
         heightmap.autoGenerateMips = false;
         heightmap.Create();
+        RenderTexture noise = new RenderTexture(size + 1, size + 1, 1, RenderTextureFormat.ARGBFloat);
+        noise.enableRandomWrite = true;
+        noise.autoGenerateMips = false;
+        noise.Create();
+        RenderTexture noiseSeed = new RenderTexture(size + 1, size + 1, 1, RenderTextureFormat.ARGBFloat);
+        noiseSeed.enableRandomWrite = true;
+        noiseSeed.autoGenerateMips = false;
+        noiseSeed.Create();
+        RenderTexture result = new RenderTexture(size + 1, size + 1, 1, RenderTextureFormat.ARGBFloat);
+        result.enableRandomWrite = true;
+        result.autoGenerateMips = false;
+        result.Create();
         for (int n = 0; n < diffusionIterations; n++)
         {
-            l.poissonStep(splines, normals, heightmap, 1, this.height *2);
+            l.poissonStep(splines, normals, heightmap, noiseSeed, 1, this.height *2);
         }
 
-        this.heightmap = heightmap;
+
+
+        RenderTexture.active = noiseSeed;
+        Texture2D tNoiseSeed = new Texture2D(noiseSeed.width, noiseSeed.height, TextureFormat.RGBAFloat, false);
+        tNoiseSeed.ReadPixels(new Rect(0, 0, noiseSeed.width, noiseSeed.height), 0, 0, false);
+        tNoiseSeed.Apply();
+        RenderTexture.active = null;
+
+        Texture2D noiset = new Texture2D(noise.width, noise.height, TextureFormat.RGBAFloat, false);
+        Noise.CalcNoise(noiset, tNoiseSeed, Vector2.zero, 20f);
+
+        Graphics.Blit(noiset, noise);
+
+        l.SumTwoTextures(result, heightmap, noise, 1, 0, 0.1f, 0f);
+
+
+        this.heightmap = result;
         this.normals = normals;
+        this.noise = noise;
 
         updatedData.Invoke();
         saveState();
@@ -67,6 +98,7 @@ public class SplineTerrain : MonoBehaviour
     {
         saveImage("_normals", normals);
         saveImage("_heightmap", heightmap, TextureFormat.RFloat);
+        saveImage("_noise", noise);
     }
     private void loadState()
     {

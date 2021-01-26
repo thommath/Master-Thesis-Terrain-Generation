@@ -39,7 +39,7 @@ public class Laplace : MonoBehaviour
      * normals and result are approximations of the result. Can be whatever - are used to improve solution over multiple iterations
      * 
      */
-    public void poissonStep(BezierSpline[] splines, RenderTexture normals, RenderTexture heightmap, int h, int maxHeight)
+    public void poissonStep(BezierSpline[] splines, RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int maxHeight)
     {
         // Break on 1
         if (normals.width == 1 || normals.width == 9)
@@ -56,14 +56,16 @@ public class Laplace : MonoBehaviour
 
         // Create smaller versions of all the textures
         RenderTexture smallerNormals = createRenderTexture(size, 0, normals.depth, normals.format);
-        RenderTexture smallerHeightmap = createRenderTexture(smallerNormals.width, 1, heightmap.depth, heightmap.format);
+        RenderTexture smallerHeightmap = createRenderTexture(size, 0, heightmap.depth, heightmap.format);
+        RenderTexture smallerNoise = createRenderTexture(size, 0, noise.depth, noise.format);
 
         // Restrict textures to smaller versions
         Restrict(normals, smallerNormals);
         Restrict(heightmap, smallerHeightmap);
+        Restrict(noise, smallerNoise);
 
         // Solve recursively
-        poissonStep(splines, smallerNormals, smallerHeightmap, h + 1, maxHeight);
+        poissonStep(splines, smallerNormals, smallerHeightmap, smallerNoise, h + 1, maxHeight);
 
         // Set variables
         laplace.SetFloat("h", Mathf.Pow(2, h));
@@ -86,7 +88,8 @@ public class Laplace : MonoBehaviour
             }
         }
         Texture2D tseedNormals = new Texture2D(normals.width, normals.height, TextureFormat.RGBAFloat, false);
-        
+        Texture2D tNoise = new Texture2D(normals.width, normals.height, TextureFormat.RGBAFloat, false);
+
         // Rasterize splines
         Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, 0.5f, maxHeight, rasterizeCamera, lineShader);
 
@@ -98,11 +101,12 @@ public class Laplace : MonoBehaviour
                 tseedNormals.SetPixel(x, y, new Color(0, 0, c.b, 0));
             }
         }
-        Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, 0.5f, maxHeight);
+        Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, tNoise, 0.5f, maxHeight);
 
         tseedHeightmap.Apply();
         tseedNormals.Apply();
         tRestrictions.Apply();
+        tNoise.Apply();
 
         // Create rendertextures
         RenderTexture seedHeightmap;
@@ -110,15 +114,20 @@ public class Laplace : MonoBehaviour
         seedHeightmap.enableRandomWrite = true;
         seedHeightmap.autoGenerateMips = false;
         seedHeightmap.Create();
+        RenderTexture seedNoise;
+        seedNoise = new RenderTexture(noise.width, noise.width, 1, noise.format);
+        seedNoise.enableRandomWrite = true;
+        seedNoise.autoGenerateMips = false;
+        seedNoise.Create();
 
         RenderTexture seedNormals = createRenderTexture(normals.width, 0, 1);
-        // RenderTexture seedHeightmap = createRenderTexture(heightmap.width, 0, 32);
         RenderTexture restrictions = createRenderTexture(heightmap.width, 0, 1);
 
         // Copy to rendertextures
         Graphics.Blit(tseedHeightmap, seedHeightmap);
         Graphics.Blit(tseedNormals, seedNormals);
         Graphics.Blit(tRestrictions, restrictions);
+        Graphics.Blit(tNoise, seedNoise);
 
 
         // Solve the poisson equation for normals
@@ -127,6 +136,13 @@ public class Laplace : MonoBehaviour
         saveImage("normals " + h + " pre", normals);
         Relaxation(seedNormals, normals, 12*(8-h));
         saveImage("normals " + h + " post", normals);
+
+        // Solve the poisson equation for noise
+        saveImage("noise " + h + " seed", seedNoise);
+        Interpolate(smallerNoise, noise);
+        saveImage("noise " + h + " pre", normals);
+        Relaxation(seedNoise, noise, 12 * (8 - h));
+        saveImage("noise " + h + " post", noise);
 
         // Solve poisson equation for the terrain
         Interpolate(smallerHeightmap, heightmap);
@@ -224,6 +240,19 @@ public class Laplace : MonoBehaviour
             laplace.Dispatch(RestrictedSmoothingKernelHandle, image.width, image.height, 1);
         }
     }
+    public void SumTwoTextures(RenderTexture image, RenderTexture input1, RenderTexture input2, float input1_weight, float input1_bias, float input2_weight, float input2_bias)
+    {
+        int SumTwoTextures = laplace.FindKernel("SumTwoTextures");
+        laplace.SetTexture(SumTwoTextures, "result", image);
+        laplace.SetTexture(SumTwoTextures, "input1", input1);
+        laplace.SetTexture(SumTwoTextures, "input2", input2);
+        laplace.SetFloat("input1_weight", input1_weight);
+        laplace.SetFloat("input2_weight", input2_weight);
+        laplace.SetFloat("input1_bias", input1_bias);
+        laplace.SetFloat("input2_bias", input2_bias);
+        laplace.Dispatch(SumTwoTextures, image.width, image.height, 1);
+    }
+
 
     private void saveImage(string name, RenderTexture tex, bool useExr = false)
     {

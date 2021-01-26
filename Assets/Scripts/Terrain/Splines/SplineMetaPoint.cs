@@ -14,6 +14,11 @@ public class SplineMetaPoint
 
 	public float gradientLengthRight = 0;
 	public float gradientAngleRight = 0;
+
+	[Range(0, 1f)]
+	public float noiseAmplitude = 0;
+	[Range(0, 1f)]
+	public float noiseRoughness = 0;
 	
 	public static SplineMetaPoint Lerp(SplineMetaPoint a, SplineMetaPoint b, float t)
 	{
@@ -25,6 +30,8 @@ public class SplineMetaPoint
 		point.gradientAngleLeft = Mathf.Lerp(a.gradientAngleLeft, b.gradientAngleLeft, t);
 		point.gradientLengthRight = Mathf.Lerp(a.gradientLengthRight, b.gradientLengthRight, t);
 		point.gradientAngleRight = Mathf.Lerp(a.gradientAngleRight, b.gradientAngleRight, t);
+		point.noiseAmplitude = Mathf.Lerp(a.noiseAmplitude, b.noiseAmplitude, t);
+		point.noiseRoughness = Mathf.Lerp(a.noiseRoughness, b.noiseRoughness, t);
 
 		return point;
 	}

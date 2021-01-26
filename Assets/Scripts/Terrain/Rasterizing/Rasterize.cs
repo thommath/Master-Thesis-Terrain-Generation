@@ -7,7 +7,7 @@ using UnityEngine;
     public static class Rasterize
 {
 
-    static int resolution = 100;
+    static int resolution = 200;
 
     static int GetPixelFromXOrY(float xorz, Texture2D heightmap, float zoom)
     {
@@ -27,8 +27,6 @@ using UnityEngine;
 
         Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
         Color gradientColorEnd = new Color(1f, 0.0f, 0, 1f);
-        //Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
-        //Color gradientColorEnd = new Color(0.5f, 0.5f, 0, 1f);
 
         foreach (BezierSpline spline in splines)
         {
@@ -63,7 +61,6 @@ using UnityEngine;
             // How many lines the spline should be cut into
             for (int n = 0; n <= resolution * spline.CurveCount; n++)
             {
-
                 float distOnSpline = (1f * n) / (resolution);
 
                 Vector3 point = spline.GetPoint(distOnSpline);
@@ -237,11 +234,11 @@ using UnityEngine;
     }
 
 
-    public static void rasterizeSplineLines(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, float zoom, int maxHeight)
+    public static void rasterizeSplineLines(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, Texture2D noise, float zoom, int maxHeight)
     {
-
         float[,,] normalValues = new float[normals.width, normals.height, 4];
         float[,,] heightValues = new float[normals.width, normals.height, 2];
+        float[,,] noiseValues = new float[normals.width, normals.height, 3];
 
         foreach (BezierSpline spline in splines)
         {
@@ -299,18 +296,25 @@ using UnityEngine;
                             normalValues[movedPixel2.x, movedPixel2.y, 3] += 1;
                         }
 
+                        // Noise
+                        SplineMetaPoint metaPoint = spline.getMetaPointInterpolated(distOnSpline);
+                        noiseValues[pixel.x, pixel.y, 0] += metaPoint.noiseAmplitude;
+                        noiseValues[pixel.x, pixel.y, 1] += metaPoint.noiseRoughness;
+                        noiseValues[pixel.x, pixel.y, 2] += 1;
+
                     }
                 }
-
                 lastPoint = point;
             }
         }
         Color[] heightColors = new Color[normals.width * normals.height];
-        Color defaultHeightmap = new Color(0, 0, 0, 0);
-        for(int x = 0; x < normals.width; x++)
+        Color[] normalColors = new Color[normals.width * normals.height];
+        Color[] noiseColors = new Color[normals.width * normals.height];
+        for (int x = 0; x < normals.width; x++)
         {
             for (int y = 0; y < normals.height; y++)
             {
+                // Height
                 Color oldSeedColor = heightmap.GetPixel(x, y);
                 if (oldSeedColor.r == 0)
                 {
@@ -319,15 +323,8 @@ using UnityEngine;
                 {
                     heightColors[x + y * normals.width] = oldSeedColor;
                 }
-            }
-        }
-        heightmap.SetPixels(0, 0, normals.width, normals.height, heightColors);
 
-        Color[] normalColors = new Color[normals.width * normals.height];
-        for (int x = 0; x < normals.width; x++)
-        {
-            for (int y = 0; y < normals.height; y++)
-            {
+                // Normals
                 if (normalValues[x, y, 3] > 0)
                 {
                     normalColors[x + y * normals.width] = new Color(normalValues[x, y, 0] / normalValues[x, y, 3], normalValues[x, y, 1] / normalValues[x, y, 3], normalValues[x, y, 2] / normalValues[x, y, 3], 1);
@@ -337,11 +334,20 @@ using UnityEngine;
                     Color oldNormalColor1 = normals.GetPixel(x,y);
                     normalColors[x + y * normals.width] = oldNormalColor1;
                 }
+
+                // Noise
+                if (noiseValues[x, y, 2] > 0)
+                {
+                    noiseColors[x + y * noise.width] = new Color(noiseValues[x, y, 0] / noiseValues[x, y, 2], noiseValues[x, y, 1] / noiseValues[x, y, 2], 0, 1);
+                } else
+                {
+                    noiseColors[x + y * noise.width] = Color.clear;
+                }
             }
         }
+        heightmap.SetPixels(0, 0, normals.width, normals.height, heightColors);
         normals.SetPixels(0, 0, normals.width, normals.height, normalColors);
-
-
+        noise.SetPixels(0, 0, normals.width, normals.height, noiseColors);
     }
 
     /**

@@ -5,6 +5,7 @@
 #pragma kernel Interpolate
 #pragma kernel Smooth
 #pragma kernel RestrictedSmoothing
+#pragma kernel SumTwoTextures
 
 RWTexture2D<float4> result;
 
@@ -132,6 +133,20 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 
     terrainHeight[id.xy] = res;
 }
+
+
+RWTexture2D<float4> input1;
+RWTexture2D<float4> input2;
+float input1_weight;
+float input2_weight;
+float input1_bias;
+float input2_bias;
+[numthreads(8, 8, 1)]
+void SumTwoTextures(uint3 id : SV_DispatchThreadID)
+{
+    result[id.xy] = input1_weight * (input1[id.xy] + input1_bias) + input2_weight * (input2[id.xy] + input2_bias);
+}
+
 
 
 

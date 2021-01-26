@@ -8,19 +8,6 @@ public class BezierSpline : MonoBehaviour {
 
 	public SplineMetaPoint[] metaPoints;
 
-	public bool leftGradientEnabled;
-	public bool rightGradientEnabled;
-
-	public float lineRadius = 0;
-
-	public float gradientLengthLeft = 1;
-	public float gradientAngleLeft = 0;
-
-
-	public float gradientLengthRight = 1;
-	public float gradientAngleRight = 0;
-
-
 	public RasterizingSplineData rasterizingData;
 
 	public int CurveCount {
