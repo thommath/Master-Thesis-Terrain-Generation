@@ -21,10 +21,6 @@ using UnityEngine;
 
     public static void rasterizeSplineTriangles(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, float zoom, int maxHeight, Camera camera, Shader lineShader)
     {
-
-        RenderTexture renderTexture = new RenderTexture(heightmap.width, heightmap.height, 32, RenderTextureFormat.ARGBFloat);
-        camera.targetTexture = renderTexture;
-
         Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
         Color gradientColorEnd = new Color(1f, 0.0f, 0, 1f);
 
@@ -38,9 +34,6 @@ using UnityEngine;
                 spline.rasterizingData = splineData;
             }
 
-            Vector3 lastPoint = Vector3.zero;
-
-            
             Mesh meshRight = splineData.meshRight;
             Mesh meshLeft = splineData.meshLeft;
 
@@ -247,7 +240,7 @@ using UnityEngine;
             for (int n = 0; n < resolution; n++)
             {
                 float distOnSpline = (1f * n) / resolution;
-                Vector3 point = spline.GetPoint(distOnSpline * spline.CurveCount);
+                Vector3 point = spline.GetPoint(distOnSpline);
 
                 if (lastPoint != Vector3.zero)
                 {

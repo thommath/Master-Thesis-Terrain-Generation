@@ -79,7 +79,7 @@ public class SplineTerrain : MonoBehaviour
         RenderTexture.active = null;
 
         Texture2D noiset = new Texture2D(noise.width, noise.height, TextureFormat.RGBAFloat, false);
-        Noise.CalcNoise(noiset, tNoiseSeed, Vector2.zero, 20f);
+        Noise.CalcNoise(noiset, tNoiseSeed, Vector2.zero, 10f);
 
         Graphics.Blit(noiset, noise);
 

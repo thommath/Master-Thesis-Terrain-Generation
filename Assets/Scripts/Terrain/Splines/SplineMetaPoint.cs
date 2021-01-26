@@ -20,6 +20,23 @@ public class SplineMetaPoint
 	[Range(0, 1f)]
 	public float noiseRoughness = 0;
 	
+	public SplineMetaPoint clone()
+	{
+		SplineMetaPoint point = new SplineMetaPoint();
+
+		point.position = this.position;
+		point.lineRadius = this.lineRadius;
+		point.gradientLengthLeft = this.gradientLengthLeft;
+		point.gradientAngleLeft = this.gradientAngleLeft;
+		point.gradientLengthRight = this.gradientLengthRight;
+		point.gradientAngleRight = this.gradientAngleRight;
+		point.noiseAmplitude = this.noiseAmplitude;
+		point.noiseRoughness = this.noiseRoughness;
+
+		return point;
+
+	}
+
 	public static SplineMetaPoint Lerp(SplineMetaPoint a, SplineMetaPoint b, float t)
 	{
 		SplineMetaPoint point = new SplineMetaPoint();

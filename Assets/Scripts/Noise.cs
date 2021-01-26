@@ -11,8 +11,8 @@ public static class Noise
     // over the width and height of the texture.
     public static void CalcNoise(Texture2D noise, Texture2D noiseSeed, Vector2 from, float scale)
     {
-        int n = 3;
-        int r = 3;
+        int n = 4;
+        int r = 2;
 
         Color[] pix = new Color[noise.height * noise.width];
         Color[] seedPix = noiseSeed.GetPixels(0, 0, noise.width, noise.height);
@@ -21,6 +21,7 @@ public static class Noise
 
         while (y < noise.height)
         {
+
             float x = 0.0F;
             while (x < noise.width)
             {

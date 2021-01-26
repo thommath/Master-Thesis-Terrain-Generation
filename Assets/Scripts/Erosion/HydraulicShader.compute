@@ -189,7 +189,7 @@ void FluxApply(uint3 id : SV_DispatchThreadID)
 	float waterHeightBefore = WATER_HEIGHT(state);
 
 	// Water surface and velocity field update
-	// volume is changing by amount on incoming fluid volume minus outgoing
+	// volume is changing by amount on incoming fluid volume minus out
 	float volumeDelta = SUM_COMPS(inputFlux) - SUM_COMPS(outputFlux);
 
 	// Then, we update the water height in the current (x, y) cell:

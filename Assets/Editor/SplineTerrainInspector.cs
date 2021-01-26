@@ -20,9 +20,6 @@ public class TerrainInspector : Editor
             {
                 if (spline.rasterizingData != null)
                 {
-                    DestroyImmediate(spline.rasterizingData.go);
-                    DestroyImmediate(spline.rasterizingData.goL);
-                    DestroyImmediate(spline.rasterizingData.goR);
                     spline.rasterizingData = null;
                 }
             }
@@ -34,9 +31,6 @@ public class TerrainInspector : Editor
                 {
                     if (spline.rasterizingData != null)
                     {
-                        DestroyImmediate(spline.rasterizingData.go);
-                        DestroyImmediate(spline.rasterizingData.goL);
-                        DestroyImmediate(spline.rasterizingData.goR);
                         spline.rasterizingData = null;
                     }
                 }

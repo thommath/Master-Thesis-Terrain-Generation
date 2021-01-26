@@ -187,6 +187,11 @@ public class BezierSplineInspector : Editor {
 		if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.DotCap))
 		{
 			selectedIndex = index;
+			
+			if(EditorWindow.HasOpenInstances<TerrainEditorWindow>())
+			{
+				EditorWindow.GetWindow<TerrainEditorWindow>().SetMetaPoint(index - spline.points.Length);
+			}
 		}
 
 		if (selectedIndex == index)

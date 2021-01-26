@@ -64,7 +64,11 @@ public class BezierSpline : MonoBehaviour {
 		point.x += 10f;
 		points[points.Length - 1] = point;
 	}
-	
+	public void RemoveCurve()
+	{
+		Array.Resize(ref points, points.Length - 3);
+	}
+
 	public void AddMetaPoint ()
 	{
 		if (metaPoints == null)
@@ -73,6 +77,13 @@ public class BezierSpline : MonoBehaviour {
 		}
 		Array.Resize(ref metaPoints, metaPoints.Length + 1);
 		metaPoints[metaPoints.Length - 1] = new SplineMetaPoint();
+	}
+
+	public void RemoveMetaPoint(int index)
+	{
+		List<SplineMetaPoint> foos = new List<SplineMetaPoint>(metaPoints);
+		foos.RemoveAt(index);
+		metaPoints = foos.ToArray();
 	}
 
 	public void Reset () {
@@ -179,13 +190,8 @@ public class BezierSpline : MonoBehaviour {
 			{
 				if (last == metaPoint)
 				{
-					SplineMetaPoint point = new SplineMetaPoint();
+					SplineMetaPoint point = last.clone();
 					point.position = time * CurveCount;
-					point.lineRadius = last.lineRadius;
-					point.gradientLengthLeft = last.gradientLengthLeft;
-					point.gradientAngleLeft = last.gradientAngleLeft;
-					point.gradientLengthRight = last.gradientLengthRight;
-					point.gradientAngleRight = last.gradientAngleRight;
 					return point;
 				}
 
@@ -197,14 +203,8 @@ public class BezierSpline : MonoBehaviour {
 			last = metaPoint;
 		}
 		{
-			SplineMetaPoint point = new SplineMetaPoint();
+			SplineMetaPoint point = last.clone();
 			point.position = time * CurveCount;
-			point.lineRadius = last.lineRadius;
-			point.gradientLengthLeft = last.gradientLengthLeft;
-			point.gradientAngleLeft = last.gradientAngleLeft;
-			point.gradientLengthRight = last.gradientLengthRight;
-			point.gradientAngleRight = last.gradientAngleRight;
-
 			return point;
 		}
 	}
