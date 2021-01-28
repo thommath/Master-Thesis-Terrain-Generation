@@ -269,7 +269,7 @@ using UnityEngine;
 
 
                         // Normal vectors
-                        Vector2Int movedPixel1 = Vector2Int.CeilToInt(pixel + perpendicular * 2);
+                        Vector2Int movedPixel1 = Vector2Int.CeilToInt(pixel + perpendicular * 1.5f);
                         if (movedPixel1.x < normals.width && movedPixel1.x > 0 && movedPixel1.y < normals.height && movedPixel1.y > 0)
                         {
                             Color oldNormalColor1 = normals.GetPixel(movedPixel1.x, movedPixel1.y);
@@ -279,7 +279,7 @@ using UnityEngine;
                             normalValues[movedPixel1.x, movedPixel1.y, 3] += 1;
                         }
 
-                        Vector2Int movedPixel2 = Vector2Int.CeilToInt(pixel - perpendicular * 2);
+                        Vector2Int movedPixel2 = Vector2Int.CeilToInt(pixel - perpendicular * 1.5f);
                         if (movedPixel2.x < normals.width && movedPixel2.x > 0 && movedPixel2.y < normals.height && movedPixel2.y > 0) 
                         {
                             Color oldNormalColor2 = normals.GetPixel(movedPixel2.x, movedPixel2.y);

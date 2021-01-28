@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
+using System.Linq;
 
 public class SplineTerrain : MonoBehaviour
 {
@@ -44,6 +45,19 @@ public class SplineTerrain : MonoBehaviour
 
     public void runSolver()
     {
+        Transform terrainFeatures = this.gameObject.GetComponentsInChildren<Transform>().FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
+
+        if (!terrainFeatures)
+        {
+            GameObject terrainFeaturesGO = new GameObject("TerrainFeatures");
+            terrainFeaturesGO.tag = "TerrainFeatures";
+            terrainFeaturesGO.transform.parent = this.transform;
+
+            Debug.LogError("Could not find a child with the tag 'TerrainFeatures'. This gameObject is now created, please move your splines here and they will be included in the terrain.");
+            return;
+        }
+
+
         Laplace l = this.GetComponent<Laplace>();
         RenderTexture normals = new RenderTexture(size + 1, size + 1, 32, RenderTextureFormat.ARGBFloat);
         normals.enableRandomWrite = true;
@@ -65,11 +79,11 @@ public class SplineTerrain : MonoBehaviour
         result.enableRandomWrite = true;
         result.autoGenerateMips = false;
         result.Create();
+
         for (int n = 0; n < diffusionIterations; n++)
         {
-            l.poissonStep(splines, normals, heightmap, noiseSeed, 1, this.height *2);
+            l.poissonStep(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), normals, heightmap, noiseSeed, 1, this.height *2);
         }
-
 
 
         RenderTexture.active = noiseSeed;
@@ -79,7 +93,7 @@ public class SplineTerrain : MonoBehaviour
         RenderTexture.active = null;
 
         Texture2D noiset = new Texture2D(noise.width, noise.height, TextureFormat.RGBAFloat, false);
-        Noise.CalcNoise(noiset, tNoiseSeed, Vector2.zero, 10f);
+        Noise.CalcNoise(noiset, tNoiseSeed, Vector2.zero, 30f);
 
         Graphics.Blit(noiset, noise);
 
@@ -155,6 +169,27 @@ public class SplineTerrain : MonoBehaviour
 
         System.IO.File.WriteAllBytes(Application.dataPath + "/" + "Terrain" + ".raw", rawBytes);
         Debug.Log("Wrote image to " + Application.dataPath + "/" + "Terrain" + ".raw");
+    }
+
+
+    public GameObject AddSpline()
+    {
+        Transform terrainFeatures = this.gameObject.GetComponentsInChildren<Transform>().FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
+
+        if (!terrainFeatures)
+        {
+            GameObject terrainFeaturesGO = new GameObject("TerrainFeatures");
+            terrainFeaturesGO.tag = "TerrainFeatures";
+            terrainFeaturesGO.transform.parent = this.transform;
+
+            Debug.Log("Could not find a child with the tag 'TerrainFeatures'. This is now created with a spline.");
+            terrainFeatures = terrainFeaturesGO.transform;
+        }
+
+        GameObject spline = new GameObject("Unnamed terrain feature");
+        spline.transform.parent = terrainFeatures;
+        spline.AddComponent<BezierSpline>();
+        return spline;
     }
 
 }

@@ -37,9 +37,17 @@ public class TerrainEditorWindow : EditorWindow
             if (GUILayout.Button("Render terrain"))
             {
                 terrain.runSolver();
+                terrain.GetComponent<TerrainVisualizer>().fastExport();
             }
             GUI.backgroundColor = before;
 
+
+            if (GUILayout.Button("Add Spline"))
+            {
+                GameObject newSpline = terrain.AddSpline();
+                Undo.RegisterCreatedObjectUndo(newSpline, "Add Spline");
+                Selection.activeGameObject = newSpline;
+            }
         }
 
         // Spline part

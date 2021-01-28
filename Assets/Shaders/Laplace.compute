@@ -56,7 +56,7 @@ void Relaxation(uint3 id : SV_DispatchThreadID)
             ))).xy;
     }
 
-    if (seedTexture[id.xy].z != 0) {
+    if (seedTexture[id.xy].z > 0.1) {
         res.z = seedTexture[id.xy].z;
     }
     else {
