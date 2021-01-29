@@ -257,6 +257,11 @@ using UnityEngine;
 
                     foreach (Vector2Int pixel in GetPixelsOfLine(fromPixel.x, fromPixel.y, toPixel.x, toPixel.y))
                     {
+                        if (pixel.x >= normals.width || pixel.y >= normals.height || pixel.x < 0 || pixel.y < 0)
+                        {
+                            continue;
+                        }
+
                         float distOnLine = Vector2Int.Distance(fromPixel, pixel);
                         float interpolatedHeight = lastPoint.y + (point.y - lastPoint.y) * (distOnLine / distBetweenPoints);
 

@@ -42,7 +42,7 @@ public class Laplace : MonoBehaviour
     public void poissonStep(BezierSpline[] splines, RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int maxHeight)
     {
         // Break on 1
-        if (normals.width == 1 || normals.width == 9)
+        if (normals.width == 1)// || normals.width == 9)
         {
             return;
         }
@@ -134,14 +134,14 @@ public class Laplace : MonoBehaviour
         saveImage("normals " + h + " seed", seedNormals);
         Interpolate(smallerNormals, normals);
         saveImage("normals " + h + " pre", normals);
-        Relaxation(seedNormals, normals, 12*(8-h));
+        Relaxation(seedNormals, normals, 6*(8-h));
         saveImage("normals " + h + " post", normals);
 
         // Solve the poisson equation for noise
         saveImage("noise " + h + " seed", seedNoise);
         Interpolate(smallerNoise, noise);
         saveImage("noise " + h + " pre", normals);
-        Relaxation(seedNoise, noise, 12 * (8 - h));
+        Relaxation(seedNoise, noise, 6 * (8 - h));
         saveImage("noise " + h + " post", noise);
 
         // Solve poisson equation for the terrain
@@ -151,7 +151,7 @@ public class Laplace : MonoBehaviour
         saveImage("restrictions " + h, restrictions);
         saveImage("heightmap " + h + " pre", heightmap);
 
-        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, 2*12*(10-h));
+        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, 6*(8-h));
         saveImage("heightmap " + h + " post", heightmap);
 
         RestrictedSmoothing(heightmap, seedHeightmap, 0);
