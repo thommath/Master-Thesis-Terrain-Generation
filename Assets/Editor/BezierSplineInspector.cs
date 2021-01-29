@@ -61,31 +61,12 @@ public class BezierSplineInspector : Editor {
 			spline.metaPoints = new SplineMetaPoint[0];
 		}
 
-		for (int i = 0; i < spline.metaPoints.Length; i += 1)
-		{
-			Vector3 p1 = ShowMetaPoint(spline.points.Length + i, spline.metaPoints[i]);
-
-			// Debug.Log(spline.metaPoints[i].gradientLengthLeft);
-
-			/*
-			Vector2 perpendicular = spline.GetPerpendicular(spline.metaGetTime(i));
-			Vector3 perendicular3D = new Vector3(perpendicular.x, 0, perpendicular.y);
-
-			Handles.color = Color.green;
-			Handles.DrawLine(p1 + perendicular3D * spline.metaPoints[i].lineRadius, p1 + perendicular3D * (spline.metaPoints[i].gradientLengthLeft + spline.metaPoints[i].lineRadius) + spline.metaPoints[i].gradientAngleLeft * Vector3.up);
-			Handles.DrawLine(p1 - perendicular3D * spline.metaPoints[i].lineRadius, p1 - perendicular3D * (spline.metaPoints[i].gradientLengthRight + spline.metaPoints[i].lineRadius) + spline.metaPoints[i].gradientAngleRight * Vector3.up);
-
-			Handles.color = Color.blue;
-			Handles.DrawLine(p1, p1 + perendicular3D * spline.metaPoints[i].lineRadius);
-			Handles.DrawLine(p1, p1 - perendicular3D * spline.metaPoints[i].lineRadius);
-			*/
-			DrawMetaPoint(spline.metaPoints[i]);
-		}
 		if (spline.metaPoints.Length > 0)
 		{
 			DrawMetaPoint(spline.getMetaPointInterpolated(0));
 			DrawMetaPoint(spline.getMetaPointInterpolated(1));
 		}
+
 
 		float last = 0;
 		float maxStepSize = 0.05f;
@@ -126,6 +107,27 @@ public class BezierSplineInspector : Editor {
 
 				last = current;
 			}
+		}
+
+		for (int i = 0; i < spline.metaPoints.Length; i += 1)
+		{
+			DrawMetaPoint(spline.metaPoints[i]);
+			Vector3 p1 = ShowMetaPoint(spline.points.Length + i, spline.metaPoints[i]);
+
+			// Debug.Log(spline.metaPoints[i].gradientLengthLeft);
+
+			/*
+			Vector2 perpendicular = spline.GetPerpendicular(spline.metaGetTime(i));
+			Vector3 perendicular3D = new Vector3(perpendicular.x, 0, perpendicular.y);
+
+			Handles.color = Color.green;
+			Handles.DrawLine(p1 + perendicular3D * spline.metaPoints[i].lineRadius, p1 + perendicular3D * (spline.metaPoints[i].gradientLengthLeft + spline.metaPoints[i].lineRadius) + spline.metaPoints[i].gradientAngleLeft * Vector3.up);
+			Handles.DrawLine(p1 - perendicular3D * spline.metaPoints[i].lineRadius, p1 - perendicular3D * (spline.metaPoints[i].gradientLengthRight + spline.metaPoints[i].lineRadius) + spline.metaPoints[i].gradientAngleRight * Vector3.up);
+
+			Handles.color = Color.blue;
+			Handles.DrawLine(p1, p1 + perendicular3D * spline.metaPoints[i].lineRadius);
+			Handles.DrawLine(p1, p1 - perendicular3D * spline.metaPoints[i].lineRadius);
+			*/
 		}
 	}
 
@@ -197,6 +199,7 @@ public class BezierSplineInspector : Editor {
 		if (selectedIndex == index)
 		{
 			EditorGUI.BeginChangeCheck();
+			Handles.color = Color.blue;
 			Vector3 leftLineHandlePos = MetaPointHandle.DragHandle(lineLeftEnd, perendicular3D, size, Color.blue);
 			if (EditorGUI.EndChangeCheck())
 			{
@@ -206,6 +209,7 @@ public class BezierSplineInspector : Editor {
 			}
 
 
+			Handles.color = Color.red;
 			EditorGUI.BeginChangeCheck();
 			Vector3 leftHandlePos = MetaPointHandle.DragHandle(gradientLeftEnd, perendicular3D, size, Color.yellow);
 			if (EditorGUI.EndChangeCheck())
@@ -225,6 +229,7 @@ public class BezierSplineInspector : Editor {
 			}
 
 
+			Handles.color = Color.green;
 			EditorGUI.BeginChangeCheck();
 			Vector3 leftAngleHandlePos = MetaPointHandle.DragHandle(gradientLeftEnd, Vector3.up, size, Color.yellow);
 			if (EditorGUI.EndChangeCheck())

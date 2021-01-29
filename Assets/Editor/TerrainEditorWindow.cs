@@ -41,7 +41,6 @@ public class TerrainEditorWindow : EditorWindow
             }
             GUI.backgroundColor = before;
 
-
             if (GUILayout.Button("Add Spline"))
             {
                 GameObject newSpline = terrain.AddSpline();

@@ -66,6 +66,10 @@ public class BezierSpline : MonoBehaviour {
 	}
 	public void RemoveCurve()
 	{
+		if (points.Length == 4)
+		{
+			return;
+		}
 		Array.Resize(ref points, points.Length - 3);
 	}
 

@@ -39,7 +39,7 @@ public class Laplace : MonoBehaviour
      * normals and result are approximations of the result. Can be whatever - are used to improve solution over multiple iterations
      * 
      */
-    public void poissonStep(BezierSpline[] splines, RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int maxHeight)
+    public void poissonStep(BezierSpline[] splines, RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int maxHeight, int terrainSize, int iterationsMultiplier = 4, int resolution = 50)
     {
         // Break on 1
         if (normals.width == 1)// || normals.width == 9)
@@ -65,7 +65,7 @@ public class Laplace : MonoBehaviour
         Restrict(noise, smallerNoise);
 
         // Solve recursively
-        poissonStep(splines, smallerNormals, smallerHeightmap, smallerNoise, h + 1, maxHeight);
+        poissonStep(splines, smallerNormals, smallerHeightmap, smallerNoise, h + 1, maxHeight, terrainSize, iterationsMultiplier, resolution);
 
         // Set variables
         laplace.SetFloat("h", Mathf.Pow(2, h));
@@ -91,7 +91,7 @@ public class Laplace : MonoBehaviour
         Texture2D tNoise = new Texture2D(normals.width, normals.height, TextureFormat.RGBAFloat, false);
 
         // Rasterize splines
-        Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, 0.5f, maxHeight, rasterizeCamera, lineShader);
+        Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, terrainSize, maxHeight, resolution);
 
         for (int x = 0; x < heightmap.width + 1; x++)
         {
@@ -101,7 +101,7 @@ public class Laplace : MonoBehaviour
                 tseedNormals.SetPixel(x, y, new Color(0, 0, c.b, 0));
             }
         }
-        Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, tNoise, 0.5f, maxHeight);
+        Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, tNoise, terrainSize, maxHeight, resolution);
 
         tseedHeightmap.Apply();
         tseedNormals.Apply();
@@ -134,14 +134,14 @@ public class Laplace : MonoBehaviour
         saveImage("normals " + h + " seed", seedNormals);
         Interpolate(smallerNormals, normals);
         saveImage("normals " + h + " pre", normals);
-        Relaxation(seedNormals, normals, 6*(8-h));
+        Relaxation(seedNormals, normals, iterationsMultiplier * (8-h));
         saveImage("normals " + h + " post", normals);
 
         // Solve the poisson equation for noise
         saveImage("noise " + h + " seed", seedNoise);
         Interpolate(smallerNoise, noise);
         saveImage("noise " + h + " pre", normals);
-        Relaxation(seedNoise, noise, 6 * (8 - h));
+        Relaxation(seedNoise, noise, iterationsMultiplier * (8 - h));
         saveImage("noise " + h + " post", noise);
 
         // Solve poisson equation for the terrain
@@ -151,7 +151,7 @@ public class Laplace : MonoBehaviour
         saveImage("restrictions " + h, restrictions);
         saveImage("heightmap " + h + " pre", heightmap);
 
-        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, 6*(8-h));
+        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, iterationsMultiplier * (8-h));
         saveImage("heightmap " + h + " post", heightmap);
 
         RestrictedSmoothing(heightmap, seedHeightmap, 0);

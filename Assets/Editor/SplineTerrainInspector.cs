@@ -25,16 +25,6 @@ public class TerrainInspector : Editor
             }
             terrain.runSolver();
 
-            if (terrain.deleteConstructedItems)
-            {
-                foreach (BezierSpline spline in terrain.splines)
-                {
-                    if (spline.rasterizingData != null)
-                    {
-                        spline.rasterizingData = null;
-                    }
-                }
-            }
             //EditorUtility.SetDirty(spline);
         }
 

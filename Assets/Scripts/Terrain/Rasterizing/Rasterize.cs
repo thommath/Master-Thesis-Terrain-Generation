@@ -4,22 +4,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-    public static class Rasterize
+public static class Rasterize
 {
-
-    static int resolution = 200;
-
-    static int GetPixelFromXOrY(float xorz, Texture2D heightmap, float zoom)
+    static int GetPixelFromXOrY(float xorz, Texture2D heightmap, int terrainSize)
     {
         // Scale the xy coordinates to the grid
-        return Mathf.RoundToInt((heightmap.width / 2f + heightmap.width * (xorz / 128f) * zoom));
+        return Mathf.RoundToInt((terrainSize / 2f + xorz) / (1f * terrainSize / heightmap.width));
     }
-    static Vector2Int Vector3ToPixelPos(Vector3 vec, Texture2D heightmap, float zoom)
+    static Vector2Int Vector3ToPixelPos(Vector3 vec, Texture2D heightmap, int terrainSize)
     {
-        return new Vector2Int(GetPixelFromXOrY(vec.x, heightmap, zoom), GetPixelFromXOrY(vec.z, heightmap, zoom));
+        return new Vector2Int(GetPixelFromXOrY(vec.x, heightmap, terrainSize), GetPixelFromXOrY(vec.z, heightmap, terrainSize));
     }
 
-    public static void rasterizeSplineTriangles(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, float zoom, int maxHeight, Camera camera, Shader lineShader)
+    public static void rasterizeSplineTriangles(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, int terrainSize, int maxHeight, int resolution)
     {
         Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
         Color gradientColorEnd = new Color(1f, 0.0f, 0, 1f);
@@ -116,7 +113,6 @@ using UnityEngine;
                     }
                 }
             }
-
             meshRight.vertices = verteciesRight;
             meshRight.triangles = trianglesRight;
             meshRight.colors = colorsRight;
@@ -128,8 +124,6 @@ using UnityEngine;
             meshLine.vertices = verteciesLine;
             meshLine.triangles = trianglesLine;
             meshLine.colors = colorsLineHeight;
-
-            splineData.colors = new Color[][] { colorsLineHeight };
         }
 
 
@@ -152,9 +146,9 @@ using UnityEngine;
                 for (int n = 0; n < indices[item].Length; n += 3)
                 {
                     foreach (PixelData pixel in TriangleRenderer.RasterizeTriangle(heightmap.width, heightmap.height,
-                        new Vector2(128 + vertices[item][indices[item][n]].x, 128 + vertices[item][indices[item][n]].z) / (256f / heightmap.width),
-                        new Vector2(128 + vertices[item][indices[item][n + 1]].x, 128 + vertices[item][indices[item][n + 1]].z) / (256f / heightmap.width),
-                        new Vector2(128 + vertices[item][indices[item][n + 2]].x, 128 + vertices[item][indices[item][n + 2]].z) / (256f / heightmap.width)))
+                        Vector3ToPixelPos(vertices[item][indices[item][n]], heightmap, terrainSize),
+                        Vector3ToPixelPos(vertices[item][indices[item][n+1]], heightmap, terrainSize),
+                        Vector3ToPixelPos(vertices[item][indices[item][n+2]], heightmap, terrainSize)))
                     {
                         counter[pixel.position] += 1;
 
@@ -170,7 +164,6 @@ using UnityEngine;
                             vertColors[item][indices[item][n]],
                             vertColors[item][indices[item][n + 1]],
                             vertColors[item][indices[item][n + 2]]);
-                        
                     }
                 }
             }
@@ -185,9 +178,9 @@ using UnityEngine;
                 for (int n = 0; n < indices[item].Length; n += 3)
                 {
                     foreach (PixelData pixel in TriangleRenderer.RasterizeTriangle(heightmap.width, heightmap.height,
-                        new Vector2(128 + vertices[item][indices[item][n]].x, 128 + vertices[item][indices[item][n]].z) / (256f / heightmap.width),
-                        new Vector2(128 + vertices[item][indices[item][n + 1]].x, 128 + vertices[item][indices[item][n + 1]].z) / (256f / heightmap.width),
-                        new Vector2(128 + vertices[item][indices[item][n + 2]].x, 128 + vertices[item][indices[item][n + 2]].z) / (256f / heightmap.width)))
+                        Vector3ToPixelPos(vertices[item][indices[item][n]], heightmap, terrainSize),
+                        Vector3ToPixelPos(vertices[item][indices[item][n + 1]], heightmap, terrainSize),
+                        Vector3ToPixelPos(vertices[item][indices[item][n + 2]], heightmap, terrainSize)))
                     {
                         counter[pixel.position] = 1;
 
@@ -202,18 +195,14 @@ using UnityEngine;
                             Debug.LogError("Pixel height is 0 at position " + pixel.position.ToString());
                         }
 
-                        // seed[pixel.position] = vertColors[item][indices[item][n+2]];
-
                         restriction[pixel.position] = new Color(0, 0, 0, 1);
                     }
                 }
             }
         }
         
-
         for(int n = 0; n < restriction.Length; n += 1)
         {
-
             if (counter[n] != 1)
             {
                 restriction[n] = new Color(1, 0, 0, 1);
@@ -227,7 +216,7 @@ using UnityEngine;
     }
 
 
-    public static void rasterizeSplineLines(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, Texture2D noise, float zoom, int maxHeight)
+    public static void rasterizeSplineLines(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, Texture2D noise, int terrainSize, int maxHeight, int resolution)
     {
         float[,,] normalValues = new float[normals.width, normals.height, 4];
         float[,,] heightValues = new float[normals.width, normals.height, 2];
@@ -246,8 +235,8 @@ using UnityEngine;
                 {
                     Vector2 perpendicular = Vector2.Perpendicular(new Vector2(lastPoint.x - point.x, lastPoint.z - point.z)).normalized;
 
-                    Vector2Int fromPixel = Vector3ToPixelPos(lastPoint, heightmap, zoom);
-                    Vector2Int toPixel = Vector3ToPixelPos(point, heightmap, zoom);
+                    Vector2Int fromPixel = Vector3ToPixelPos(lastPoint, heightmap, terrainSize);
+                    Vector2Int toPixel = Vector3ToPixelPos(point, heightmap, terrainSize);
                     float distBetweenPoints = Vector2Int.Distance(fromPixel, toPixel);
 
                     if (distBetweenPoints == 0)

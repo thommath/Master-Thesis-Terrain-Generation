@@ -8,7 +8,6 @@ public class RasterizingSplineData
     public Mesh meshLeft = new Mesh();
     public Mesh meshLine = new Mesh();
 
-    public Color[][] colors;
     public Color[] colorsGradientRestrictionsLeft;
     public Color[] colorsGradientRestrictionsRight;
 }
