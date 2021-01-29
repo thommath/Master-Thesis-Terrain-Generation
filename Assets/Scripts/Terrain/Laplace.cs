@@ -6,9 +6,6 @@ public class Laplace : MonoBehaviour
 {
     public ComputeShader laplace;
     public bool saveImages = false;
-    public int resolution = 25;
-    public Camera rasterizeCamera;
-    public Shader lineShader;
 
     // Start is called before the first frame update
     void Start()
