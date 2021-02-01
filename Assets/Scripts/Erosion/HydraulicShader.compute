@@ -211,18 +211,20 @@ void FluxApply(uint3 id : SV_DispatchThreadID)
 			(BDIR(inputFlux) - BDIR(outputFlux) + TDIR(outputFlux) - TDIR(inputFlux)))
 			/ (_CellSize.x * (2 * waterHeightBefore + _TimeDelta * volumeDelta / (_CellSize.x * _CellSize.y)));
 		*/
+		/*
 		CURRENT_SAMPLE(VelocityMap) = 2* float2(
 			(LDIR(inputFlux) - LDIR(outputFlux) + RDIR(outputFlux) - RDIR(inputFlux)),
 			(BDIR(inputFlux) - BDIR(outputFlux) + TDIR(outputFlux) - TDIR(inputFlux)))
 			/ (_CellSize.x * _TimeDelta);
+		*/
 		
 		/*
 		// Alternative from https://www.researchgate.net/publication/308824247_Fractal_Nature_-_Generating_Realistic_Terrains_for_Games#pf4
+		*/
 		CURRENT_SAMPLE(VelocityMap) = float2(
 			(LDIR(inputFlux) - LDIR(outputFlux) + RDIR(outputFlux) - RDIR(inputFlux)),
 			(BDIR(inputFlux) - BDIR(outputFlux) + TDIR(outputFlux) - TDIR(inputFlux)))
 			/ (_CellSize.x);
-		*/
 
 		if (length(CURRENT_SAMPLE(VelocityMap)) * _TimeDelta > 0.5) {
 			CURRENT_SAMPLE(VelocityMap) = 0.5 * float2(sign(CURRENT_SAMPLE(VelocityMap).x), sign(CURRENT_SAMPLE(VelocityMap).y));
@@ -305,7 +307,8 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 	// This min value should be able to be changed to a diffused value similar to the noise value in the other paper
 	float sinangle = max(0.001, TerrainFluxMap[id.xy].r);
 
-	float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle;
+	float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * WATER_HEIGHT(state);
+	// float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle;
 	
 	if (SEDIMENT(state) < sedimentTransportCapacity)
 	{
