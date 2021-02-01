@@ -25,7 +25,7 @@ public static class Rasterize
         {
             RasterizingSplineData splineData = spline.rasterizingData;
 
-            if (splineData == null)
+            if (splineData == null || true)
             {
                 splineData = new RasterizingSplineData();
                 spline.rasterizingData = splineData;

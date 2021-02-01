@@ -88,8 +88,7 @@ public class Laplace : MonoBehaviour
         Texture2D tNoise = new Texture2D(normals.width, normals.height, TextureFormat.RGBAFloat, false);
 
         // Rasterize splines
-        Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, terrainSize, maxHeight, resolution);
-
+        Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, terrainSize, maxHeight, Mathf.Max(2, resolution / (h)));
         for (int x = 0; x < heightmap.width + 1; x++)
         {
             for (int y = 0; y < heightmap.height + 1; y++)
