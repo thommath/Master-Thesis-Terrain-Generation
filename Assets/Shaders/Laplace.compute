@@ -46,7 +46,7 @@ void Relaxation(uint3 id : SV_DispatchThreadID)
 {
     float3 res = float3(0, 0, 0);
 
-    if (seedTexture[id.xy].w == 1) {
+    if (seedTexture[id.xy].w > 0) {
         res.xy = seedTexture[id.xy].xy;
     }
     else
@@ -202,10 +202,10 @@ void Interpolate(uint3 id : SV_DispatchThreadID)
 
     */
 
-    if (3 == image_size) {
-        result[id.xy] = image[uint2(0, 0)];
-        return;
-    }
+    //if (1 == image_size) {
+    //    result[id.xy] = image[uint2(0, 0)];
+    //    return;
+    //}
 
     if (1 == 1) {
         if (id.x % 2 == 1) {
@@ -291,62 +291,3 @@ void RestrictedSmoothing(uint3 id : SV_DispatchThreadID)
         ;
 }
 
-
-
-float applyMask(uint2 pixel) {
-    return result[pixel] * (1 - image[pixel].y) + image[pixel].x * image[pixel].y;
-}
-
-
-
-float FK(uint2 pixel) {
-    return 0;
-}
-
-float FI(uint2 pixel) {
-    return image[pixel];
-}
-
-float F(uint2 pixel) {
-    float a = image[pixel].y;
-    float b = image[pixel].z;
-
-    float result = 0;
-
-    if (a > 0.1) {
-        // FL
-        result += a * 0.25 * (
-            F(pixel - uint2(0, 1)) +
-            F(pixel - uint2(1, 0)) +
-            F(pixel - uint2(-1, 0)) +
-            F(pixel - uint2(0, -1))
-            );;
-    }
-    return result + b * FK(pixel) + (1 - a - b) * FI(pixel);
-}
-
-int h;
-float x;
-
-[numthreads(8, 8, 1)]
-void Relax(uint3 id : SV_DispatchThreadID)
-{
-    //result[id.xy] = F(id.xy);
-    /*
-    Works fine but I want something better.
-    Using fading mask
-    */
-    uint2 center = uint2(id.x, id.y);
-    result[id.xy] = float4(0.25 * (
-        applyMask(center - uint2(0, 1)) +
-        applyMask(center - uint2(1, 0)) +
-        applyMask(center - uint2(-1, 0)) +
-        applyMask(center - uint2(0, -1))
-        )
-        // Use y as mask
-        * (1 - image[id.xy].y) + image[id.xy].x * image[id.xy].y
-        ,
-        image[id.xy].y, 0, 1)
-        ;
-
-}

@@ -54,8 +54,6 @@ class TriangleRenderer
         int maxx = Mathf.CeilToInt(Math.Min(width, Math.Max(a.x, Math.Max(b.x, c.x))));
         int maxy = Mathf.CeilToInt(Math.Min(height, Math.Max(a.y, Math.Max(b.y, c.y))));
 
-        float area = edgeFunction(a, b, c);
-
         for (int x = minx; x < maxx; x++)
         {
             for (int y = miny; y < maxy; y++)
@@ -68,19 +66,8 @@ class TriangleRenderer
                 {
                     yield return new PixelData(x + y * width, bary);
                 }
+                continue;
 
-                float w0 = edgeFunction(b, c, p);
-                float w1 = edgeFunction(c, a, p);
-                float w2 = edgeFunction(a, b, p);
-
-                if (w0 >= 0 && w1 >= 0 && w2 >= 0)
-                {
-                    w0 /= area;
-                    w1 /= area;
-                    w2 /= area;
-
-                    // yield return new PixelData(x + y * width, new Vector3(w0, w1, w2));
-                }
             }
         }
     }

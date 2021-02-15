@@ -36,10 +36,10 @@ public class Laplace : MonoBehaviour
      * normals and result are approximations of the result. Can be whatever - are used to improve solution over multiple iterations
      * 
      */
-    public void poissonStep(BezierSpline[] splines, RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int maxHeight, int terrainSize, int iterationsMultiplier = 4, int resolution = 50)
+    public void poissonStep(BezierSpline[] splines, RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int maxHeight, int terrainSizeExp, int iterationsMultiplier = 4, int resolution = 50, int breakOn = 1)
     {
         // Break on 1
-        if (normals.width == 1)// || normals.width == 9)
+        if (normals.width == Mathf.RoundToInt(Mathf.Pow(2, breakOn)) + 1)
         {
             return;
         }
@@ -62,13 +62,13 @@ public class Laplace : MonoBehaviour
         Restrict(noise, smallerNoise);
 
         // Solve recursively
-        poissonStep(splines, smallerNormals, smallerHeightmap, smallerNoise, h + 1, maxHeight, terrainSize, iterationsMultiplier, resolution);
+        poissonStep(splines, smallerNormals, smallerHeightmap, smallerNoise, h + 1, maxHeight, terrainSizeExp, iterationsMultiplier, resolution, breakOn);
 
         // Set variables
         laplace.SetFloat("h", Mathf.Pow(2, h));
 
         // Create textures to rasterize on
-        Texture2D tseedHeightmap = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RGBAFloat, false);
+        Texture2D tseedHeightmap = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RFloat, false);
         for (int x = 0; x < heightmap.width + 1; x++)
         {
             for (int y = 0; y < heightmap.height + 1; y++)
@@ -76,7 +76,7 @@ public class Laplace : MonoBehaviour
                 tseedHeightmap.SetPixel(x, y, new Color(0, 0, 0, 1));
             }
         }
-        Texture2D tRestrictions = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RGBAFloat, false);
+        Texture2D tRestrictions = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RGFloat, false);
         for (int x = 0; x < heightmap.width + 1; x++)
         {
             for (int y = 0; y < heightmap.height + 1; y++)
@@ -88,7 +88,7 @@ public class Laplace : MonoBehaviour
         Texture2D tNoise = new Texture2D(normals.width, normals.height, TextureFormat.RGBAFloat, false);
 
         // Rasterize splines
-        Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, terrainSize, maxHeight, Mathf.Max(2, resolution / (h)));
+        Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp)), maxHeight, Mathf.Max(2, resolution / (h)));
         for (int x = 0; x < heightmap.width + 1; x++)
         {
             for (int y = 0; y < heightmap.height + 1; y++)
@@ -97,7 +97,7 @@ public class Laplace : MonoBehaviour
                 tseedNormals.SetPixel(x, y, new Color(0, 0, c.b, 0));
             }
         }
-        Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, tNoise, terrainSize, maxHeight, resolution);
+        Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, tNoise, Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp)), maxHeight, resolution);
 
         tseedHeightmap.Apply();
         tseedNormals.Apply();
@@ -106,18 +106,18 @@ public class Laplace : MonoBehaviour
 
         // Create rendertextures
         RenderTexture seedHeightmap;
-        seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 1, heightmap.format);
+        seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 0, heightmap.format);
         seedHeightmap.enableRandomWrite = true;
         seedHeightmap.autoGenerateMips = false;
         seedHeightmap.Create();
         RenderTexture seedNoise;
-        seedNoise = new RenderTexture(noise.width, noise.width, 1, noise.format);
+        seedNoise = new RenderTexture(noise.width, noise.width, 0, noise.format);
         seedNoise.enableRandomWrite = true;
         seedNoise.autoGenerateMips = false;
         seedNoise.Create();
 
-        RenderTexture seedNormals = createRenderTexture(normals.width, 0, 1);
-        RenderTexture restrictions = createRenderTexture(heightmap.width, 0, 1);
+        RenderTexture seedNormals = createRenderTexture(normals.width, 0, 0);
+        RenderTexture restrictions = createRenderTexture(heightmap.width, 0, 0);
 
         // Copy to rendertextures
         Graphics.Blit(tseedHeightmap, seedHeightmap);
@@ -130,14 +130,14 @@ public class Laplace : MonoBehaviour
         saveImage("normals " + h + " seed", seedNormals);
         Interpolate(smallerNormals, normals);
         saveImage("normals " + h + " pre", normals);
-        Relaxation(seedNormals, normals, iterationsMultiplier * (8-h));
+        Relaxation(seedNormals, normals, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
         saveImage("normals " + h + " post", normals);
 
         // Solve the poisson equation for noise
         saveImage("noise " + h + " seed", seedNoise);
         Interpolate(smallerNoise, noise);
-        saveImage("noise " + h + " pre", normals);
-        Relaxation(seedNoise, noise, iterationsMultiplier * (8 - h));
+        saveImage("noise " + h + " pre", noise);
+        Relaxation(seedNoise, noise, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
         saveImage("noise " + h + " post", noise);
 
         // Solve poisson equation for the terrain
@@ -147,7 +147,7 @@ public class Laplace : MonoBehaviour
         saveImage("restrictions " + h, restrictions);
         saveImage("heightmap " + h + " pre", heightmap);
 
-        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, iterationsMultiplier * (8-h));
+        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
         saveImage("heightmap " + h + " post", heightmap);
 
         RestrictedSmoothing(heightmap, seedHeightmap, 0);

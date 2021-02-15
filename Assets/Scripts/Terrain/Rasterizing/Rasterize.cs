@@ -18,7 +18,7 @@ public static class Rasterize
 
     public static void rasterizeSplineTriangles(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, int terrainSize, int maxHeight, int resolution)
     {
-        Color gradientColorStart = new Color(0.5f, 0.5f, 0, 1f);
+        Color gradientColorStart = new Color(0.7f, 0.3f, 0, 1f);
         Color gradientColorEnd = new Color(1f, 0.0f, 0, 1f);
 
         foreach (BezierSpline spline in splines)
@@ -188,12 +188,12 @@ public static class Rasterize
                             vertColors[item][indices[item][n + 1]],
                             vertColors[item][indices[item][n + 2]]);
 
-                        if (pixel.getColor(vertColors[item][indices[item][n]],
+                        /*if (pixel.getColor(vertColors[item][indices[item][n]],
                             vertColors[item][indices[item][n + 1]],
                             vertColors[item][indices[item][n + 2]]).r < 3f / maxHeight)
                         {
                             Debug.LogError("Pixel height is 0 at position " + pixel.position.ToString());
-                        }
+                        }*/
 
                         restriction[pixel.position] = new Color(0, 0, 0, 1);
                     }
@@ -205,9 +205,15 @@ public static class Rasterize
         {
             if (counter[n] != 1)
             {
-                restriction[n] = new Color(1, 0, 0, 1);
+                //
                 normal[n] = new Color(0, 0, 0, 0);
-            }
+                
+                //if (counter[n] == 0)
+                {
+                    restriction[n] = new Color(1, 0, 0, 1);
+                }
+            } 
+            
         }
 
         heightmap.SetPixels(0, 0, heightmap.width, heightmap.height, seed);
@@ -218,7 +224,7 @@ public static class Rasterize
 
     public static void rasterizeSplineLines(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, Texture2D noise, int terrainSize, int maxHeight, int resolution)
     {
-        float[,,] normalValues = new float[normals.width, normals.height, 4];
+        float[,,] normalValues = new float[normals.width, normals.height, 3];
         float[,,] heightValues = new float[normals.width, normals.height, 2];
         float[,,] noiseValues = new float[normals.width, normals.height, 3];
 
@@ -266,28 +272,27 @@ public static class Rasterize
                         Vector2Int movedPixel1 = Vector2Int.CeilToInt(pixel + perpendicular * 1.5f);
                         if (movedPixel1.x < normals.width && movedPixel1.x > 0 && movedPixel1.y < normals.height && movedPixel1.y > 0)
                         {
-                            Color oldNormalColor1 = normals.GetPixel(movedPixel1.x, movedPixel1.y);
                             normalValues[movedPixel1.x, movedPixel1.y, 0] += (1 + perpendicular.x) / 2;
                             normalValues[movedPixel1.x, movedPixel1.y, 1] += (1 + perpendicular.y) / 2;
-                            normalValues[movedPixel1.x, movedPixel1.y, 2] += oldNormalColor1.b;
-                            normalValues[movedPixel1.x, movedPixel1.y, 3] += 1;
+                            normalValues[movedPixel1.x, movedPixel1.y, 2] += 1;
                         }
 
                         Vector2Int movedPixel2 = Vector2Int.CeilToInt(pixel - perpendicular * 1.5f);
                         if (movedPixel2.x < normals.width && movedPixel2.x > 0 && movedPixel2.y < normals.height && movedPixel2.y > 0) 
                         {
-                            Color oldNormalColor2 = normals.GetPixel(movedPixel2.x, movedPixel2.y);
                             normalValues[movedPixel2.x, movedPixel2.y, 0] += (1 - perpendicular.x) / 2;
                             normalValues[movedPixel2.x, movedPixel2.y, 1] += (1 - perpendicular.y) / 2;
-                            normalValues[movedPixel2.x, movedPixel2.y, 2] += oldNormalColor2.b;
-                            normalValues[movedPixel2.x, movedPixel2.y, 3] += 1;
+                            normalValues[movedPixel2.x, movedPixel2.y, 2] += 1;
                         }
 
                         // Noise
-                        SplineMetaPoint metaPoint = spline.getMetaPointInterpolated(distOnSpline);
-                        noiseValues[pixel.x, pixel.y, 0] += metaPoint.noiseAmplitude;
-                        noiseValues[pixel.x, pixel.y, 1] += metaPoint.noiseRoughness;
-                        noiseValues[pixel.x, pixel.y, 2] += 1;
+                        if (spline.metaPoints.Length > 0)
+                        {
+                            SplineMetaPoint metaPoint = spline.getMetaPointInterpolated(distOnSpline);
+                            noiseValues[pixel.x, pixel.y, 0] += metaPoint.noiseAmplitude;
+                            noiseValues[pixel.x, pixel.y, 1] += metaPoint.noiseRoughness;
+                            noiseValues[pixel.x, pixel.y, 2] += 1;
+                        }
 
                     }
                 }
@@ -312,13 +317,13 @@ public static class Rasterize
                 }
 
                 // Normals
-                if (normalValues[x, y, 3] > 0)
+                Color oldNormalColor1 = normals.GetPixel(x,y);
+                if (normalValues[x, y, 2] > 0)
                 {
-                    normalColors[x + y * normals.width] = new Color(normalValues[x, y, 0] / normalValues[x, y, 3], normalValues[x, y, 1] / normalValues[x, y, 3], normalValues[x, y, 2] / normalValues[x, y, 3], 1);
+                    normalColors[x + y * normals.width] = new Color(normalValues[x, y, 0] / normalValues[x, y, 2], normalValues[x, y, 1] / normalValues[x, y, 2], oldNormalColor1.b, 1);
                 }
                 else
                 {
-                    Color oldNormalColor1 = normals.GetPixel(x,y);
                     normalColors[x + y * normals.width] = oldNormalColor1;
                 }
 

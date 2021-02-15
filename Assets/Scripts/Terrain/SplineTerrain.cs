@@ -32,6 +32,9 @@ public class SplineTerrain : MonoBehaviour
     [Range(1, 20)]
     public int diffusionIterationMultiplier = 10;
 
+    [Range(1, 10)]
+    public int breakOnLevel = 2;
+
 
     [Header("Noise Global")]
     [Range(1, 50f)]
@@ -75,31 +78,34 @@ public class SplineTerrain : MonoBehaviour
             return;
         }
 
-
         Laplace l = this.GetComponent<Laplace>();
-        RenderTexture normals = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 32, RenderTextureFormat.ARGBFloat);
+        RenderTexture normals = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
         normals.enableRandomWrite = true;
         normals.autoGenerateMips = false;
         normals.Create();
-        RenderTexture heightmap = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 1, RenderTextureFormat.RFloat);
+        RenderTexture heightmap = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
         heightmap.enableRandomWrite = true;
         heightmap.autoGenerateMips = false;
         heightmap.Create();
-        RenderTexture noise = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 1, RenderTextureFormat.RFloat);
+        RenderTexture noise = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.RFloat);
         noise.enableRandomWrite = true;
         noise.autoGenerateMips = false;
         noise.Create();
-        RenderTexture noiseSeed = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 1, RenderTextureFormat.ARGBFloat);
+        RenderTexture noiseSeed = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
         noiseSeed.enableRandomWrite = true;
         noiseSeed.autoGenerateMips = false;
         noiseSeed.Create();
-        RenderTexture result = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 1, RenderTextureFormat.ARGBFloat);
+        RenderTexture result = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.RFloat);
         result.enableRandomWrite = true;
         result.autoGenerateMips = false;
         result.Create();
 
-        l.poissonStep(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), normals, heightmap, noiseSeed, 1, this.height *2, terrainSize, diffusionIterationMultiplier, splineSamplings);
-
+        float time = Time.realtimeSinceStartup;
+        for(int n = 0; n < 1; n++)
+        {
+            l.poissonStep(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), normals, heightmap, noiseSeed, 1, this.height *2, terrainSizeExp, diffusionIterationMultiplier, splineSamplings, breakOnLevel);
+        }
+        Debug.Log((Time.realtimeSinceStartup - time) + "s");
 
         RenderTexture.active = noiseSeed;
         Texture2D tNoiseSeed = new Texture2D(noiseSeed.width, noiseSeed.height, TextureFormat.RGBAFloat, false);
@@ -113,6 +119,7 @@ public class SplineTerrain : MonoBehaviour
         Graphics.Blit(noiset, noise);
 
         l.SumTwoTextures(result, heightmap, noise, 1, 0, noiseAmplitude * 0.005f * (100f / height), 0f);
+        Debug.Log((Time.realtimeSinceStartup - time) + "s");
 
 
         this.heightmap = result;

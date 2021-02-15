@@ -30,8 +30,9 @@ public class TerrainEditorWindow : EditorWindow
 
         // Terrain part
         SplineTerrain terrain = null;
-        if (Selection.activeGameObject && (Selection.activeGameObject.TryGetComponent<SplineTerrain>(out terrain) || Selection.activeGameObject.transform.parent.TryGetComponent<SplineTerrain>(out terrain) || Selection.activeGameObject.transform.parent.parent.TryGetComponent<SplineTerrain>(out terrain)))
+        if (Selection.activeGameObject && Selection.activeGameObject.GetComponentInParent<SplineTerrain>())
         {
+            terrain = Selection.activeGameObject.GetComponentInParent<SplineTerrain>();
             GUILayout.Label("Terrain options", EditorStyles.boldLabel);
             GUI.backgroundColor = new Color(138f / 255, 242f / 255, 116f / 255);
             if (GUILayout.Button("Render terrain"))
