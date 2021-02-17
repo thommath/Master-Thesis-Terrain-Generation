@@ -274,7 +274,7 @@ void TiltAngle(uint3 id : SV_DispatchThreadID)
 	TerrainFluxMap[id.xy] = float4(sinangle, TerrainFluxMap[id.xy].gba);
 
 	*/
-
+	/*
 	float dx = 100 * (max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateRight)) +
 		max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateLeft)));
 
@@ -284,14 +284,34 @@ void TiltAngle(uint3 id : SV_DispatchThreadID)
 	// Fancy trigonometry
 	float sinangle = min(dx * dx + dy * dy, 1);
 	TerrainFluxMap[id.xy] = float4(sinangle, TerrainFluxMap[id.xy].gba);
+	*/
 
 
-
+	/*
+	Fancy calculation
 	float3 normal = float3(1, 1, 1) * float3((TERRAIN_HEIGHT(stateRight) - TERRAIN_HEIGHT(stateLeft)) / 2, (TERRAIN_HEIGHT(stateBottom) - TERRAIN_HEIGHT(stateTop)) / 2, -1);
 	float3 straightUp = float3(1, 1, 0);
 
 	float sina = dot(straightUp, normal) / (length(straightUp) * length(normal));
 	TerrainFluxMap[id.xy] = float4(abs(sina), TerrainFluxMap[id.xy].gba);
+	*/
+
+	/*
+	Not too fancy calculation as in report
+	*/
+	float dx = 50 * (max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateRight)) +
+		max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateLeft)));
+
+	float dy = 50 * (max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateTop))) +
+		max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateBottom))));
+	
+	float3 v = float3(dx, dy, 1);
+	float3 u = float3(0, 0, 1);
+	
+	float cosAngle = (dot(v, u)) / (length(v) * length(u));
+	float sinAngle = sqrt(1 - cosAngle * cosAngle);
+	TerrainFluxMap[id.xy] = float4(sinAngle, TerrainFluxMap[id.xy].gba);
+
 }
 
 /* Pass 4. Terrain hydraulic erosion and deposition */
@@ -307,8 +327,8 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 	// This min value should be able to be changed to a diffused value similar to the noise value in the other paper
 	float sinangle = max(0.001, TerrainFluxMap[id.xy].r);
 
-	float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * WATER_HEIGHT(state);
-	// float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle;
+	// float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * WATER_HEIGHT(state);
+	float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle;
 	
 	if (SEDIMENT(state) < sedimentTransportCapacity)
 	{

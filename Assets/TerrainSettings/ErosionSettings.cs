@@ -26,7 +26,6 @@ public class ErosionSetting : ScriptableObject
     public float DepositionRate = 0.7f; 
      
     [Header("Rain and evaporation")]
-    
     public bool AddWater = true;
 
     [Range(0, 1f)]
