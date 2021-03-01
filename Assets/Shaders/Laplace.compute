@@ -87,18 +87,109 @@ void Relaxation(uint3 id : SV_DispatchThreadID)
 RWTexture2D<float4> restrictionsTexture;
 RWTexture2D<float4> normals;
 
-RWTexture2D<float> terrainHeight;
+RWTexture2D<float4> terrainHeight;
 
 [numthreads(8, 8, 1)]
 void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 {
+    float alpha = restrictionsTexture[id.xy].x;
+    float beta = restrictionsTexture[id.xy].y;
+
+    float2 normal = (0.3 - normals[id.xy].xy);
+    float gradient = (0.5 - normals[id.xy].z);
+
+    // It crashes it normalize is run on (0,0) vector
+    normal = length(normal) > 0 ? normal = normalize(normal) : float2(1, 0);
+
+    float Ll = (
+        (id.x == 0 ? 0 : ( (1 - restrictionsTexture[id.xy - uint2(1, 0)].x - restrictionsTexture[id.xy - uint2(1, 0)].y) > 0 ? seedTexture[id.xy - uint2(1, 0)] : terrainHeight[id.xy - uint2(1, 0)]))
+        //+ (id.y == 0 ? 0 : terrainHeight[id.xy - uint2(0,1)])
+        + (id.y == 0 ?
+            0 :
+            (1 - restrictionsTexture[id.xy - uint2(0, 1)].x - restrictionsTexture[id.xy - uint2(0, 1)]) > 0 ?
+            seedTexture[id.xy - uint2(0, 1)] :
+            terrainHeight[id.xy - uint2(0, 1)])
+
+        + (id.y == image_size - 1 ?
+            0 :
+            (1 - restrictionsTexture[id.xy - uint2(0, -1)].x - restrictionsTexture[id.xy - uint2(0, -1)]) > 0 ?
+            seedTexture[id.xy - uint2(0, -1)] :
+            terrainHeight[id.xy - uint2(0, -1)])
+
+        + (id.x == image_size - 1 ?
+            0 :
+            (1 - restrictionsTexture[id.xy - uint2(-1, 0)].x - restrictionsTexture[id.xy - uint2(-1, 0)]) > 0 ?
+            seedTexture[id.xy - uint2(-1, 0)] :
+            terrainHeight[id.xy - uint2(-1, 0)])
+
+        // + (id.x == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(-1, 0)])
+        //+ (id.y == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(0, -1)])
+        ).x
+        / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1));
+
+    /*
+    Ll = ((id.x == 0 ? 0 : terrainHeight[id.xy - uint2(1, 0)])
+        + (id.y == 0 ? 0 : terrainHeight[id.xy - uint2(0, 1)])
+        + (id.x == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(-1, 0)])
+        + (id.y == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(0, -1)])
+        )
+        / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1));
+    */
+
+    float Lg = (
+        pow(normal.x, 2) * terrainHeight[id.xy + int2(sign(normal.x), 0)] +
+        pow(normal.y, 2) * terrainHeight[id.xy + int2(0, sign(normal.y))] +
+        gradient
+        );
+
+    float Li = 0;
+    if ((1 - alpha - beta) > 0) {
+        Li = seedTexture[id.xy].x;
+    }
+
+    float remember = 0.8;
+    terrainHeight[id.xy] = terrainHeight[id.xy] * remember + (1- remember) * float4(Ll * alpha + Lg * beta + Li * (1 - alpha - beta), 0, 0, 1);
+    // terrainHeight[id.xy] = float4(Ll * alpha + Lg * beta + Li * (1-alpha-beta), 0, 0, 1);
+
+    /*
     float2 normal = (0.5 - normals[id.xy].xy);
     float gradient = (0.5-normals[id.xy].z);
 
+    int alpha = restrictionsTexture[id.xy].x;
+    int beta = restrictionsTexture[id.xy].y;
+
     // It crashes it normalize is run on (0,0) vector
-    if (normal.x != 0 && normal.y != 0) {
+    if (length(normal) == 0) {
         normal = normalize(normal);
     }
+    else {
+        normal = float2(1, 0);
+    }
+    float Ll = ((id.x == 0 ? 0 : terrainHeight[id.xy - uint2(1, 0)])
+        + (id.y == 0 ? 0 : terrainHeight[id.xy - uint2(0, 1)])
+        + (id.x == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(-1, 0)])
+        + (id.y == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(0, -1)])
+        )
+        / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1));
+    // float Ll = terrainHeight[id.xy].x;
+    float Lg = (
+        pow(normal.x, 2) * terrainHeight[id.xy + int2(sign(normal.x), 0)] +
+        pow(normal.y, 2) * terrainHeight[id.xy + int2(0, sign(normal.y))] +
+        gradient
+        );
+    */
+    /*
+    float Li = 0;
+    if (length(seedTexture[id.xy]) > 0) {
+        Li = seedTexture[id.xy].x;
+    }
+
+    float res = Li;
+
+    res += 0.1;
+
+    terrainHeight[id.xy] = res;
+    return;
 
     if (restrictionsTexture[id.xy].x == 0) {
         terrainHeight[id.xy] = seedTexture[id.xy].x * (1 - restrictionsTexture[id.xy].x - restrictionsTexture[id.xy].y);
@@ -147,6 +238,7 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
         * (1 - restrictionsTexture[id.xy].x - restrictionsTexture[id.xy].y);
 
     terrainHeight[id.xy] = res;
+    */
 }
 
 

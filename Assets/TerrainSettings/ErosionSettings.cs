@@ -28,6 +28,7 @@ public class ErosionSetting : ScriptableObject
     [Header("Rain and evaporation")]
     public bool AddWater = true;
 
+
     [Range(0, 1f)]
     public float Evaporation = 0.1f;
 
@@ -35,9 +36,9 @@ public class ErosionSetting : ScriptableObject
     public float MaxRainIntensity = 0.1f;
     [Range(0, 1f)]
     public float MinRainIntensity = 0f;
-    [Range(2, 10f)]
+    [Range(2, 50f)]
     public float MaxRainSize = 5f;
-    [Range(2, 10f)]
+    [Range(2, 50f)]
     public float MinRainSize = 2f;
 
     [Range(0f, 1f)]
@@ -50,7 +51,7 @@ public class ErosionSetting : ScriptableObject
 
     [Header("Time and step size")]
 
-    [Range(0.001f, 0.1f)]
+    [Range(0.001f, 0.5f)]
     public float TimeDelta = 0.01f;
     [Range(1, 5000)]
     public float IterationsEachStep = 500f;

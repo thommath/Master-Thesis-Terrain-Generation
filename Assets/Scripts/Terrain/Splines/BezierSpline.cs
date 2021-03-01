@@ -6,6 +6,8 @@ public class BezierSpline : MonoBehaviour {
 
 	public Vector3[] points;
 
+	public bool elevationConstraint = true;
+
 	public SplineMetaPoint[] metaPoints;
 
 	public RasterizingSplineData rasterizingData;
