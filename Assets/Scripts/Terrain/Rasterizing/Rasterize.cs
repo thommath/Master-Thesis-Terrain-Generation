@@ -6,15 +6,6 @@ using UnityEngine;
 
 public static class Rasterize
 {
-    static int GetPixelFromXOrY(float xorz, Texture2D heightmap, int terrainSize)
-    {
-        // Scale the xy coordinates to the grid
-        return Mathf.RoundToInt((terrainSize / 2f + xorz) / (1f * terrainSize / heightmap.width));
-    }
-    static Vector2Int Vector3ToPixelPos(Vector3 vec, Texture2D heightmap, int terrainSize)
-    {
-        return new Vector2Int(GetPixelFromXOrY(vec.x, heightmap, terrainSize), GetPixelFromXOrY(vec.z, heightmap, terrainSize));
-    }
 
     public static void rasterizeSplineTriangles(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, int terrainSize, int maxHeight, int resolution)
     {
@@ -23,122 +14,7 @@ public static class Rasterize
 
         foreach (BezierSpline spline in splines)
         {
-            RasterizingSplineData splineData = spline.rasterizingData;
-
-            if (splineData == null || true)
-            {
-                splineData = new RasterizingSplineData();
-                spline.rasterizingData = splineData;
-            }
-
-            Mesh meshRight = splineData.meshRight;
-            Mesh meshLeft = splineData.meshLeft;
-
-            Vector3[] verteciesRight = new Vector3[(resolution * spline.CurveCount + 1) * 2];
-            int[] trianglesRight = new int[(resolution * spline.CurveCount) * 2 * 3];
-            Color[] colorsRight = new Color[(resolution * spline.CurveCount + 1) * 2];
-
-            Vector3[] verteciesLeft = new Vector3[(resolution * spline.CurveCount + 1) * 2];
-            int[] trianglesLeft = new int[(resolution * spline.CurveCount) * 2 * 3];
-            Color[] colorsLeft = new Color[(resolution * spline.CurveCount + 1) * 2];
-
-            Mesh meshLine = splineData.meshLine;
-            Vector3[] verteciesLine = new Vector3[(resolution * spline.CurveCount + 1) * 2];
-            int[] trianglesLine = new int[(resolution * spline.CurveCount) * 2 * 3];
-            Color[] colorsLineHeight = new Color[(resolution * spline.CurveCount + 1) * 2];
-
-
-            // How many lines the spline should be cut into
-            for (int n = 0; n <= resolution * spline.CurveCount; n++)
-            {
-                float distOnSpline = (1f * n) / (resolution);
-
-                Vector3 point = spline.GetPoint(distOnSpline);
-                SplineMetaPoint metaPoint = spline.getMetaPointInterpolated(distOnSpline);
-
-                verteciesLine[n * 2] = metaPoint.getLineLeftEnd(spline);// point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                verteciesLine[n * 2 + 1] = metaPoint.getLineRightEnd(spline); //point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                colorsLineHeight[n * 2] = new Color(point.y / maxHeight, 0, 0, 1);
-                colorsLineHeight[n * 2 + 1] = new Color(point.y / maxHeight, 0, 0, 1);
-
-                if (n > 0)
-                {
-                    trianglesLine[(n * 2 - 1) * 3] = n * 2;
-                    trianglesLine[(n * 2 - 1) * 3 + 2] = n * 2 + 1;
-                    trianglesLine[(n * 2 - 1) * 3 + 1] = n * 2 - 1;
-                }
-                if (n < resolution * spline.CurveCount)
-                {
-                    trianglesLine[n * 2 * 3] = n * 2;
-                    trianglesLine[n * 2 * 3 + 2] = n * 2 + 2;
-                    trianglesLine[n * 2 * 3 + 1] = n * 2 + 1;
-                }
-
-                {
-                    verteciesRight[n * 2] = metaPoint.getLineRightEnd(spline); //point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    verteciesRight[n * 2 + 1] = metaPoint.getGradientRightEnd(spline); //point + 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized + spline.gradientLengthRight * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-
-                    if (spline.elevationConstraint)
-                    {
-                        colorsRight[n * 2] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleRight / metaPoint.gradientLengthRight) / maxHeight);
-                        colorsRight[n * 2 + 1] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleRight / metaPoint.gradientLengthRight) / maxHeight);
-                    } else
-                    {
-                        colorsRight[n * 2] = new Color(0f, 0f, 0.5f + 0.5f * (metaPoint.gradientAngleRight / metaPoint.gradientLengthRight) / maxHeight);
-                        colorsRight[n * 2 + 1] = new Color(0f, 0f, 0.5f + 0.5f * (metaPoint.gradientAngleRight / metaPoint.gradientLengthRight) / maxHeight);
-                    }
-
-                    if (n > 0)
-                    {
-                        trianglesRight[(n * 2 - 1) * 3] = n * 2;
-                        trianglesRight[(n * 2 - 1) * 3 + 1] = n * 2 + 1;
-                        trianglesRight[(n * 2 - 1) * 3 + 2] = n * 2 - 1;
-                    }
-                    if (n < resolution * spline.CurveCount)
-                    {
-                        trianglesRight[n * 2 * 3] = n * 2;
-                        trianglesRight[n * 2 * 3 + 1] = n * 2 + 2;
-                        trianglesRight[n * 2 * 3 + 2] = n * 2 + 1;
-                    }
-                }
-                {
-                    verteciesLeft[n * 2] = metaPoint.getLineLeftEnd(spline); //point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    verteciesLeft[n * 2 + 1] = metaPoint.getGradientLeftEnd(spline); // point - 0.5f * spline.lineRadius * new Vector3(perpendicular.x, 0, perpendicular.y).normalized - spline.gradientLengthLeft * new Vector3(perpendicular.x, 0, perpendicular.y).normalized;
-                    if (spline.elevationConstraint)
-                    {
-                        colorsLeft[n * 2] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleLeft / metaPoint.gradientLengthLeft) / maxHeight);
-                        colorsLeft[n * 2 + 1] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleLeft / metaPoint.gradientLengthLeft) / maxHeight);
-                    } else
-                    {
-                        colorsLeft[n * 2] = new Color(0f, 0f, 0.5f + 0.5f * (metaPoint.gradientAngleLeft / metaPoint.gradientLengthLeft) / maxHeight);
-                        colorsLeft[n * 2 + 1] = new Color(0f, 0f, 0.5f + 0.5f * (metaPoint.gradientAngleLeft / metaPoint.gradientLengthLeft) / maxHeight);
-                    }
-
-                    if (n > 0)
-                    {
-                        trianglesLeft[(n * 2 - 1) * 3] = n * 2;
-                        trianglesLeft[(n * 2 - 1) * 3 + 2] = n * 2 + 1;
-                        trianglesLeft[(n * 2 - 1) * 3 + 1] = n * 2 - 1;
-                    }
-                    if (n < resolution * spline.CurveCount)
-                    {
-                        trianglesLeft[n * 2 * 3] = n * 2;
-                        trianglesLeft[n * 2 * 3 + 2] = n * 2 + 2;
-                        trianglesLeft[n * 2 * 3 + 1] = n * 2 + 1;
-                    }
-                }
-            }
-            meshRight.vertices = verteciesRight;
-            meshRight.triangles = trianglesRight;
-            meshRight.colors = colorsRight;
-
-            meshLeft.vertices = verteciesLeft;
-            meshLeft.triangles = trianglesLeft;
-            meshLeft.colors = colorsLeft;
-
-            meshLine.vertices = verteciesLine;
-            meshLine.triangles = trianglesLine;
-            meshLine.colors = colorsLineHeight;
+            spline.rasterizingData = RasterizingTriangles.getSplineData(spline, terrainSize, maxHeight, resolution);
         }
 
 
@@ -146,6 +22,7 @@ public static class Rasterize
         Color[] restriction = new Color[heightmap.width * heightmap.height];
         Color[] normal = new Color[heightmap.width * heightmap.height];
         ushort[] counter = new ushort[heightmap.width * heightmap.height];
+
 
         foreach (BezierSpline spline in splines)
         {
@@ -161,9 +38,9 @@ public static class Rasterize
                 for (int n = 0; n < indices[item].Length; n += 3)
                 {
                     foreach (PixelData pixel in TriangleRenderer.RasterizeTriangle(heightmap.width, heightmap.height,
-                        Vector3ToPixelPos(vertices[item][indices[item][n]], heightmap, terrainSize),
-                        Vector3ToPixelPos(vertices[item][indices[item][n+1]], heightmap, terrainSize),
-                        Vector3ToPixelPos(vertices[item][indices[item][n+2]], heightmap, terrainSize)))
+                        RasterizeUtil.Vector3ToPixelPos(vertices[item][indices[item][n]], heightmap, terrainSize),
+                        RasterizeUtil.Vector3ToPixelPos(vertices[item][indices[item][n+1]], heightmap, terrainSize),
+                        RasterizeUtil.Vector3ToPixelPos(vertices[item][indices[item][n+2]], heightmap, terrainSize)))
                     {
                         counter[pixel.position] += 1;
 
@@ -188,6 +65,8 @@ public static class Rasterize
                         }
                         restriction[pixel.position] = pixel.getColor(currentColorForRestriction[0], currentColorForRestriction[1], currentColorForRestriction[2]);
 
+                        restriction[pixel.position] = new Color(1f - restriction[pixel.position].g, restriction[pixel.position].g, 0, 1);
+
                         normal[pixel.position] = pixel.getColor(
                             vertColors[item][indices[item][n]],
                             vertColors[item][indices[item][n + 1]],
@@ -208,9 +87,9 @@ public static class Rasterize
                     for (int n = 0; n < indices[item].Length; n += 3)
                     {
                         foreach (PixelData pixel in TriangleRenderer.RasterizeTriangle(heightmap.width, heightmap.height,
-                            Vector3ToPixelPos(vertices[item][indices[item][n]], heightmap, terrainSize),
-                            Vector3ToPixelPos(vertices[item][indices[item][n + 1]], heightmap, terrainSize),
-                            Vector3ToPixelPos(vertices[item][indices[item][n + 2]], heightmap, terrainSize)))
+                            RasterizeUtil.Vector3ToPixelPos(vertices[item][indices[item][n]], heightmap, terrainSize),
+                            RasterizeUtil.Vector3ToPixelPos(vertices[item][indices[item][n + 1]], heightmap, terrainSize),
+                            RasterizeUtil.Vector3ToPixelPos(vertices[item][indices[item][n + 2]], heightmap, terrainSize)))
                         {
                             counter[pixel.position] = 1;
 
@@ -230,6 +109,12 @@ public static class Rasterize
                     }
                 }
             }
+
+            ////////////////////////////////////////////////////
+            ////
+            ///       Line renderer
+            ////
+            ///////////////////////////////////////////////////
         }
         
         for(int n = 0; n < restriction.Length; n += 1)
@@ -252,6 +137,107 @@ public static class Rasterize
         normals.SetPixels(0, 0, heightmap.width, heightmap.height, normal);
     }
 
+    /*
+    private static void splineLinerenderer(BezierSpline spline, Color[] seed, Color[] normals, Color[] restriction, Color[] noise, ushort[] counter, int width, int terrainSize, int maxHeight, int resolution)
+    {
+        Vector3 lastPoint = Vector3.zero;
+        // How many lines the spline should be cut into
+        for (int n = 0; n <= resolution; n++)
+        {
+            float distOnSpline = (1f * n) / resolution;
+            Vector3 point = spline.GetPoint(distOnSpline);
+
+            if (lastPoint != Vector3.zero)
+            {
+                Vector2 perpendicular = Vector2.Perpendicular(new Vector2(lastPoint.x - point.x, lastPoint.z - point.z)).normalized;
+
+                Vector2Int fromPixel = RasterizeUtil.Vector3ToPixelPos(lastPoint, width, terrainSize);
+                Vector2Int toPixel = RasterizeUtil.Vector3ToPixelPos(point, width, terrainSize);
+                float distBetweenPoints = Vector2Int.Distance(fromPixel, toPixel);
+
+                if (distBetweenPoints == 0)
+                {
+                    continue;
+                }
+
+                //foreach (Vector2Int pixel in GetPixelsOfLine(fromPixel.x, fromPixel.y, toPixel.x, toPixel.y))
+                foreach (Vector3Int pixelWithErr in GetPixelsOfLineAntiAliased(fromPixel.x, fromPixel.y, toPixel.x, toPixel.y))
+                {
+                    if (pixelWithErr.x >= width || pixelWithErr.y >= width || pixelWithErr.x < 0 || pixelWithErr.y < 0)
+                    {
+                        continue;
+                    }
+
+
+                    Vector2Int pixel = new Vector2Int(pixelWithErr.x, pixelWithErr.y);
+
+
+                    if (spline.elevationConstraint)
+                    {
+                        float distOnLine = Vector2Int.Distance(fromPixel, new Vector2Int(pixelWithErr.x, pixelWithErr.y));
+                        float linearInterpolationValue = (distOnLine / distBetweenPoints);
+
+                        float interpolatedHeight = lastPoint.z + (point.z - lastPoint.z) * linearInterpolationValue;
+                        seed[pixel.x + pixel.y * width, 0] += interpolatedHeight / maxHeight;
+                        seed[pixel.x + pixel.y * width, 1] += 1;
+
+                        float val = ((pixelWithErr.z / 255f));
+
+                        restrictions.SetPixel(
+                            pixel.x, pixel.y,
+                            new Color(val, 0, 0, 1));
+                    }
+
+
+                    // Normal vectors
+                    Vector2Int movedPixel1 = Vector2Int.CeilToInt(pixel + perpendicular * 1.5f);
+                    if (movedPixel1.x < normals.width && movedPixel1.x > 0 && movedPixel1.y < normals.height && movedPixel1.y > 0)
+                    {
+                        if (spline.elevationConstraint)
+                        {
+                            normalValues[movedPixel1.x, movedPixel1.y, 0] += (1 + perpendicular.x) / 2;
+                            normalValues[movedPixel1.x, movedPixel1.y, 1] += (1 + perpendicular.y) / 2;
+                            normalValues[movedPixel1.x, movedPixel1.y, 2] += 1;
+                        }
+                        else
+                        {
+                            normalValues[movedPixel1.x, movedPixel1.y, 0] += (1 - perpendicular.x) / 2;
+                            normalValues[movedPixel1.x, movedPixel1.y, 1] += (1 - perpendicular.y) / 2;
+                            normalValues[movedPixel1.x, movedPixel1.y, 2] += 1;
+                        }
+                    }
+
+                    Vector2Int movedPixel2 = Vector2Int.CeilToInt(pixel - perpendicular * 1.5f);
+                    if (movedPixel2.x < normals.width && movedPixel2.x > 0 && movedPixel2.y < normals.height && movedPixel2.y > 0)
+                    {
+                        if (spline.elevationConstraint)
+                        {
+                            normalValues[movedPixel2.x, movedPixel2.y, 0] += (1 - perpendicular.x) / 2;
+                            normalValues[movedPixel2.x, movedPixel2.y, 1] += (1 - perpendicular.y) / 2;
+                            normalValues[movedPixel2.x, movedPixel2.y, 2] += 1;
+                        }
+                        else
+                        {
+                            normalValues[movedPixel2.x, movedPixel2.y, 0] += (1 + perpendicular.x) / 2;
+                            normalValues[movedPixel2.x, movedPixel2.y, 1] += (1 + perpendicular.y) / 2;
+                            normalValues[movedPixel2.x, movedPixel2.y, 2] += 1;
+                        }
+                    }
+
+                    // Noise
+                    if (spline.metaPoints.Length > 0)
+                    {
+                        SplineMetaPoint metaPoint = spline.getMetaPointInterpolated(distOnSpline);
+                        noiseValues[pixel.x, pixel.y, 0] += metaPoint.noiseAmplitude;
+                        noiseValues[pixel.x, pixel.y, 1] += metaPoint.noiseRoughness;
+                        noiseValues[pixel.x, pixel.y, 2] += 1;
+                    }
+                }
+            }
+            lastPoint = point;
+        }
+    }
+    */
 
     public static void rasterizeSplineLines(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, Texture2D noise, int terrainSize, int maxHeight, int resolution)
     {
@@ -272,8 +258,8 @@ public static class Rasterize
                 {
                     Vector2 perpendicular = Vector2.Perpendicular(new Vector2(lastPoint.x - point.x, lastPoint.z - point.z)).normalized;
 
-                    Vector2Int fromPixel = Vector3ToPixelPos(lastPoint, heightmap, terrainSize);
-                    Vector2Int toPixel = Vector3ToPixelPos(point, heightmap, terrainSize);
+                    Vector2Int fromPixel = RasterizeUtil.Vector3ToPixelPos(lastPoint, heightmap, terrainSize);
+                    Vector2Int toPixel = RasterizeUtil.Vector3ToPixelPos(point, heightmap, terrainSize);
                     float distBetweenPoints = Vector2Int.Distance(fromPixel, toPixel);
 
                     if (distBetweenPoints == 0)
@@ -298,11 +284,12 @@ public static class Rasterize
                             heightValues[pixel.x, pixel.y, 0] += interpolatedHeight / maxHeight;
                             heightValues[pixel.x, pixel.y, 1] += 1;
 
-                            float val = (( pixelWithErr.z / 255f ));
+                            float val = pixelWithErr.z / 255f;
+                            Color c = restrictions.GetPixel(pixel.x, pixel.y);
 
                             restrictions.SetPixel(
                                 pixel.x, pixel.y,
-                                new Color(val, 0, 0, 1));
+                                new Color(c.r*val, c.g * val, 0, 1));
                         }
 
 
@@ -364,7 +351,7 @@ public static class Rasterize
             {
                 // Height
                 Color oldSeedColor = heightmap.GetPixel(x, y);
-                if (oldSeedColor.r == 0)
+                if (oldSeedColor.r == 0 && heightValues[x, y, 1] > 0)
                 {
                     heightColors[x + y*normals.width] = new Color(heightValues[x, y, 0] / heightValues[x, y, 1], 0, 0, 1);
                 } else
@@ -421,7 +408,6 @@ public static class Rasterize
         int numerator = longest >> 1;
         for (int i = 0; i <= longest; i++)
         {
-
             yield return new Vector2Int(x, y);
 
             numerator += shortest;
