@@ -121,41 +121,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!84 &4227380
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  serializedVersion: 3
-  m_Width: 257
-  m_Height: 257
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 49
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &149358436
 GameObject:
   m_ObjectHideFlags: 0
@@ -204,6 +169,7 @@ MonoBehaviour:
   - {x: -10, y: 29.648209, z: 0}
   - {x: 10, y: 26.832443, z: 0}
   - {x: 40.485397, y: 5.1522665, z: 0}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.5
     lineRadius: 2.0098839
@@ -290,6 +256,7 @@ MonoBehaviour:
   - {x: 15.92588, y: 8.410416, z: 0}
   - {x: 47.92, y: 0, z: 0}
   - {x: 71.97986, y: 6.304064, z: -1.0330276}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.5
     lineRadius: 0.010344945
@@ -377,6 +344,7 @@ MonoBehaviour:
   - {x: -10, y: 34.583275, z: 0}
   - {x: 10, y: 12.789429, z: -20.348595}
   - {x: 35.38186, y: 13.73135, z: -16.005611}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.5
     lineRadius: 0.40797415
@@ -386,41 +354,6 @@ MonoBehaviour:
     gradientAngleRight: -6.8088417
     noiseAmplitude: 0
     noiseRoughness: 0
---- !u!84 &302351445
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  serializedVersion: 3
-  m_Width: 257
-  m_Height: 257
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 52
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &323073338
 GameObject:
   m_ObjectHideFlags: 0
@@ -469,6 +402,7 @@ MonoBehaviour:
   - {x: -10.000002, y: -7.1291885, z: 12.178106}
   - {x: 5.610754, y: 9.732201, z: -8.899376}
   - {x: 17.391588, y: 14.522453, z: 0}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.53
     lineRadius: 0
@@ -542,6 +476,7 @@ MonoBehaviour:
   - {x: 15.92588, y: 5.1201706, z: 0}
   - {x: 47.92, y: 4.9455566, z: 0}
   - {x: 71.97986, y: 6.304064, z: -1.0330276}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.89
     lineRadius: 0.048423767
@@ -642,6 +577,76 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!84 &522896465
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  serializedVersion: 3
+  m_Width: 257
+  m_Height: 257
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 49
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+--- !u!84 &578347865
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  serializedVersion: 3
+  m_Width: 257
+  m_Height: 257
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 52
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -897,12 +902,14 @@ MonoBehaviour:
   terrainResolution: 256
   splineSamplings: 100
   diffusionIterationMultiplier: 5
+  breakOnLevel: 2
+  startHeight: 0
   noiseScale: 30
   noiseAmplitude: 10
   saveImages: 0
-  heightmap: {fileID: 4227380}
-  normals: {fileID: 302351445}
-  noise: {fileID: 1332135877}
+  heightmap: {fileID: 522896465}
+  normals: {fileID: 578347865}
+  noise: {fileID: 1349599675}
   updatedData:
     m_PersistentCalls:
       m_Calls: []
@@ -936,7 +943,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laplace: {fileID: 7200000, guid: 7c41273de33dba448b853352b10b6855, type: 3}
-  saveImages: 0
+  saveImages: 1
 --- !u!114 &873029717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1040,12 +1047,13 @@ MonoBehaviour:
   - {x: -10, y: 0, z: 0}
   - {x: 10, y: 0, z: 0}
   - {x: -23.080439, y: 0, z: 0}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.5
     lineRadius: 0.9005952
     gradientLengthLeft: 0.0013871193
     gradientAngleLeft: 0.000034332275
-    gradientLengthRight: 0.835994
+    gradientLengthRight: 5.0189333
     gradientAngleRight: 0
     noiseAmplitude: 0
     noiseRoughness: 0
@@ -1053,7 +1061,7 @@ MonoBehaviour:
     lineRadius: 1.4008658
     gradientLengthLeft: 0.001865983
     gradientAngleLeft: -0.000045776367
-    gradientLengthRight: 0.046121597
+    gradientLengthRight: 2.9106145
     gradientAngleRight: 0
     noiseAmplitude: 0
     noiseRoughness: 0
@@ -1188,6 +1196,7 @@ MonoBehaviour:
   - {x: -10.000002, y: -23.393814, z: -12.69143}
   - {x: 5.610754, y: -2.7074738, z: -8.899376}
   - {x: 17.391588, y: 14.522453, z: 0}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.53
     lineRadius: 0
@@ -1213,7 +1222,7 @@ MonoBehaviour:
     gradientAngleRight: 0
     noiseAmplitude: 0.2
     noiseRoughness: 0.05
---- !u!84 &1332135877
+--- !u!84 &1349599675
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1296,6 +1305,7 @@ MonoBehaviour:
   - {x: 14.869995, y: 16.039337, z: -30.46939}
   - {x: 18.818588, y: 38.71217, z: -17.029335}
   - {x: 20, y: 34.332016, z: 1.9692395}
+  elevationConstraint: 1
   metaPoints: []
 --- !u!84 &1469249107
 RenderTexture:
@@ -1383,13 +1393,14 @@ MonoBehaviour:
   - {x: -87.81467, y: 88.87226, z: -19.188906}
   - {x: -99.06699, y: 48.92131, z: -6.206314}
   - {x: -91.92127, y: 24.7958, z: -69.18048}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.1
-    lineRadius: 1.9966922
-    gradientLengthLeft: 3.2373953
+    lineRadius: 1.781269
+    gradientLengthLeft: 0.04299187
     gradientAngleLeft: -1.3248501
-    gradientLengthRight: 2.5119174
-    gradientAngleRight: 1.1592693
+    gradientLengthRight: 14.470345
+    gradientAngleRight: -12.136021
     noiseAmplitude: 0.48
     noiseRoughness: 0.194
   - position: 1
@@ -1582,6 +1593,7 @@ MonoBehaviour:
   - {x: -10.000002, y: -23.393814, z: 12.178104}
   - {x: 5.610754, y: -2.7074738, z: -8.899376}
   - {x: 17.391588, y: 14.522453, z: 0}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.53
     lineRadius: 0
@@ -1658,6 +1670,7 @@ MonoBehaviour:
   - {x: -10, y: 34.583275, z: 0}
   - {x: 10, y: 16.019897, z: 0}
   - {x: 40.56465, y: 14.674686, z: 0}
+  elevationConstraint: 1
   metaPoints:
   - position: 0.5
     lineRadius: 0.068120256

@@ -54,21 +54,7 @@ public class Laplace : MonoBehaviour
 
         // Create textures to rasterize on
         Texture2D tseedHeightmap = new Texture2D(width, width, TextureFormat.RGBAFloat, true);
-        for (int x = 0; x < width + 1; x++)
-        {
-            for (int y = 0; y < width + 1; y++)
-            {
-                tseedHeightmap.SetPixel(x, y, new Color(0, 0, 0, 1));
-            }
-        }
         Texture2D tRestrictions = new Texture2D(width, width, TextureFormat.RGBAFloat, true);
-        for (int x = 0; x < width + 1; x++)
-        {
-            for (int y = 0; y < width + 1; y++)
-            {
-                tRestrictions.SetPixel(x, y, new Color(1, 0, 0, 1));
-            }
-        }
         Texture2D tseedNormals = new Texture2D(width, width, TextureFormat.RGBAFloat, true);
         Texture2D tNoise = new Texture2D(width, width, TextureFormat.RGBAFloat, true);
 
@@ -118,10 +104,10 @@ public class Laplace : MonoBehaviour
         }
         Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, tNoise, Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp)), maxHeight, resolution);
 
-        tseedHeightmap.Apply(true);
-        tseedNormals.Apply(true);
-        tRestrictions.Apply(true);
-        tNoise.Apply(true);
+        tseedHeightmap.Apply();
+        tseedNormals.Apply();
+        tRestrictions.Apply();
+        tNoise.Apply();
 
         rasterizedDataDict.Add(width, new RasterizedData(tseedHeightmap, tRestrictions, tseedNormals, tNoise));
 
@@ -153,11 +139,25 @@ public class Laplace : MonoBehaviour
      * normals and result are approximations of the result. Can be whatever - are used to improve solution over multiple iterations
      * 
      */
-    public void poissonStep(BezierSpline[] splines, RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int maxHeight, int terrainSizeExp, int iterationsMultiplier = 4, int resolution = 50, int breakOn = 1)
+    public void poissonStep(RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int terrainSizeExp, int iterationsMultiplier = 4, int breakOn = 1, float startHeight = 0)
     {
         // Break on 1
         if (normals.width == Mathf.RoundToInt(Mathf.Pow(2, breakOn)) + 1)
         {
+            if (startHeight > 0)
+            {
+                Texture2D tex = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RFloat, false);
+                Color[] cs = new Color[heightmap.width * heightmap.height];
+                Color c = new Color(startHeight, 0, 0, 1);
+                for(int n = 0; n < cs.Length; n++)
+                {
+                    cs[n] = c;
+                }
+                tex.SetPixels(cs);
+                tex.Apply();
+                Graphics.Blit(tex, heightmap);
+            }
+
             return;
         }
 
@@ -174,12 +174,12 @@ public class Laplace : MonoBehaviour
         RenderTexture smallerNoise = createRenderTexture(size, 0, noise.depth, noise.format);
 
         // Restrict textures to smaller versions
-        Restrict(normals, smallerNormals);
-        Restrict(heightmap, smallerHeightmap);
-        Restrict(noise, smallerNoise);
+        //Restrict(normals, smallerNormals);
+        //Restrict(heightmap, smallerHeightmap);
+        //Restrict(noise, smallerNoise);
 
         // Solve recursively
-        poissonStep(splines, smallerNormals, smallerHeightmap, smallerNoise, h + 1, maxHeight, terrainSizeExp, iterationsMultiplier, resolution, breakOn);
+        poissonStep(smallerNormals, smallerHeightmap, smallerNoise, h + 1, terrainSizeExp, iterationsMultiplier, breakOn, startHeight);
 
         // Set variables
         laplace.SetFloat("h", Mathf.Pow(2, h));

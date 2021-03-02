@@ -16,7 +16,7 @@ public class SplineTerrain : MonoBehaviour
 
     [Range(8, 12)]
     public int terrainSizeExp = 8;
-    [Range(7, 13)]
+    [Range(5, 13)]
     public int terrainResolutionExp = 8;
 
     [HideInInspector]
@@ -34,6 +34,9 @@ public class SplineTerrain : MonoBehaviour
 
     [Range(1, 10)]
     public int breakOnLevel = 2;
+
+    [Range(0f, 1f)]
+    public float startHeight = 0;
 
 
     [Header("Noise Global")]
@@ -106,7 +109,7 @@ public class SplineTerrain : MonoBehaviour
         l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
         Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing");
 
-        l.poissonStep(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), normals, heightmap, noiseSeed, 1, this.height *2, terrainSizeExp, diffusionIterationMultiplier, splineSamplings, breakOnLevel);
+        l.poissonStep(normals, heightmap, noiseSeed, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
 
         Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
 
