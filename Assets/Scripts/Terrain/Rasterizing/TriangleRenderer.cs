@@ -64,7 +64,7 @@ class TriangleRenderer
 
                 if (bary.IsInside)
                 {
-                    yield return new PixelData(x + y * width, bary);
+                    yield return new PixelData(x, y, bary);
                 }
                 continue;
 
@@ -75,12 +75,14 @@ class TriangleRenderer
 
 public class PixelData
 {
-    public int position;
+    public int x;
+    public int y;
     public Barycentric colorMixing;
 
-    public PixelData(int position, Barycentric colorMixing)
+    public PixelData(int x, int y, Barycentric colorMixing)
     {
-        this.position = position;
+        this.x = x;
+        this.y = y;
         this.colorMixing = colorMixing;
     }
 
@@ -93,4 +95,5 @@ public class PixelData
             1
             );
     }
+
 }
