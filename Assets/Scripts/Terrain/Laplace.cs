@@ -39,6 +39,11 @@ public class Laplace : MonoBehaviour
 
     Dictionary<int, RasterizedData> rasterizedDataDict = new Dictionary<int, RasterizedData>();
 
+    public void clearRasterizedDataDict()
+    {
+        rasterizedDataDict.Clear();
+    }
+
     public void rasterizeData(BezierSpline[] splines, int width, int maxHeight, int terrainSizeExp, int resolution = 50, int breakOn = 1)
     {
         // Break on 1
@@ -48,7 +53,7 @@ public class Laplace : MonoBehaviour
         }
 
         // Create textures to rasterize on
-        Texture2D tseedHeightmap = new Texture2D(width, width, TextureFormat.RFloat, false);
+        Texture2D tseedHeightmap = new Texture2D(width, width, TextureFormat.RGBAFloat, true);
         for (int x = 0; x < width + 1; x++)
         {
             for (int y = 0; y < width + 1; y++)
@@ -56,7 +61,7 @@ public class Laplace : MonoBehaviour
                 tseedHeightmap.SetPixel(x, y, new Color(0, 0, 0, 1));
             }
         }
-        Texture2D tRestrictions = new Texture2D(width, width, TextureFormat.RGFloat, false);
+        Texture2D tRestrictions = new Texture2D(width, width, TextureFormat.RGBAFloat, true);
         for (int x = 0; x < width + 1; x++)
         {
             for (int y = 0; y < width + 1; y++)
@@ -64,11 +69,45 @@ public class Laplace : MonoBehaviour
                 tRestrictions.SetPixel(x, y, new Color(1, 0, 0, 1));
             }
         }
-        Texture2D tseedNormals = new Texture2D(width, width, TextureFormat.RGBAFloat, false);
-        Texture2D tNoise = new Texture2D(width, width, TextureFormat.RGBAFloat, false);
+        Texture2D tseedNormals = new Texture2D(width, width, TextureFormat.RGBAFloat, true);
+        Texture2D tNoise = new Texture2D(width, width, TextureFormat.RGBAFloat, true);
 
         // Rasterize splines
-        Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp)), maxHeight, Mathf.Max(2, resolution));
+        if (false) // Using not faster but good at each level
+        {
+
+            Texture2D tseedHeightmap2 = new Texture2D(width*2, width * 2, TextureFormat.RGBAFloat, true);
+            for (int x = 0; x < width * 2 + 1; x++)
+            {
+                for (int y = 0; y < width * 2 + 1; y++)
+                {
+                    tseedHeightmap2.SetPixel(x, y, new Color(0, 0, 0, 1));
+                }
+            }
+            Texture2D tRestrictions2 = new Texture2D(width * 2, width * 2, TextureFormat.RGBAFloat, true);
+            for (int x = 0; x < width * 2 + 1; x++)
+            {
+                for (int y = 0; y < width * 2 + 1; y++)
+                {
+                    tRestrictions2.SetPixel(x, y, new Color(1, 0, 0, 1));
+                }
+            }
+            Texture2D tseedNormals2 = new Texture2D(width * 2, width * 2, TextureFormat.RGBAFloat, true);
+
+            Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap2, tRestrictions2, tseedNormals2, Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp)), maxHeight, Mathf.Max(2, resolution));
+
+            tseedHeightmap2.Apply(true);
+            tseedNormals2.Apply(true);
+            tRestrictions2.Apply(true);
+
+            tseedHeightmap.SetPixels(0, 0, tseedHeightmap.width - 1, tseedHeightmap.height - 1, tseedHeightmap2.GetPixels(0, 0, tseedHeightmap.width - 1, tseedHeightmap.height - 1, 1));
+            tseedNormals.SetPixels(0, 0, tseedNormals.width - 1, tseedNormals.height - 1, tseedNormals2.GetPixels(0, 0, tseedNormals.width - 1, tseedNormals.height - 1, 1));
+            tRestrictions.SetPixels(0, 0, tRestrictions.width - 1, tRestrictions.height - 1, tRestrictions2.GetPixels(0, 0, tRestrictions.width - 1, tRestrictions.height - 1, 1));
+        } else
+        {
+            Rasterize.rasterizeSplineTriangles(splines, tseedHeightmap, tRestrictions, tseedNormals, Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp)), maxHeight, Mathf.Max(2, resolution));
+        }
+
         for (int x = 0; x < width + 1; x++)
         {
             for (int y = 0; y < width + 1; y++)
@@ -79,14 +118,12 @@ public class Laplace : MonoBehaviour
         }
         Rasterize.rasterizeSplineLines(splines, tseedHeightmap, tRestrictions, tseedNormals, tNoise, Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp)), maxHeight, resolution);
 
-        tseedHeightmap.Apply();
-        tseedNormals.Apply();
-        tRestrictions.Apply();
-        tNoise.Apply();
+        tseedHeightmap.Apply(true);
+        tseedNormals.Apply(true);
+        tRestrictions.Apply(true);
+        tNoise.Apply(true);
 
-        RasterizedData rd = new RasterizedData(tseedHeightmap, tRestrictions, tseedNormals, tNoise);
-
-        rasterizedDataDict.Add(width, rd);
+        rasterizedDataDict.Add(width, new RasterizedData(tseedHeightmap, tRestrictions, tseedNormals, tNoise));
 
         // Create buffer of half input size (special case for super tiny)
         int size = width / 2 + 1;

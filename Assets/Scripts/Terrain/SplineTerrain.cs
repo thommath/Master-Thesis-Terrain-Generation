@@ -100,6 +100,8 @@ public class SplineTerrain : MonoBehaviour
         result.autoGenerateMips = false;
         result.Create();
 
+        l.clearRasterizedDataDict();
+
         float time = Time.realtimeSinceStartup;
         l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
         Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing");
