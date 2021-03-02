@@ -6,7 +6,6 @@ using UnityEngine;
 
 public static class Rasterize
 {
-
     public static void rasterizeSplineTriangles(BezierSpline[] splines, Texture2D heightmap, Texture2D restrictions, Texture2D normals, int terrainSize, int maxHeight, int resolution)
     {
         Color gradientColorStart = new Color(0.7f, 0.3f, 0, 1f);

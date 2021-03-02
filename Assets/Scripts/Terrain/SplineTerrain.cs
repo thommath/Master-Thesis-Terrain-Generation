@@ -101,11 +101,12 @@ public class SplineTerrain : MonoBehaviour
         result.Create();
 
         float time = Time.realtimeSinceStartup;
-        for(int n = 0; n < 1; n++)
-        {
-            l.poissonStep(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), normals, heightmap, noiseSeed, 1, this.height *2, terrainSizeExp, diffusionIterationMultiplier, splineSamplings, breakOnLevel);
-        }
-        Debug.Log((Time.realtimeSinceStartup - time) + "s");
+        l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
+        Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing");
+
+        l.poissonStep(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), normals, heightmap, noiseSeed, 1, this.height *2, terrainSizeExp, diffusionIterationMultiplier, splineSamplings, breakOnLevel);
+
+        Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
 
         RenderTexture.active = noiseSeed;
         Texture2D tNoiseSeed = new Texture2D(noiseSeed.width, noiseSeed.height, TextureFormat.RGBAFloat, false);
@@ -119,7 +120,7 @@ public class SplineTerrain : MonoBehaviour
         Graphics.Blit(noiset, noise);
 
         l.SumTwoTextures(result, heightmap, noise, 1, 0, noiseAmplitude * 0.005f * (100f / height), 0f);
-        Debug.Log((Time.realtimeSinceStartup - time) + "s");
+        Debug.Log((Time.realtimeSinceStartup - time) + "s for noise and sum");
 
 
         this.heightmap = result;
