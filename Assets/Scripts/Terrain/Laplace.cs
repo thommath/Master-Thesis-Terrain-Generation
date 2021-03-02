@@ -192,8 +192,7 @@ public class Laplace : MonoBehaviour
         }
 
         // Create rendertextures
-        RenderTexture seedHeightmap;
-        seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 0, heightmap.format);
+        RenderTexture seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 0, heightmap.format);
         seedHeightmap.enableRandomWrite = true;
         seedHeightmap.autoGenerateMips = false;
         seedHeightmap.Create();
@@ -241,7 +240,6 @@ public class Laplace : MonoBehaviour
         saveImage("heightmap " + h + " smooth", heightmap);
     }
 
-
     private void Restrict(RenderTexture inputImage, RenderTexture outputImage)
     {
         // Restrict image to half size
@@ -270,6 +268,7 @@ public class Laplace : MonoBehaviour
          * outputImage is the texture to be written to
          * 
          */
+
         // Relax solution
         int relaxKernelHandle = laplace.FindKernel("Relaxation");
         laplace.SetTexture(relaxKernelHandle, "seedTexture", seedTexture);
@@ -291,11 +290,25 @@ public class Laplace : MonoBehaviour
          * outputImage is the texture to be written to
          * 
          */
+
+        // normalize normals
+
+        RenderTexture normalizedNormals = new RenderTexture(normals.width, normals.width, 0, normals.format);
+        normalizedNormals.enableRandomWrite = true;
+        normalizedNormals.autoGenerateMips = false;
+        normalizedNormals.Create();
+
+        
+        int normalizeKernelHandle = laplace.FindKernel("NormalizeNormals");
+        laplace.SetTexture(normalizeKernelHandle, "normals", normals);
+        laplace.SetTexture(normalizeKernelHandle, "result", normalizedNormals);
+        laplace.Dispatch(normalizeKernelHandle, normalizedNormals.width, normalizedNormals.height, 1);
+
         // Relax solution
         int relaxKernelHandle = laplace.FindKernel("TerrainRelaxation");
         laplace.SetTexture(relaxKernelHandle, "seedTexture", seedTexture);
         laplace.SetTexture(relaxKernelHandle, "restrictionsTexture", restrictionsTexture);
-        laplace.SetTexture(relaxKernelHandle, "normals", normals);
+        laplace.SetTexture(relaxKernelHandle, "normals", normalizedNormals);
         laplace.SetTexture(relaxKernelHandle, "terrainHeight", outputImage);
         laplace.SetInt("image_size", outputImage.width);
 

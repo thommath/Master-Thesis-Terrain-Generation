@@ -6,6 +6,7 @@
 #pragma kernel Smooth
 #pragma kernel RestrictedSmoothing
 #pragma kernel SumTwoTextures
+#pragma kernel NormalizeNormals
 
 RWTexture2D<float4> result;
 
@@ -95,11 +96,13 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
     float alpha = restrictionsTexture[id.xy].x;
     float beta = restrictionsTexture[id.xy].y;
 
-    float2 normal = (0.5 - normals[id.xy].xy);
-    float gradient = (0.5 - normals[id.xy].z);
+    //float2 normal = (0.5 - normals[id.xy].xy);
+    //float gradient = (0.5 - normals[id.xy].z);
+    float2 normal = (normals[id.xy].xy);
+    float gradient = (normals[id.xy].z);
 
     // It crashes it normalize is run on (0,0) vector
-    normal = length(normal) > 0 ? normalize(normal) : float2(1, 0);
+    //normal = length(normal) > 0 ? normalize(normal) : float2(1, 0);
 
     float Ll = (
         (id.x == 0 ? 
@@ -231,6 +234,13 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 
     terrainHeight[id.xy] = res;
     */
+}
+
+
+[numthreads(8, 8, 1)]
+void NormalizeNormals(uint3 id : SV_DispatchThreadID)
+{
+    result[id.xy] = float4(length(0.5 - normals[id.xy].xy) > 0 ? normalize(0.5 - normals[id.xy].xy) : float2(1, 0), 0.5 - normals[id.xy].z, 1);
 }
 
 
