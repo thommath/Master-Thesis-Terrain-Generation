@@ -57,6 +57,8 @@ public class SplineTerrain : MonoBehaviour
     [HideInInspector]
     public RenderTexture noise;
 
+    public ComputeShader noiseShader;
+
 
     [HideInInspector]
     public UnityEvent updatedData;
@@ -90,7 +92,7 @@ public class SplineTerrain : MonoBehaviour
         heightmap.enableRandomWrite = true;
         heightmap.autoGenerateMips = false;
         heightmap.Create();
-        RenderTexture noise = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.RFloat);
+        RenderTexture noise = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
         noise.enableRandomWrite = true;
         noise.autoGenerateMips = false;
         noise.Create();
@@ -115,18 +117,21 @@ public class SplineTerrain : MonoBehaviour
 
         Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
 
-        RenderTexture.active = noiseSeed;
-        Texture2D tNoiseSeed = new Texture2D(noiseSeed.width, noiseSeed.height, TextureFormat.RGBAFloat, false);
-        tNoiseSeed.ReadPixels(new Rect(0, 0, noiseSeed.width, noiseSeed.height), 0, 0, false);
-        tNoiseSeed.Apply();
-        RenderTexture.active = null;
+        /////////////////////////////
+        ///
+        ///  noise 
+        ///
+        /////////////////////////////
+        // Interpolate image to normal size
+        int genKernelHandle = noiseShader.FindKernel("GenerateNoise");
+        noiseShader.SetTexture(genKernelHandle, "seedNoise", noiseSeed);
+        noiseShader.SetTexture(genKernelHandle, "result", noise);
+        noiseShader.SetFloat("scale", noiseScale);
 
-        Texture2D noiset = new Texture2D(noise.width, noise.height, TextureFormat.RGBAFloat, false);
-        Noise.CalcNoise(noiset, tNoiseSeed, Vector2.zero, noiseScale);// * terrainResolutionExp);
-
-        Graphics.Blit(noiset, noise);
+        noiseShader.Dispatch(genKernelHandle, noiseSeed.width, noiseSeed.height, 1);
 
         l.SumTwoTextures(result, heightmap, noise, 1, 0, noiseAmplitude * 0.005f * (100f / height), 0f);
+
         Debug.Log((Time.realtimeSinceStartup - time) + "s for noise and sum");
 
 
