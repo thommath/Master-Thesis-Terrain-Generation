@@ -108,8 +108,8 @@ public class SplineTerrain : MonoBehaviour
         float time = Time.realtimeSinceStartup;
         l.rasterizeTriangles(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
         Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 1 ");
-        l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
-        Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
+        //l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
+        //Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
 
         l.poissonStep(normals, heightmap, noiseSeed, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
 
