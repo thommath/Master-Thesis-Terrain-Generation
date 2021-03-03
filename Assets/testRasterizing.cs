@@ -52,12 +52,53 @@ public class testRasterizing : MonoBehaviour
     {
         float time = Time.realtimeSinceStartup;
         Transform terrainFeatures = this.gameObject.transform.parent.GetComponentsInChildren<Transform>().FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
-        
-        foreach(BezierSpline spline in terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray())
+        BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
+        foreach (BezierSpline spline in splines)
         {
             spline.rasterizingData = RasterizingTriangles.getSplineData(spline, 2048, 500, 200);
         }
+
         Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing real");
+
+        RasterizingSplineData rsd = splines[0].rasterizingData;
+
+        ComputeBuffer vertices = new ComputeBuffer(rsd.meshLeft.vertexCount, sizeof(float) * 3);
+        ComputeBuffer indices = new ComputeBuffer(rsd.meshLeft.triangles.Length, sizeof(int));
+        ComputeBuffer colors = new ComputeBuffer(rsd.meshLeft.vertexCount, sizeof(float) * 4);
+        vertices.SetData(rsd.meshLeft.vertices);
+        indices.SetData(rsd.meshLeft.triangles);
+        colors.SetData(rsd.meshLeft.colors);
+
+
+        RenderTexture result = new RenderTexture(2048, 2048, 0, RenderTextureFormat.ARGBFloat);
+        result.enableRandomWrite = true;
+        result.autoGenerateMips = false;
+        result.Create();
+
+        Debug.Log((Time.realtimeSinceStartup - time) + "s for cp");
+
+        int RasterizeKernelHandle = computeShader.FindKernel("Rasterize");
+        computeShader.SetBuffer(RasterizeKernelHandle, "vertices", vertices);
+        computeShader.SetBuffer(RasterizeKernelHandle, "indices", indices);
+        computeShader.SetBuffer(RasterizeKernelHandle, "colors", colors);
+        computeShader.SetTexture(RasterizeKernelHandle, "result", result);
+
+        computeShader.Dispatch(RasterizeKernelHandle, result.width, result.height, 1);
+
+        Debug.Log((Time.realtimeSinceStartup - time) + "s done");
+
+
+        RenderTexture.active = result;
+        Texture2D tex2D = new Texture2D(result.width, result.height, TextureFormat.RGBAFloat, true);
+        tex2D.ReadPixels(new Rect(0, 0, result.width, result.height), 0, 0, false);
+        tex2D.Apply();
+        RenderTexture.active = null;
+        System.IO.File.WriteAllBytes(Application.dataPath + "/" + "rasterizeTest" + ".png", tex2D.EncodeToPNG());
+        Debug.Log("Wrote image to " + Application.dataPath + "/" + "rasterizeTest" + ".png");
+
+        Debug.Log((Time.realtimeSinceStartup - time) + "s writing image");
+
+
     }
 
     public void runShader()
@@ -113,7 +154,7 @@ public class testRasterizing : MonoBehaviour
     void OnValidate()
     {
         getData();
-        runShader();
+        //runShader();
     }
 
 

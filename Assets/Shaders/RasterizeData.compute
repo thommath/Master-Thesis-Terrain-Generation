@@ -26,6 +26,10 @@ struct Triangle {
 
 StructuredBuffer<Triangle> triangles;
 
+StructuredBuffer<uint> indices;
+StructuredBuffer<float3> vertices;
+StructuredBuffer<float4> colors;
+
 ///////////////////////
 //
 //  Util for dist between point and line
@@ -80,6 +84,13 @@ float4 colorFromBary(float3 uvw, float4 c1, float4 c2, float4 c3) {
     return uvw.x * c1 + uvw.y * c2 + uvw.z * c3;
 }
 
+float2 vertexToWordspace(float3 vertex, int width, int terrainSize) {
+    return float2(
+        (terrainSize / 2.0 + vertex.x) / (terrainSize / width),
+        (terrainSize / 2.0 + vertex.z) / (terrainSize / width)
+        );
+}
+
 ///////////////////////
 //
 //  Rasterize
@@ -88,6 +99,34 @@ float4 colorFromBary(float3 uvw, float4 c1, float4 c2, float4 c3) {
 
 [numthreads(8, 8, 1)]
 void Rasterize(uint3 id : SV_DispatchThreadID)
+{
+    float4 res = float4(0, 0, 0, 1);
+
+    int terrainSize = 2048;
+    int textureSize = 2048;
+
+    uint numOfStructs;
+    uint stride;
+
+    indices.GetDimensions(numOfStructs, stride);
+
+    for (int n = 0; n < numOfStructs; n+=3) {
+
+        float3 bary = barycentric(
+            vertexToWordspace(vertices[indices[n]], terrainSize, textureSize),
+            vertexToWordspace(vertices[indices[n + 1]], terrainSize, textureSize),
+            vertexToWordspace(vertices[indices[n + 2]], terrainSize, textureSize),
+            id.xy + float2(0.5, 0.5));
+        
+        if (isInside(bary) == true) {
+            res = colorFromBary(bary, colors[indices[n]], colors[indices[n + 1]], colors[indices[n + 2]]);
+        }
+    }
+    result[id.xy] = res;
+}
+
+[numthreads(8, 8, 1)]
+void RasterizeTriangles(uint3 id : SV_DispatchThreadID)
 {
     float4 res = float4(0,0,0,1);
     float tt = 0;
