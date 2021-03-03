@@ -1,0 +1,140 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Rasterize
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> result;
+
+struct Line {
+    float2 v;
+    float2 w;
+    float h1;
+    float h2;
+};
+
+StructuredBuffer<Line> lines;
+
+struct Triangle {
+    float2 a;
+    float2 b;
+    float2 c;
+
+    float4 c1;
+    float4 c2;
+    float4 c3;
+};
+
+StructuredBuffer<Triangle> triangles;
+
+///////////////////////
+//
+//  Util for dist between point and line
+//
+///////////////////////
+float dist2(float2 v, float2 w) {
+    return pow(v.x - w.x, 2) + pow(v.y - w.y, 2);
+}
+float distToSegmentSquared(float2 p, float2 v, float2 w, out float t) {
+    float l2 = dist2(v, w);
+    if (l2 == 0) return dist2(p, v);
+    t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    t = clamp(t, 0, 1);
+    return dist2(p, float2(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
+}
+float distToSegment(float2 p, float2 v, float2 w, out float t) {
+    return sqrt(distToSegmentSquared(p, v, w, t));
+}
+
+
+///////////////////////
+//
+//  Util for inside triangle check
+//
+///////////////////////
+
+float3 barycentric(float2 aV1, float2 aV2, float2 aV3, float2 aP) {
+
+    float2 a = aV2 - aV3;
+    float2 b = aV1 - aV3;
+    float2 c = aP - aV3;
+    float aLen = a.x * a.x + a.y * a.y;
+    float bLen = b.x * b.x + b.y * b.y;
+    float ab = a.x * b.x + a.y * b.y;
+    float ac = a.x * c.x + a.y * c.y;
+    float bc = b.x * c.x + b.y * c.y;
+    float d = aLen * bLen - ab * ab;
+    float u = (aLen * bc - ab * ac) / d;
+    float v = (bLen * ac - ab * bc) / d;
+    float w = 1.0f - u - v;
+    return float3(u, v, w);
+}
+
+bool isInside(float3 uvw) {
+    float u = uvw.x;
+    float v = uvw.y;
+    float w = uvw.z;
+    return (u >= 0.0f) && (u <= 1.0f) && (v >= 0.0f) && (v <= 1.0f) && (w >= 0.0f);
+}
+
+float4 colorFromBary(float3 uvw, float4 c1, float4 c2, float4 c3) {
+    return uvw.x * c1 + uvw.y * c2 + uvw.z * c3;
+}
+
+///////////////////////
+//
+//  Rasterize
+//
+///////////////////////
+
+[numthreads(8, 8, 1)]
+void Rasterize(uint3 id : SV_DispatchThreadID)
+{
+    float4 res = float4(0,0,0,1);
+    float tt = 0;
+    int nn = 0;
+
+    uint numOfStructs;
+    uint stride;
+
+    triangles.GetDimensions(numOfStructs, stride);
+
+    for (int n = 0; n < numOfStructs; n++) {
+        Triangle t = triangles[n];
+        float3 bary = barycentric(t.a, t.b, t.c, id.xy);
+        if (isInside(bary) == true) {
+            res = colorFromBary(bary, t.c1, t.c2, t.c3);
+        }
+    }
+    result[id.xy] = res;
+}
+
+
+[numthreads(8,8,1)]
+void RasterizeLines (uint3 id : SV_DispatchThreadID)
+{
+    float res = 1;
+    float tt = 0;
+    int nn = 0;
+
+    uint numOfStructs;
+    uint stride;
+
+    lines.GetDimensions(numOfStructs, stride);
+
+    for (int n = 0; n < numOfStructs; n++) {
+        // https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+        float t;
+        float dist = distToSegment(id.xy, lines[n].v, lines[n].w, t);
+        if (dist < res) {
+            tt = t;
+            nn = n;
+            res = min(res, dist);
+        }
+    }
+
+    res = clamp(1-res, 0, 1);
+
+    res = res * (tt * lines[nn].h2 + (1 - tt) * lines[nn].h1);
+
+    result[id.xy] = float4(res, res, res, 1.0);
+}

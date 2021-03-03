@@ -28,9 +28,9 @@ public class Laplace : MonoBehaviour
         rasterizedDataDict.Clear();
     }
 
-    public void rasterizeTriangles(BezierSpline[] splines, int width, int maxHeight, int terrainSizeExp, int resolution = 50, int breakOn = 1)
+    public void rasterizeTriangles(BezierSpline[] splines, int maxHeight, int terrainSizeExp, int resolution = 50, int breakOn = 1)
     {
-        Rasterize.rasterizeSplines(splines, rasterizedDataDict, terrainSizeExp, maxHeight, Mathf.Max(2, resolution), breakOn);
+        Rasterize.rasterizeSplines(splines, rasterizedDataDict, terrainSizeExp, maxHeight, resolution, breakOn);
     }
 
 

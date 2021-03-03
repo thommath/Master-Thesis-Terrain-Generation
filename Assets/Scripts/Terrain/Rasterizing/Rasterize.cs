@@ -10,6 +10,7 @@ public static class Rasterize
     public static void rasterizeSplines(BezierSpline[] splines, Dictionary<int, RasterizedData> rasterizedDataDict, int terrainSizeExp, int maxHeight, int resolution, int breakOnLevel = 1)
     {
         int terrainSize = Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp)) + 1;
+        Debug.Log(terrainSize);
 
         foreach (BezierSpline spline in splines)
         {
