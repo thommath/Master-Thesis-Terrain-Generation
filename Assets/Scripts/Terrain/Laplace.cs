@@ -5,6 +5,8 @@ using UnityEngine;
 public class Laplace : MonoBehaviour
 {
     public ComputeShader laplace;
+    public Texture RedGreenBlackTexture;
+
     public bool saveImages = false;
 
     // Start is called before the first frame update
@@ -150,6 +152,10 @@ public class Laplace : MonoBehaviour
 
         RestrictedSmoothing(heightmap, seedHeightmap, 0);
         saveImage("heightmap " + h + " smooth", heightmap);
+
+        smallerHeightmap.Release();
+        smallerNormals.Release();
+        smallerNoise.Release();
     }
 
     private void Restrict(RenderTexture inputImage, RenderTexture outputImage)
@@ -167,6 +173,7 @@ public class Laplace : MonoBehaviour
         // Interpolate image to normal size
         int interpolateKernelHandle = laplace.FindKernel("Interpolate");
         laplace.SetTexture(interpolateKernelHandle, "image", inputImage);
+        laplace.SetTexture(interpolateKernelHandle, "redGreenBlack", RedGreenBlackTexture);
         laplace.SetTexture(interpolateKernelHandle, "result", outputImage);
         laplace.SetInt("image_size", outputImage.width);
 

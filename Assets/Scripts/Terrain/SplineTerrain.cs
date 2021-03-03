@@ -136,6 +136,21 @@ public class SplineTerrain : MonoBehaviour
 
         Debug.Log((Time.realtimeSinceStartup - time) + "s for noise and sum");
 
+        l.clearRasterizedDataDict();
+        noiseSeed.Release();
+
+        if (this.heightmap)
+        {
+            this.heightmap.Release();
+        }
+        if (this.noise)
+        {
+            this.noise.Release();
+        }
+        if (this.normals)
+        {
+            this.normals.Release();
+        }
 
         this.heightmap = result;
         this.normals = normals;
@@ -143,6 +158,7 @@ public class SplineTerrain : MonoBehaviour
 
         updatedData.Invoke();
         saveState();
+        Debug.Log((Time.realtimeSinceStartup - time) + "s all done");
     }
 
     private void saveState()

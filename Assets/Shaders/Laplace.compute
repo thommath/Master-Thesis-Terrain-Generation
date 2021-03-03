@@ -72,13 +72,6 @@ void Relaxation(uint3 id : SV_DispatchThreadID)
             + (id.y == image_size - 1 ? 0 : result[id.xy - uint2(0, -1)])
             ).z
             / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1));
-/*        res.z = (float4(0.25 * (
-            (result[id.xy - uint2(0, 1)]) +
-            (result[id.xy - uint2(1, 0)]) +
-            (result[id.xy - uint2(-1, 0)]) +
-            (result[id.xy - uint2(0, -1)])
-            ))).z;
-            */
     }
 
     result[id.xy] = float4(res, 1);
@@ -103,12 +96,11 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 
     // It crashes it normalize is run on (0,0) vector
     //normal = length(normal) > 0 ? normalize(normal) : float2(1, 0);
-
     float Ll = (
-        (id.x == 0 ? 
-            0 : 
+        (id.x == 0 ?
+            0 :
             (1 - restrictionsTexture[id.xy - uint2(1, 0)].x - restrictionsTexture[id.xy - uint2(1, 0)].y) > 0.1 ?
-            seedTexture[id.xy - uint2(1, 0)] : 
+            seedTexture[id.xy - uint2(1, 0)] :
             terrainHeight[id.xy - uint2(1, 0)])
         + (id.y == 0 ?
             0 :
@@ -143,97 +135,7 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
     float remember = 0;
     terrainHeight[id.xy] = terrainHeight[id.xy] * remember +
         (1- remember) *
-        float4(Ll * alpha + ( Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
-    //terrainHeight[id.xy] = float4(Li * (1-alpha-beta), 0, 0, 1);
-
-    /*
-    float2 normal = (0.5 - normals[id.xy].xy);
-    float gradient = (0.5-normals[id.xy].z);
-
-    int alpha = restrictionsTexture[id.xy].x;
-    int beta = restrictionsTexture[id.xy].y;
-
-    // It crashes it normalize is run on (0,0) vector
-    if (length(normal) == 0) {
-        normal = normalize(normal);
-    }
-    else {
-        normal = float2(1, 0);
-    }
-    float Ll = ((id.x == 0 ? 0 : terrainHeight[id.xy - uint2(1, 0)])
-        + (id.y == 0 ? 0 : terrainHeight[id.xy - uint2(0, 1)])
-        + (id.x == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(-1, 0)])
-        + (id.y == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(0, -1)])
-        )
-        / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1));
-    // float Ll = terrainHeight[id.xy].x;
-    float Lg = (
-        pow(normal.x, 2) * terrainHeight[id.xy + int2(sign(normal.x), 0)] +
-        pow(normal.y, 2) * terrainHeight[id.xy + int2(0, sign(normal.y))] +
-        gradient
-        );
-    */
-    /*
-    float Li = 0;
-    if (length(seedTexture[id.xy]) > 0) {
-        Li = seedTexture[id.xy].x;
-    }
-
-    float res = Li;
-
-    res += 0.1;
-
-    terrainHeight[id.xy] = res;
-    return;
-
-    if (restrictionsTexture[id.xy].x == 0) {
-        terrainHeight[id.xy] = seedTexture[id.xy].x * (1 - restrictionsTexture[id.xy].x - restrictionsTexture[id.xy].y);
-    }
-    else {
-        terrainHeight[id.xy] = 
-            (
-                ((id.x == 0 ? 0 : terrainHeight[id.xy - uint2(1, 0)])
-                + (id.y == 0 ? 0 : terrainHeight[id.xy - uint2(0, 1)])
-                + (id.x == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(-1, 0)])
-                + (id.y == image_size - 1 ? 0 : terrainHeight[id.xy - uint2(0, -1)])
-                )
-                / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1))
-            ) * restrictionsTexture[id.xy].x +
-            (
-                pow(normal.x, 2) * terrainHeight[id.xy + int2(sign(normal.x), 0)] +
-                pow(normal.y, 2) * terrainHeight[id.xy + int2(0, sign(normal.y))] +
-                gradient
-            )
-            * restrictionsTexture[id.xy].y;
-    }
-    return;
-
-
-    // Get the gradient saved in normals
-
-    float res = 
-        // Calculate the average and use the weight
-        0.25 * (
-            terrainHeight[id.xy - uint2(0, 1)] +
-            terrainHeight[id.xy - uint2(1, 0)] +
-            terrainHeight[id.xy - uint2(-1, 0)] +
-            terrainHeight[id.xy - uint2(0, -1)])
-        * restrictionsTexture[id.xy].x
-        +
-        // Calculate the height of the neighbour and add the gradient and weigh it
-        (
-            pow(normal.x, 2) * terrainHeight[id.xy + int2(sign(normal.x), 0)] +
-            pow(normal.y, 2) * terrainHeight[id.xy + int2(0, sign(normal.y))] +
-            gradient
-        )
-        * restrictionsTexture[id.xy].y
-        +
-        // Identity, take itself and weigh it
-        seedTexture[id.xy].x
-        * (1 - restrictionsTexture[id.xy].x - restrictionsTexture[id.xy].y);
-
-    terrainHeight[id.xy] = res;
-    */
+        float4(Ll * alpha + (Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
 }
 
 
@@ -284,6 +186,8 @@ void Restrict(uint3 id : SV_DispatchThreadID)
     result[id.xy] = res / normalize;
 }
 
+Texture2D<float4> redGreenBlack;
+
 [numthreads(8, 8, 1)]
 void Interpolate(uint3 id : SV_DispatchThreadID)
 {
@@ -295,51 +199,35 @@ void Interpolate(uint3 id : SV_DispatchThreadID)
     Use modulo to figure out what pixels to interpolate from because I cannot use BLEND to sum the results
 
     */
+    float3 color = redGreenBlack[id.xy % 1024];
 
-    //if (1 == image_size) {
-    //    result[id.xy] = image[uint2(0, 0)];
-    //    return;
-    //}
+    // if r == 1 && g == 1
+    // result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)] + image[center.xy + uint2(0, 1)] + image[center.xy + uint2(1, 1)]) / 4;
+    // if r == 1 && g == 0
+    // result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)]) / 2;
+    // if r == 0 && g == 1
+    // result[id.xy] = (image[center.xy] + image[center.xy + uint2(0, 1)]) / 2;
+    // if r == 0 && g == 0
+    // result[id.xy] = image[center.xy];
 
-    if (1 == 1) {
-        if (id.x % 2 == 1) {
-            // Interpolate between two values in x
-            if (id.y % 2 == 1) {
-                // Interpolate between two values in y
-                result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)] + image[center.xy + uint2(0, 1)] + image[center.xy + uint2(1, 1)]) / 4;
-                return;
-            }
-            if (id.y % 2 == 0) {
-                // On a clear value in the y direction
-                result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)]) / 2;
-                return;
-            }
-        }
-        if (id.x % 2 == 0) {
-            // On a clear value in the x direction
-            if (id.y % 2 == 1) {
-                // Interpolate between two values in y
-                result[id.xy] =(image[center.xy] + image[center.xy + uint2(0, 1)]) / 2;
-                return;
-            }
-            if (id.y % 2 == 0) {
-                // On a clear value in the y direction
-                result[id.xy] = image[center.xy];
-                return;
-            }
-        }
-    }
+    result[id.xy] = (
+        image[center.xy]
+        + image[center.xy + uint2(1, 0)] * (1-color.r)
+        + image[center.xy + uint2(0, 1)] * (1-color.g)
+        + image[center.xy + uint2(1, 1)] * clamp(1 - ((1-color.r) + (1-color.g)), 0, 1)
+        ) / (1 + (1 - color.r) + (1 - color.g) + color.r * color.g);
+    return;
 
     if (id.x % 2 == 1) {
         // Interpolate between two values in x
         if (id.y % 2 == 1) {
             // Interpolate between two values in y
-            result[id.xy] = (result[id.xy] + (image[center.xy] + image[center.xy + uint2(1, 0)] + image[center.xy + uint2(0, 1)] + image[center.xy + uint2(1, 1)]) / 4) / 2;
+            result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)] + image[center.xy + uint2(0, 1)] + image[center.xy + uint2(1, 1)]) / 4;
             return;
         }
         if (id.y % 2 == 0) {
             // On a clear value in the y direction
-            result[id.xy] = (result[id.xy] + (image[center.xy] + image[center.xy + uint2(1, 0)]) / 2) / 2;
+            result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)]) / 2;
             return;
         }
     }
@@ -347,16 +235,15 @@ void Interpolate(uint3 id : SV_DispatchThreadID)
         // On a clear value in the x direction
         if (id.y % 2 == 1) {
             // Interpolate between two values in y
-            result[id.xy] = (result[id.xy] + (image[center.xy] + image[center.xy + uint2(0, 1)]) / 2) / 2;
+            result[id.xy] =(image[center.xy] + image[center.xy + uint2(0, 1)]) / 2;
             return;
         }
         if (id.y % 2 == 0) {
             // On a clear value in the y direction
-            result[id.xy] = (result[id.xy] + image[center.xy]) / 2;
+            result[id.xy] = image[center.xy];
             return;
         }
     }
-    result[id.xy] = result[id.xy];
 
 }
 

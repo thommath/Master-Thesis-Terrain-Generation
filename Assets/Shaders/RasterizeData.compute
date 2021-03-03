@@ -1,5 +1,6 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel Rasterize
+#pragma kernel RasterizeThickLines
+#pragma kernel RasterizeGradients
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -26,9 +27,14 @@ struct Triangle {
 
 StructuredBuffer<Triangle> triangles;
 
+
+
 StructuredBuffer<uint> indices;
 StructuredBuffer<float3> vertices;
 StructuredBuffer<float4> colors;
+
+float textureDivTerrain;
+float2 center;
 
 ///////////////////////
 //
@@ -84,46 +90,108 @@ float4 colorFromBary(float3 uvw, float4 c1, float4 c2, float4 c3) {
     return uvw.x * c1 + uvw.y * c2 + uvw.z * c3;
 }
 
-float2 vertexToWordspace(float3 vertex, int width, int terrainSize) {
-    return float2(
-        (terrainSize / 2.0 + vertex.x) / (terrainSize / width),
-        (terrainSize / 2.0 + vertex.z) / (terrainSize / width)
-        );
+float2 vertexToWordspace(float3 vertex, float2 center, float WdivT) {
+    return (center + vertex.xz) * WdivT;
 }
 
 ///////////////////////
 //
-//  Rasterize
+//  Rasterize Gradients
 //
 ///////////////////////
 
 [numthreads(8, 8, 1)]
-void Rasterize(uint3 id : SV_DispatchThreadID)
+void RasterizeGradients(uint3 id : SV_DispatchThreadID)
 {
     float4 res = float4(0, 0, 0, 1);
+    int counter = 0;
 
-    int terrainSize = 2048;
-    int textureSize = 2048;
+    float2 p = id.xy + float2(0.5, 0.5);
 
     uint numOfStructs;
     uint stride;
 
     indices.GetDimensions(numOfStructs, stride);
 
-    for (int n = 0; n < numOfStructs; n+=3) {
+    for (int n = 0; n < numOfStructs; n += 3) {
+
+        float2 a = vertexToWordspace(vertices[indices[n]], center, textureDivTerrain);
+        float2 b = vertexToWordspace(vertices[indices[n+1]], center, textureDivTerrain);
+        float2 c = vertexToWordspace(vertices[indices[n + 2]], center, textureDivTerrain);
+        
+        if (
+            (p.x < a.x && p.x < b.x && p.x < c.x) ||
+            (p.x > a.x&& p.x > b.x&& p.x > c.x) ||
+            (p.y < a.y && p.y < b.y && p.y < c.y) ||
+            (p.y > a.y&& p.y > b.y&& p.y > c.y)
+            ) {
+            continue;
+        }
 
         float3 bary = barycentric(
-            vertexToWordspace(vertices[indices[n]], terrainSize, textureSize),
-            vertexToWordspace(vertices[indices[n + 1]], terrainSize, textureSize),
-            vertexToWordspace(vertices[indices[n + 2]], terrainSize, textureSize),
-            id.xy + float2(0.5, 0.5));
-        
+            a,b,c,
+            p);
+
         if (isInside(bary) == true) {
             res = colorFromBary(bary, colors[indices[n]], colors[indices[n + 1]], colors[indices[n + 2]]);
+            counter++;
         }
     }
-    result[id.xy] = res;
+    if (counter == 1) {
+        result[id.xy] = res;
+    }
 }
+
+
+///////////////////////
+//
+//  Rasterize ThickLines
+//
+///////////////////////
+
+[numthreads(8, 8, 1)]
+void RasterizeThickLines(uint3 id : SV_DispatchThreadID)
+{
+    float4 res = float4(0, 0, 0, 1);
+    int counter = 0;
+
+    float2 p = id.xy + float2(0.5, 0.5);
+    uint numOfStructs;
+    uint stride;
+
+    indices.GetDimensions(numOfStructs, stride);
+
+    for (int n = 0; n < numOfStructs; n += 3) {
+
+        float2 a = vertexToWordspace(vertices[indices[n]], center, textureDivTerrain);
+        float2 b = vertexToWordspace(vertices[indices[n + 1]], center, textureDivTerrain);
+        float2 c = vertexToWordspace(vertices[indices[n + 2]], center, textureDivTerrain);
+
+        if (
+            (p.x < a.x && p.x < b.x && p.x < c.x) ||
+            (p.x > a.x&& p.x > b.x&& p.x > c.x) ||
+            (p.y < a.y && p.y < b.y && p.y < c.y) ||
+            (p.y > a.y&& p.y > b.y&& p.y > c.y)
+            ) {
+            continue;
+        }
+
+        float3 bary = barycentric(
+            a, b, c,
+            p);
+
+        if (isInside(bary) == true) {
+            res = colorFromBary(bary, colors[indices[n]], colors[indices[n + 1]], colors[indices[n + 2]]);
+            counter++;
+        }
+    }
+    if (counter == 1) {
+        result[id.xy] = res;
+    }
+
+}
+
+
 
 [numthreads(8, 8, 1)]
 void RasterizeTriangles(uint3 id : SV_DispatchThreadID)
