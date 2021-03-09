@@ -109,16 +109,29 @@ public class SplineTerrain : MonoBehaviour
 
         float time = Time.realtimeSinceStartup;
         
-        l.rasterizeTriangles(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
+        // l.rasterizeTriangles(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
 
+        testRasterizing tr = this.GetComponent<testRasterizing>();
+        Dictionary<int, RasterizedData> dict = tr.rasterizeData(terrainSizeExp, terrainResolutionExp, breakOnLevel, height * 2, splineSamplings);
+        l.setRasterizedDataDict(dict);
+                
         Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 1 ");
         //l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
         //Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
 
         l.poissonStep(normals, heightmap, noiseSeed, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
-
-        Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
-
+        
+        ///////////////
+        ///
+        /// Time process by reading one pixel
+        ///
+        ///////////////
+        /*
+        RenderTexture.active = normals;
+        Texture2D tex2D = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
+        tex2D.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
+        Debug.Log((Time.realtimeSinceStartup - time) + "s diffusion done, read one pixel");
+        */
         /////////////////////////////
         ///
         ///  noise 
@@ -134,6 +147,9 @@ public class SplineTerrain : MonoBehaviour
 
         l.SumTwoTextures(result, heightmap, noise, 1, 0, noiseAmplitude * 0.005f * (100f / height), 0f);
 
+        RenderTexture.active = normals;
+        Texture2D tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
+        tex2D2.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
         Debug.Log((Time.realtimeSinceStartup - time) + "s for noise and sum");
 
         l.clearRasterizedDataDict();

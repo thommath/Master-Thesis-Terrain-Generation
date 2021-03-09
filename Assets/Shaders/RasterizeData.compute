@@ -37,7 +37,6 @@ struct Triangle
 
 StructuredBuffer<Triangle> triangles;
 
-
 struct Spline
 {
     float3 p1;
@@ -469,10 +468,10 @@ void RasterizeAverageThickLines(uint3 id : SV_DispatchThreadID)
             if (isInside(bary) == true)
             {
                 float4 color = colorFromBary(bary, colors[indices[n]], colors[indices[n + 1]],
-                                                   colors[indices[n + 2]]);
+                                             colors[indices[n + 2]]);
                 result[float2(x, y)] = color;
 
-                restriction[float2(x, y)] = float4(0,0,0,1);
+                restriction[float2(x, y)] = float4(0, 0, 0, 1);
             }
         }
     }
@@ -481,5 +480,10 @@ void RasterizeAverageThickLines(uint3 id : SV_DispatchThreadID)
 [numthreads(8,8,1)]
 void FillRestriction(uint3 id : SV_DispatchThreadID)
 {
-    restriction[id.xy] = restriction[id.xy] * restriction[id.xy].w + float4(1,0,0,1) * (1-restriction[id.xy].w); 
-}    
+    /*    restriction[id.xy] = restriction[id.xy].w * (length(restriction[id.xy].xy) > 0
+                                                         ? float4(normalize(restriction[id.xy].xy), 0, 1)
+                                                         : float4(0, 0, 0, 1)) + float4(1, 0, 0, 1) * (1 - restriction[id.xy
+                                                         ].w);
+    */
+    restriction[id.xy] = restriction[id.xy].w * restriction[id.xy] + float4(1, 0, 0, 1) * (1 - restriction[id.xy].w);
+}

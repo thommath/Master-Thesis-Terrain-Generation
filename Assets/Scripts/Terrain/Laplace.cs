@@ -30,6 +30,11 @@ public class Laplace : MonoBehaviour
         rasterizedDataDict.Clear();
     }
 
+    public void setRasterizedDataDict(Dictionary<int, RasterizedData> dict)
+    {
+        this.rasterizedDataDict = dict;
+    }
+
     public void rasterizeTriangles(BezierSpline[] splines, int maxHeight, int terrainSizeExp, int resolution = 50, int breakOn = 1)
     {
         Rasterize.rasterizeSplines(splines, rasterizedDataDict, terrainSizeExp, maxHeight, resolution, breakOn);
@@ -106,7 +111,7 @@ public class Laplace : MonoBehaviour
         }
 
         // Create rendertextures
-        RenderTexture seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 0, heightmap.format);
+        /*RenderTexture seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 0, heightmap.format);
         seedHeightmap.enableRandomWrite = true;
         seedHeightmap.autoGenerateMips = false;
         seedHeightmap.Create();
@@ -124,33 +129,33 @@ public class Laplace : MonoBehaviour
         Graphics.Blit(rd.tseedNormals, seedNormals);
         Graphics.Blit(rd.tRestrictions, restrictions);
         Graphics.Blit(rd.tNoise, seedNoise);
-
+        */
 
         // Solve the poisson equation for normals
-        saveImage("normals " + h + " seed", seedNormals);
+        saveImage("normals " + h + " seed", rd.seedNormals);
         Interpolate(smallerNormals, normals);
         saveImage("normals " + h + " pre", normals);
-        Relaxation(seedNormals, normals, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
+        Relaxation(rd.seedNormals, normals, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
         saveImage("normals " + h + " post", normals);
 
         // Solve the poisson equation for noise
-        saveImage("noise " + h + " seed", seedNoise);
+        saveImage("noise " + h + " seed", rd.noise);
         Interpolate(smallerNoise, noise);
         saveImage("noise " + h + " pre", noise);
-        Relaxation(seedNoise, noise, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
+        //Relaxation(rd.noise, noise, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
         saveImage("noise " + h + " post", noise);
 
         // Solve poisson equation for the terrain
         Interpolate(smallerHeightmap, heightmap);
 
-        saveImage("seedHeightmap " + h, seedHeightmap);
-        saveImage("restrictions " + h, restrictions);
+        saveImage("seedHeightmap " + h, rd.seedHeightmap);
+        saveImage("restrictions " + h, rd.restrictions);
         saveImage("heightmap " + h + " pre", heightmap);
 
-        TerrainRelaxation(seedHeightmap, restrictions, normals, heightmap, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
+        TerrainRelaxation(rd.seedHeightmap, rd.restrictions, normals, heightmap, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
         saveImage("heightmap " + h + " post", heightmap);
 
-        RestrictedSmoothing(heightmap, seedHeightmap, 0);
+        RestrictedSmoothing(heightmap, rd.seedHeightmap, 0);
         saveImage("heightmap " + h + " smooth", heightmap);
 
         smallerHeightmap.Release();

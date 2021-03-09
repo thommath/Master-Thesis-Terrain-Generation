@@ -110,8 +110,6 @@ public class testRasterizing : MonoBehaviour
         computeShader.SetBuffer(linesKernelHandle, "indices", indicesGradients);
         computeShader.SetBuffer(linesKernelHandle, "colors", colorsGradients);
 
-        Debug.Log((indicesGradients.count / 3) + " in paralell");
-
         computeShader.Dispatch(linesKernelHandle, indicesGradients.count / 3, 1, 1);
             
         verticesGradients.Release();
@@ -119,15 +117,8 @@ public class testRasterizing : MonoBehaviour
         colorsGradients.Release();
     }
     
-    public void drawLinesAndTriangles()
+    public RasterizedData drawLinesAndTriangles(IEnumerable<BezierSpline> splines, int terrainSize, int textureSize, int maxHeight)
     {
-        float time = Time.realtimeSinceStartup;
-        Transform terrainFeatures = this.gameObject.transform.parent.GetComponentsInChildren<Transform>()
-            .FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
-        BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
-
-        int textureSize = 2048 / 4;
-
         RenderTexture result = new RenderTexture(textureSize, textureSize, 0, RenderTextureFormat.ARGBFloat);
         result.enableRandomWrite = true;
         result.autoGenerateMips = false;
@@ -148,9 +139,9 @@ public class testRasterizing : MonoBehaviour
         
         int gradientsKernelHandle = computeShader.FindKernel("RasterizeSplines");
 
-        computeShader.SetFloat("textureDivTerrain", 1f * textureSize / 2048);
-        computeShader.SetVector("center", new Vector2(2048 * 0.5f, 2048 * 0.5f));
-        computeShader.SetFloat("maxHeight", 500);
+        computeShader.SetFloat("textureDivTerrain", 1f * textureSize / terrainSize);
+        computeShader.SetVector("center", new Vector2(terrainSize * 0.5f, terrainSize * 0.5f));
+        computeShader.SetFloat("maxHeight", maxHeight);
 
         computeShader.SetTexture(gradientsKernelHandle, "result", result);
         computeShader.SetTexture(gradientsKernelHandle, "noise", noise);
@@ -162,14 +153,12 @@ public class testRasterizing : MonoBehaviour
         
         foreach (BezierSpline spline in splines)
         {
-            List<Spline> gpuSplines = new List<Spline>();
-            spline.rasterizingData = RasterizingTriangles.getSplineData(spline, 0, 500, 50);
-            
             RasterizeGradientMesh(spline.rasterizingData.meshLeft, normal, restriction);
             RasterizeGradientMesh(spline.rasterizingData.meshRight, normal, restriction);
             RasterizeLineMesh(spline.rasterizingData.meshLine, result, restriction);
 
-            
+            List<Spline> gpuSplines = new List<Spline>();
+
             for (int n = 0; n + 3 < spline.points.Length; n += 3)
             {
                 gpuSplines.Add(new Spline(
@@ -183,9 +172,6 @@ public class testRasterizing : MonoBehaviour
 
             ComputeBuffer splinesBuffer = new ComputeBuffer(gpuSplines.Count, sizeof(float) * 3 * 4);
             splinesBuffer.SetData(gpuSplines);
-            Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing real");
-
-            Debug.Log((Time.realtimeSinceStartup - time) + "s for cp");
 
             computeShader.SetVector("position", spline.transform.position);
             computeShader.SetBuffer(gradientsKernelHandle, "splines", splinesBuffer);
@@ -205,7 +191,14 @@ public class testRasterizing : MonoBehaviour
         computeShader.SetTexture(fillRestrictionKernelHandle, "restriction", restriction);
         computeShader.Dispatch(fillRestrictionKernelHandle, restriction.width, restriction.height, 1);
 
-
+        
+        RasterizedData data = new RasterizedData();
+        data.noise = noise;
+        data.restrictions = restriction;
+        data.seedHeightmap = result;
+        data.seedNormals = normal;
+        return data;
+        /*
         ///////////////
         ///
         /// Time process by reading one pixel
@@ -224,37 +217,72 @@ public class testRasterizing : MonoBehaviour
         tex2D.ReadPixels(new Rect(0, 0, result.width, result.height), 0, 0, false);
         tex2D.Apply();
         RenderTexture.active = null;
-        System.IO.File.WriteAllBytes(Application.dataPath + "/" + "rasterizeTest" + ".png", tex2D.EncodeToPNG());
-        Debug.Log("Wrote image to " + Application.dataPath + "/" + "rasterizeTest" + ".png");
+        System.IO.File.WriteAllBytes(Application.dataPath + "/images/" + "rasterizeTest" + textureSize + ".png", tex2D.EncodeToPNG());
+        Debug.Log("Wrote image to " + Application.dataPath + "/images/" + "rasterizeTest" + textureSize + ".png");
 
         
         RenderTexture.active = normal;
         tex2D.ReadPixels(new Rect(0, 0, result.width, result.height), 0, 0, false);
         tex2D.Apply();
         RenderTexture.active = null;
-        System.IO.File.WriteAllBytes(Application.dataPath + "/" + "normal" + ".png", tex2D.EncodeToPNG());
-        Debug.Log("Wrote image to " + Application.dataPath + "/" + "normal" + ".png");
+        System.IO.File.WriteAllBytes(Application.dataPath + "/images/" + "normal" + textureSize + ".png", tex2D.EncodeToPNG());
+        Debug.Log("Wrote image to " + Application.dataPath + "/images/" + "normal" + textureSize + ".png");
 
         RenderTexture.active = noise;
         tex2D.ReadPixels(new Rect(0, 0, result.width, result.height), 0, 0, false);
         tex2D.Apply();
         RenderTexture.active = null;
-        System.IO.File.WriteAllBytes(Application.dataPath + "/" + "noise" + ".png", tex2D.EncodeToPNG());
-        Debug.Log("Wrote image to " + Application.dataPath + "/" + "noise" + ".png");
+        System.IO.File.WriteAllBytes(Application.dataPath + "/images/" + "noise" + textureSize + ".png", tex2D.EncodeToPNG());
+        Debug.Log("Wrote image to " + Application.dataPath + "/images/" + "noise" + textureSize + ".png");
 
         RenderTexture.active = restriction;
         tex2D.ReadPixels(new Rect(0, 0, result.width, result.height), 0, 0, false);
         tex2D.Apply();
         RenderTexture.active = null;
-        System.IO.File.WriteAllBytes(Application.dataPath + "/" + "restriction" + ".png", tex2D.EncodeToPNG());
-        Debug.Log("Wrote image to " + Application.dataPath + "/" + "restriction" + ".png");
+        System.IO.File.WriteAllBytes(Application.dataPath + "/images/" + "restriction" + textureSize + ".png", tex2D.EncodeToPNG());
+        Debug.Log("Wrote image to " + Application.dataPath + "/images/" + "restriction" + textureSize + ".png");
 
         Debug.Log((Time.realtimeSinceStartup - time) + "s writing image");
-        
+
         result.Release();
         normal.Release();
         restriction.Release();
         noise.Release();
+        */
+    }
+
+    public Dictionary<int, RasterizedData> rasterizeData(int terrainSizeExp, int textureSizeExp, int breakOnLevel, int maxHeight, int resolution)
+    {
+        float time = Time.realtimeSinceStartup;
+        Transform terrainFeatures = this.gameObject.transform.GetComponentsInChildren<Transform>()
+            .FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
+        BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
+        
+        foreach (BezierSpline spline in splines)
+        {
+            spline.rasterizingData = RasterizingTriangles.getSplineData(spline, 0, maxHeight, resolution);
+        }
+
+        Dictionary<int, RasterizedData> dict = new Dictionary<int, RasterizedData>();
+
+        int terrainSize = Mathf.RoundToInt(Mathf.Pow(2, terrainSizeExp));
+
+        for(int n = textureSizeExp; n > breakOnLevel; n--)
+        {
+            int textureSize = Mathf.RoundToInt(Mathf.Pow(2, n)) + 1;
+            RasterizedData rd = drawLinesAndTriangles(splines, terrainSize, textureSize, maxHeight);
+            dict.Add(textureSize, rd);
+        }
+        
+        RasterizedData rd2;
+        dict.TryGetValue(Mathf.RoundToInt(Mathf.Pow(2, textureSizeExp)) + 1, out rd2);
+        /*
+        RenderTexture.active = rd2.restrictions;
+        Texture2D tex2D = new Texture2D(rd2.restrictions.width, rd2.restrictions.height, TextureFormat.RGBAFloat, false);
+        tex2D.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
+        Debug.Log((Time.realtimeSinceStartup - time) + "s All done, read one pixel");
+        */
+        return dict;
     }
 
 
@@ -606,7 +634,7 @@ public class testRasterizing : MonoBehaviour
         //getData();
         //runShader();
         // drawLines();
-        drawLinesAndTriangles();
+        // rasterizeData(8,  8, 4);
     }
 
 

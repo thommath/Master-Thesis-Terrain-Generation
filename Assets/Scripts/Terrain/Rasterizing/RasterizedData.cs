@@ -10,10 +10,21 @@ public struct RasterizedData
         this.tRestrictions = tRestrictions;
         this.tseedNormals = tseedNormals;
         this.tNoise = tNoise;
+
+        this.seedHeightmap = null;
+        this.restrictions = null;
+        this.seedNormals = null;
+        this.noise = null;
     }
 
     public Texture2D tseedHeightmap;
     public Texture2D tRestrictions;
     public Texture2D tseedNormals;
     public Texture2D tNoise;
+    
+    
+    public RenderTexture seedHeightmap;
+    public RenderTexture restrictions;
+    public RenderTexture seedNormals;
+    public RenderTexture noise;
 }
