@@ -19,7 +19,8 @@ public class SplineMetaPoint
 	public float noiseAmplitude = 0;
 	[Range(0, 1f)]
 	public float noiseRoughness = 0;
-	
+
+
 	public SplineMetaPoint clone()
 	{
 		SplineMetaPoint point = new SplineMetaPoint();

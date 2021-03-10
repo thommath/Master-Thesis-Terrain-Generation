@@ -21,6 +21,19 @@ struct Spline
 
 StructuredBuffer<Spline> splines;
 
+struct MetaPoint
+{
+    float position;
+    float lineRadius;
+    float gradientLengthLeft;
+    float gradientAngleLeft;
+    float gradientLengthRight;
+    float gradientAngleRight;
+    float noiseAmplitude;
+    float noiseRoughness;
+};
+
+StructuredBuffer<MetaPoint> metaPoints;
 
 StructuredBuffer<uint> indices;
 StructuredBuffer<float3> vertices;
@@ -28,6 +41,42 @@ StructuredBuffer<float4> colors;
 
 float textureDivTerrain;
 float2 center;
+
+
+
+///////////////////////
+//
+//  Meta points
+//
+///////////////////////
+
+int curveCount;
+int metaPointCount;
+float metaGetSplineTime(uint metaNr)
+{
+    return metaPoints[metaNr].position / curveCount;
+}
+
+float2 metaGetNoiseParameters(uint splinePart, float t)
+{
+    float2 noise = float2(metaPoints[0].noiseAmplitude, metaPoints[0].noiseRoughness);
+    float lastPos = 0;
+    for(int n = 1; n < metaPointCount; n++)
+    {
+        if (metaPoints[n].position > splinePart + t)
+        {
+            noise = float2(metaPoints[n].noiseAmplitude, metaPoints[n].noiseRoughness);
+            lastPos = metaPoints[n].position;
+        }
+        else if (metaPoints[n].position < splinePart + t)
+        {
+            float lerpNumber = (splinePart + t - lastPos) / (metaPoints[n].position - lastPos);
+            noise = noise * (1-lerpNumber) + lerpNumber * float2(metaPoints[n].noiseAmplitude, metaPoints[n].noiseRoughness);
+            return noise;
+        }
+    }
+    return noise;
+}
 
 ///////////////////////
 //
@@ -74,7 +123,7 @@ int width;
 int height;
 int maxHeight;
 
-void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetweenPoints, float2 perpendicular)
+void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetweenPoints, float2 perpendicular, uint splinePart, float r)
 {
     const float distOnLine = distance(float2(p), float2(start));
     const float interpolatedHeight = colors.x + (colors.y - colors.x) * (distOnLine / distBetweenPoints);
@@ -92,9 +141,15 @@ void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetwe
     {
         normal[pt2] = float4((1 - perpendicular) / 2, normal[pt2].z, 1);
     }
+    if (metaPointCount > 0)
+    {
+        const float2 noiseParams = metaGetNoiseParameters(splinePart, r);
+        noise[p] = float4(noiseParams, 0, 1);
+    }
+    
 }
 
-void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, float2 perpendicular)
+void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, float2 perpendicular, uint splinePart, float r)
 {
     const float distBetweenPoints = distance(float2(x0, y0), float2(x1, y1));
     const uint2 start = int2(x0, y0);
@@ -107,7 +162,7 @@ void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, floa
     {
         /* pixel loop */
         handlePixel(uint2(x0, y0), 255.0 * abs(err - dx + dy) / ed, colors, start, distBetweenPoints,
-                    perpendicular);
+                    perpendicular, splinePart, r);
         e2 = err;
         x2 = x0;
         if (2 * e2 >= -dx)
@@ -116,7 +171,7 @@ void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, floa
             if (x0 == x1) break;
             if (e2 + dy < ed)
                 handlePixel(uint2(x0, y0 + sy), 255.0 * (e2 + dy) / ed, colors, start,
-                            distBetweenPoints, perpendicular);
+                            distBetweenPoints, perpendicular, splinePart, r);
             err -= dy;
             x0 += sx;
         }
@@ -126,7 +181,7 @@ void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, floa
             if (y0 == y1) break;
             if (dx - e2 < ed)
                 handlePixel(uint2(x2 + sx, y0), 255.0 * (dx - e2) / ed, colors, start,
-                            distBetweenPoints, perpendicular);
+                            distBetweenPoints, perpendicular, splinePart, r);
             err += dx;
             y0 += sy;
         }
@@ -149,7 +204,7 @@ float4x4 localToWorld;
 float3 position;
 float lineIncrement;
 
-[numthreads(8, 8, 1)]
+[numthreads(4, 1, 1)]
 void RasterizeSplines(uint3 id : SV_DispatchThreadID)
 {
     Spline spline = splines[id.x];
@@ -176,7 +231,7 @@ void RasterizeSplines(uint3 id : SV_DispatchThreadID)
         const float2 perpendicular = normalize(float2(tinyLiny.y, -tinyLiny.x));
         const float2 colors = float2(oppt.y, ppt.y);
 
-        pixelsOfAntiAliasedLine(a.x, a.y, b.x, b.y, colors, perpendicular);
+        pixelsOfAntiAliasedLine(a.x, a.y, b.x, b.y, colors, perpendicular, id.x, r);
 
         oppt = ppt;
     }
@@ -185,7 +240,7 @@ void RasterizeSplines(uint3 id : SV_DispatchThreadID)
 float4 gradientColorStart;
 float4 gradientColorEnd;
 
-[numthreads(8,1,1)]
+[numthreads(4,1,1)]
 void RasterizeAverageGradients(uint3 id : SV_DispatchThreadID)
 {
     const int n = id.x * 3;
@@ -243,7 +298,7 @@ void RasterizeAverageGradients(uint3 id : SV_DispatchThreadID)
     }
 }
 
-[numthreads(8,1,1)]
+[numthreads(4,1,1)]
 void RasterizeAverageThickLines(uint3 id : SV_DispatchThreadID)
 {
     const int n = id.x * 3;
@@ -279,7 +334,7 @@ void RasterizeAverageThickLines(uint3 id : SV_DispatchThreadID)
     }
 }
 
-[numthreads(8,8,1)]
+[numthreads(4,4,1)]
 void FillTextures(uint3 id : SV_DispatchThreadID)
 {
     /*    restriction[id.xy] = restriction[id.xy].w * (length(restriction[id.xy].xy) > 0
@@ -293,5 +348,5 @@ void FillTextures(uint3 id : SV_DispatchThreadID)
             normal[id.xy].xy,
             (normal[id.xy].z > 0) * normal[id.xy].z + (normal[id.xy].z == 0) * 0.5,
             (normal[id.xy].w == 1) + 2 * (normal[id.xy].z > 0)
-            );
+        );
 }

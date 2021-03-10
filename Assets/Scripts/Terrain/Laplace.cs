@@ -142,7 +142,7 @@ public class Laplace : MonoBehaviour
         saveImage("noise " + h + " seed", rd.noise);
         Interpolate(smallerNoise, noise);
         saveImage("noise " + h + " pre", noise);
-        //Relaxation(rd.noise, noise, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
+        Relaxation(rd.noise, noise, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
         saveImage("noise " + h + " post", noise);
 
         // Solve poisson equation for the terrain

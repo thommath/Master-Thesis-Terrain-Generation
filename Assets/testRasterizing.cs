@@ -23,6 +23,29 @@ public class testRasterizing : MonoBehaviour
             this.p4 = p4;
         }
     }
+    public struct MetaPoint
+    {
+        float position;
+        float lineRadius;
+        float gradientLengthLeft;
+        float gradientAngleLeft;
+        float gradientLengthRight;
+        float gradientAngleRight;
+        float noiseAmplitude;
+        float noiseRoughness;
+
+        public MetaPoint(SplineMetaPoint metaPoint)
+        {
+            position = metaPoint.position;
+            lineRadius = metaPoint.lineRadius;
+            gradientLengthLeft = metaPoint.gradientLengthLeft;
+            gradientAngleLeft = metaPoint.gradientAngleLeft;
+            gradientLengthRight = metaPoint.gradientLengthRight;
+            gradientAngleRight = metaPoint.gradientAngleRight;
+            noiseAmplitude = metaPoint.noiseAmplitude;
+            noiseRoughness = metaPoint.noiseRoughness;
+        }
+    }
     
     private void RasterizeGradientMesh(Mesh mesh, RenderTexture normal, RenderTexture restriction)
     {
@@ -95,7 +118,6 @@ public class testRasterizing : MonoBehaviour
         noise.autoGenerateMips = false;
         noise.Create();
         
-        
         int gradientsKernelHandle = computeShader.FindKernel("RasterizeSplines");
 
         computeShader.SetFloat("textureDivTerrain", 1f * textureSize / terrainSize);
@@ -110,6 +132,7 @@ public class testRasterizing : MonoBehaviour
 
         computeShader.SetInt("width", textureSize);
         computeShader.SetInt("height", textureSize);
+        
         
         foreach (BezierSpline spline in splines)
         {
@@ -131,6 +154,14 @@ public class testRasterizing : MonoBehaviour
 
             ComputeBuffer splinesBuffer = new ComputeBuffer(gpuSplines.Count, sizeof(float) * 3 * 4);
             splinesBuffer.SetData(gpuSplines);
+            
+            ComputeBuffer metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 8);
+            metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
+            computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
+            
+            computeShader.SetInt("splineCount", spline.CurveCount);
+            computeShader.SetInt("metaPointCount", spline.metaPoints.Length);
+
 
             computeShader.SetVector("position", spline.transform.position);
             computeShader.SetBuffer(gradientsKernelHandle, "splines", splinesBuffer);
@@ -217,6 +248,7 @@ public class testRasterizing : MonoBehaviour
         Transform terrainFeatures = this.gameObject.transform.GetComponentsInChildren<Transform>()
             .FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
         BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
+        
         
         foreach (BezierSpline spline in splines)
         {
