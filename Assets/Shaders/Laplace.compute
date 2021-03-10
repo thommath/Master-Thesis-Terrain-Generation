@@ -90,7 +90,6 @@ void Relaxation(uint3 id : SV_DispatchThreadID)
     result[id.xy] = float4(res, 1);
 }
 
-
 RWTexture2D<float4> restrictionsTexture;
 RWTexture2D<float4> normals;
 
@@ -108,13 +107,6 @@ bool useRedBlack;
 [numthreads(4, 4, 1)]
 void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 {
-    const float3 color = redGreenBlack[id.xy % 1024];
-    const bool red = color.x + color.y == 1 && useRedBlack;
-    if (runRed == red)
-    {
-        return;
-    }
-    
     const float alpha = restrictionsTexture[id.xy].x;
     const float beta = restrictionsTexture[id.xy].y;
 
@@ -148,29 +140,18 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
         terrainHeight[id.xy - uint2(0, 1)] +
         terrainHeight[id.xy - uint2(1, 0)] +
         terrainHeight[id.xy - uint2(-1, 0)] +
-        terrainHeight[id.xy - uint2(0, -1)]) * (1-red);
-    const float Ll3 = 0.25 * (
-        terrainHeight[id.xy - uint2(1, 1)] +
-        terrainHeight[id.xy - uint2(1, -1)] +
-        terrainHeight[id.xy - uint2(-1, 1)] +
-        terrainHeight[id.xy - uint2(-1, -1)]) * (red);
+        terrainHeight[id.xy - uint2(0, -1)]);
 
     const float Lg = (
         pow(normal.x, 2) * getTerrainHeight(id.xy + int2(sign(normal.x), 0)) + //terrainHeight[id.xy + int2(sign(normal.x), 0)] +
         pow(normal.y, 2) * getTerrainHeight(id.xy + int2(0, sign(normal.y))) + //terrainHeight[id.xy + int2(0, sign(normal.y))] +
         gradient
-    ) * (1-red);
-    const float Lg3 = (
-        pow(normal.x, 2) * getTerrainHeight(id.xy + int2(sign(normal.x), sign(normal.x))) + //terrainHeight[id.xy + int2(sign(normal.x), 0)] +
-        pow(normal.y, 2) * getTerrainHeight(id.xy + int2(sign(normal.y), sign(normal.y))) + //terrainHeight[id.xy + int2(0, sign(normal.y))] +
-        gradient
-    ) * (red);
-
+    ) ;
 
     const float Li = seedTexture[id.xy].x;
 
     terrainHeight[id.xy] =
-        float4((Ll2+Ll3) * alpha + (Lg+Lg3) * beta + Li * (1 - alpha - beta), 0, 0, 1);
+        float4((Ll2) * alpha + (Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
 }
 
 
