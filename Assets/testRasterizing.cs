@@ -187,9 +187,10 @@ public class testRasterizing : MonoBehaviour
         ///
         ///////////////
         
-        int fillRestrictionKernelHandle = computeShader.FindKernel("FillRestriction");
-        computeShader.SetTexture(fillRestrictionKernelHandle, "restriction", restriction);
-        computeShader.Dispatch(fillRestrictionKernelHandle, restriction.width, restriction.height, 1);
+        int fillTexturesKernelHandle = computeShader.FindKernel("FillTextures");
+        computeShader.SetTexture(fillTexturesKernelHandle, "restriction", restriction);
+        computeShader.SetTexture(fillTexturesKernelHandle, "normal", normal);
+        computeShader.Dispatch(fillTexturesKernelHandle, restriction.width, restriction.height, 1);
 
         
         RasterizedData data = new RasterizedData();

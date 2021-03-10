@@ -135,7 +135,7 @@ public class Laplace : MonoBehaviour
         saveImage("normals " + h + " seed", rd.seedNormals);
         Interpolate(smallerNormals, normals);
         saveImage("normals " + h + " pre", normals);
-        Relaxation(rd.seedNormals, normals, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
+        Relaxation(rd.seedNormals, normals, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
         saveImage("normals " + h + " post", normals);
 
         // Solve the poisson equation for noise
