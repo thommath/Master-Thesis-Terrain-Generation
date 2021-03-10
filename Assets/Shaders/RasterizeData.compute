@@ -78,7 +78,7 @@ void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetwe
 {
     const float distOnLine = distance(float2(p), float2(start));
     const float interpolatedHeight = colors.x + (colors.y - colors.x) * (distOnLine / distBetweenPoints);
-    
+
     result[p] = float4(interpolatedHeight / maxHeight, 0, 0, 1);
     restriction[p] = float4(0, 0, 0, 1);
 
@@ -97,7 +97,7 @@ void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetwe
 void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, float2 perpendicular)
 {
     const float distBetweenPoints = distance(float2(x0, y0), float2(x1, y1));
-    const uint2 start = int2(x0,y0);
+    const uint2 start = int2(x0, y0);
 
     const int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
     const int dy = abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
@@ -160,7 +160,7 @@ void RasterizeSplines(uint3 id : SV_DispatchThreadID)
 
     float3 oppt = mul(float4(GetPoint(p1, p2, p3, p4, 0), 1), localToWorld).xyz + position;
     // 1 + line increment to make sure the last bit of the line is also added because of the error of floats
-    for (float r = lineIncrement; r <= 1+lineIncrement; r += lineIncrement)
+    for (float r = lineIncrement; r <= 1 + lineIncrement; r += lineIncrement)
     {
         float3 ppt = mul(float4(GetPoint(p1, p2, p3, p4, r), 1), localToWorld).xyz + position;
 
@@ -171,7 +171,7 @@ void RasterizeSplines(uint3 id : SV_DispatchThreadID)
         {
             continue;
         }
-        
+
         const float2 tinyLiny = (a - b).xy;
         const float2 perpendicular = normalize(float2(tinyLiny.y, -tinyLiny.x));
         const float2 colors = float2(oppt.y, ppt.y);
@@ -221,6 +221,7 @@ void RasterizeAverageGradients(uint3 id : SV_DispatchThreadID)
                 else
                 {
                     normal[float2(x, y)] = float4(oldNormal.xy, 0, oldNormal.w);
+                    restriction[float2(x, y)] = float4(1, 0, 0, 1);
                 }
 
                 if (restriction[float2(x, y)].w == 0)
@@ -231,11 +232,11 @@ void RasterizeAverageGradients(uint3 id : SV_DispatchThreadID)
                     const float4 color3 = gradientColorEnd * (1 - odd.z) + gradientColorStart * odd.z;
 
                     const float4 color = colorFromBary(bary,
-                                                              color1,
-                                                              color2,
-                                                              color3);
-                    
-                    restriction[float2(x, y)] = float4(1-color.y, color.y, 0, 1); 
+                                                       color1,
+                                                       color2,
+                                                       color3);
+
+                    restriction[float2(x, y)] = float4(1 - color.y, color.y, 0, 1);
                 }
             }
         }
@@ -287,5 +288,10 @@ void FillTextures(uint3 id : SV_DispatchThreadID)
                                                          ].w);
     */
     restriction[id.xy] = restriction[id.xy].w * restriction[id.xy] + float4(1, 0, 0, 1) * (1 - restriction[id.xy].w);
-    normal[id.xy] = float4(normal[id.xy].xy, (normal[id.xy].z > 0) * normal[id.xy].z + (normal[id.xy].z == 0) * 0.5, normal[id.xy].w);
+    normal[id.xy] =
+        float4(
+            normal[id.xy].xy,
+            (normal[id.xy].z > 0) * normal[id.xy].z + (normal[id.xy].z == 0) * 0.5,
+            (normal[id.xy].w == 1) + 2 * (normal[id.xy].z > 0)
+            );
 }

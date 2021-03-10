@@ -121,7 +121,7 @@ public class SplineTerrain : MonoBehaviour
 
         l.poissonStep(normals, heightmap, noiseSeed, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
         
-        l.ImageSmoothing(heightmap, 5);
+        //l.ImageSmoothing(heightmap, 5);
 
         ///////////////
         ///

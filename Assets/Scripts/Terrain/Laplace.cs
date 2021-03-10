@@ -233,10 +233,15 @@ public class Laplace : MonoBehaviour
         laplace.SetTexture(relaxKernelHandle, "restrictionsTexture", restrictionsTexture);
         laplace.SetTexture(relaxKernelHandle, "normals", normalizedNormals);
         laplace.SetTexture(relaxKernelHandle, "terrainHeight", terrainHeight);
+        laplace.SetTexture(relaxKernelHandle, "redGreenBlack", RedGreenBlackTexture);
         laplace.SetInt("image_size", terrainHeight.width);
+        laplace.SetBool("useRedBlack", true);
 
         for (int n = 0; n < iterations; n++)
         {
+            laplace.SetBool("runRed", true);
+            laplace.Dispatch(relaxKernelHandle, terrainHeight.width, terrainHeight.height, 1);
+            laplace.SetBool("runRed", false);
             laplace.Dispatch(relaxKernelHandle, terrainHeight.width, terrainHeight.height, 1);
         }
     }
