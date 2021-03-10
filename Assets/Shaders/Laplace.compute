@@ -14,28 +14,37 @@ RWTexture2D<float4> seedTexture;
 
 int image_size;
 
-float4 getPixel(RWTexture2D<float4> tex, uint2 pixel) {
+float4 getPixel(RWTexture2D<float4> tex, uint2 pixel)
+{
     /*if (tex[pixel].w != 1) {
         return tex[pixel] / tex[pixel].w;
     }*/
     return tex[pixel];
 }
 
-float4 inpToNorm(float4 val) {
+float4 inpToNorm(float4 val)
+{
     return (0.5 - val) * 2;
 }
-float4 normToInp(float4 val) {
+
+float4 normToInp(float4 val)
+{
     return (1 + val) / 2;
 }
 
-float applySeed(uint2 pixel, RWTexture2D<float4> result, RWTexture2D<float4> seedTexture) {
-    if (seedTexture[pixel].x == 0 && seedTexture[pixel].y == 0 && seedTexture[pixel].z == 0) {
+float applySeed(uint2 pixel, RWTexture2D<float4> result, RWTexture2D<float4> seedTexture)
+{
+    if (seedTexture[pixel].x == 0 && seedTexture[pixel].y == 0 && seedTexture[pixel].z == 0)
+    {
         return result[pixel];
     }
     return seedTexture[pixel];
 }
-float applySeed(uint2 pixel, RWTexture2D<float> result, RWTexture2D<float4> seedTexture) {
-    if (seedTexture[pixel].x == 0 && seedTexture[pixel].y == 0 && seedTexture[pixel].z == 0) {
+
+float applySeed(uint2 pixel, RWTexture2D<float> result, RWTexture2D<float4> seedTexture)
+{
+    if (seedTexture[pixel].x == 0 && seedTexture[pixel].y == 0 && seedTexture[pixel].z == 0)
+    {
         return result[pixel];
     }
     return seedTexture[pixel];
@@ -47,31 +56,36 @@ void Relaxation(uint3 id : SV_DispatchThreadID)
 {
     float3 res = float3(0, 0, 0);
 
-    if (seedTexture[id.xy].w > 0) {
+    if (seedTexture[id.xy].w > 0)
+    {
         res.xy = seedTexture[id.xy].xy;
     }
     else
     {
         res.xy = (
-            (id.x == 0 ? 0 : result[id.xy - uint2(1, 0)])
-            + (id.y == 0 ? 0 : result[id.xy - uint2(0, 1)])
-            + (id.x == image_size - 1 ? 0 : result[id.xy - uint2(-1, 0)])
-            + (id.y == image_size-1 ? 0 : result[id.xy - uint2(0, -1)])
+                (id.x == 0 ? 0 : result[id.xy - uint2(1, 0)])
+                + (id.y == 0 ? 0 : result[id.xy - uint2(0, 1)])
+                + (id.x == image_size - 1 ? 0 : result[id.xy - uint2(-1, 0)])
+                + (id.y == image_size - 1 ? 0 : result[id.xy - uint2(0, -1)])
             ).xy
-            / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1));
+            / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (
+                id.y == image_size - 1 ? 0 : 1));
     }
 
-    if (seedTexture[id.xy].z > 0.1) {
+    if (seedTexture[id.xy].z > 0.1)
+    {
         res.z = seedTexture[id.xy].z;
     }
-    else {
+    else
+    {
         res.z = (
-            (id.x == 0 ? 0 : result[id.xy - uint2(1, 0)])
-            + (id.y == 0 ? 0 : result[id.xy - uint2(0, 1)])
-            + (id.x == image_size - 1 ? 0 : result[id.xy - uint2(-1, 0)])
-            + (id.y == image_size - 1 ? 0 : result[id.xy - uint2(0, -1)])
+                (id.x == 0 ? 0 : result[id.xy - uint2(1, 0)])
+                + (id.y == 0 ? 0 : result[id.xy - uint2(0, 1)])
+                + (id.x == image_size - 1 ? 0 : result[id.xy - uint2(-1, 0)])
+                + (id.y == image_size - 1 ? 0 : result[id.xy - uint2(0, -1)])
             ).z
-            / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1));
+            / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (
+                id.y == image_size - 1 ? 0 : 1));
     }
 
     result[id.xy] = float4(res, 1);
@@ -82,6 +96,11 @@ RWTexture2D<float4> restrictionsTexture;
 RWTexture2D<float4> normals;
 
 RWTexture2D<float4> terrainHeight;
+
+float4 getTerrainHeight(uint2 pos)
+{
+    return restrictionsTexture[pos].x + restrictionsTexture[pos].y < 0.9 ? seedTexture[pos] : terrainHeight[pos];
+}
 
 [numthreads(4, 4, 1)]
 void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
@@ -97,47 +116,48 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
     // It crashes it normalize is run on (0,0) vector
     //normal = length(normal) > 0 ? normalize(normal) : float2(1, 0);
     const float Ll = (
-        (id.x == 0 ?
-            0 :
-            (1 - restrictionsTexture[id.xy - uint2(1, 0)].x - restrictionsTexture[id.xy - uint2(1, 0)].y) > 0.1 ?
-            seedTexture[id.xy - uint2(1, 0)] :
-            terrainHeight[id.xy - uint2(1, 0)])
-        + (id.y == 0 ?
-            0 :
-            (1 - restrictionsTexture[id.xy - uint2(0, 1)].x - restrictionsTexture[id.xy - uint2(0, 1)]) > 0.1 ?
-            seedTexture[id.xy - uint2(0, 1)] :
-            terrainHeight[id.xy - uint2(0, 1)])
+            (id.x == 0
+                 ? 0
+                 : (1 - restrictionsTexture[id.xy - uint2(1, 0)].x - restrictionsTexture[id.xy - uint2(1, 0)].y) > 0
+                 ? seedTexture[id.xy - uint2(1, 0)]
+                 : terrainHeight[id.xy - uint2(1, 0)])
+            + (id.y == 0
+                   ? 0
+                   : (1 - restrictionsTexture[id.xy - uint2(0, 1)].x - restrictionsTexture[id.xy - uint2(0, 1)].y) > 0
+                   ? seedTexture[id.xy - uint2(0, 1)]
+                   : terrainHeight[id.xy - uint2(0, 1)])
 
-        + (id.y == image_size - 1 ?
-            0 :
-            (1 - restrictionsTexture[id.xy - uint2(0, -1)].x - restrictionsTexture[id.xy - uint2(0, -1)]) > 0.1 ?
-            seedTexture[id.xy - uint2(0, -1)] :
-            terrainHeight[id.xy - uint2(0, -1)])
+            + (id.y == image_size - 1
+                   ? 0
+                   : (1 - restrictionsTexture[id.xy - uint2(0, -1)].x - restrictionsTexture[id.xy - uint2(0, -1)].y) > 0
+                   ? seedTexture[id.xy - uint2(0, -1)]
+                   : terrainHeight[id.xy - uint2(0, -1)])
 
-        + (id.x == image_size - 1 ?
-            0 :
-            (1 - restrictionsTexture[id.xy - uint2(-1, 0)].x - restrictionsTexture[id.xy - uint2(-1, 0)]) > 0.1 ?
-            seedTexture[id.xy - uint2(-1, 0)] :
-            terrainHeight[id.xy - uint2(-1, 0)])
+            + (id.x == image_size - 1
+                   ? 0
+                   : (1 - restrictionsTexture[id.xy - uint2(-1, 0)].x - restrictionsTexture[id.xy - uint2(-1, 0)].y) > 0
+                   ? seedTexture[id.xy - uint2(-1, 0)]
+                   : terrainHeight[id.xy - uint2(-1, 0)])
         ).x
-        / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (id.y == image_size - 1 ? 0 : 1));
+        / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (
+            id.y == image_size - 1 ? 0 : 1));
 
     const float Ll2 = 0.25 * (
         terrainHeight[id.xy - uint2(0, 1)] +
         terrainHeight[id.xy - uint2(1, 0)] +
         terrainHeight[id.xy - uint2(-1, 0)] +
         terrainHeight[id.xy - uint2(0, -1)]);
-    
+
     const float Lg = (
-        pow(normal.x, 2) * terrainHeight[id.xy + int2(sign(normal.x), 0)] +
-        pow(normal.y, 2) * terrainHeight[id.xy + int2(0, sign(normal.y))] +
+        pow(normal.x, 2) * getTerrainHeight(id.xy + int2(sign(normal.x), 0)) + //terrainHeight[id.xy + int2(sign(normal.x), 0)] +
+        pow(normal.y, 2) * getTerrainHeight(id.xy + int2(0, sign(normal.y))) + //terrainHeight[id.xy + int2(0, sign(normal.y))] +
         gradient
-        );
-    
+    );
+
 
     const float Li = seedTexture[id.xy].x;
 
-    terrainHeight[id.xy] = 
+    terrainHeight[id.xy] =
         float4(Ll2 * alpha + (Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
 }
 
@@ -145,7 +165,8 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 [numthreads(8, 8, 1)]
 void NormalizeNormals(uint3 id : SV_DispatchThreadID)
 {
-    result[id.xy] = float4(length(0.5 - normals[id.xy].xy) > 0 ? normalize(0.5 - normals[id.xy].xy) : float2(1, 0), 0.5 - normals[id.xy].z, 1);
+    result[id.xy] = float4(length(0.5 - normals[id.xy].xy) > 0 ? normalize(0.5 - normals[id.xy].xy) : float2(1, 0),
+                           0.5 - normals[id.xy].z, 1);
 }
 
 
@@ -155,13 +176,12 @@ float input1_weight;
 float input2_weight;
 float input1_bias;
 float input2_bias;
+
 [numthreads(8, 8, 1)]
 void SumTwoTextures(uint3 id : SV_DispatchThreadID)
 {
     result[id.xy] = input1_weight * (input1[id.xy] + input1_bias) + input2_weight * (input2[id.xy] + input2_bias);
 }
-
-
 
 
 RWTexture2D<float4> image;
@@ -175,12 +195,15 @@ void Restrict(uint3 id : SV_DispatchThreadID)
     float normalize = 0;
     float3x3 kernel = float3x3(float3(0.25, 0.5, 0.25), float3(0.5, 1, 0.5), float3(0.25, 0.5, 0.25));
 
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++)
+    {
+        for (int y = -1; y <= 1; y++)
+        {
             if (
                 center.x + x >= 0 && center.x + x <= image_size * 2 &&
                 center.y + y >= 0 && center.y + y <= image_size * 2
-                ) {
+            )
+            {
                 res = res + kernel[x + 1][y + 1] * image[uint2(center.x + x, center.y + y)];
                 normalize += kernel[x + 1][y + 1];
             }
@@ -215,46 +238,52 @@ void Interpolate(uint3 id : SV_DispatchThreadID)
 
     result[id.xy] = (
         image[center.xy]
-        + image[center.xy + uint2(1, 0)] * (1-color.r)
-        + image[center.xy + uint2(0, 1)] * (1-color.g)
-        + image[center.xy + uint2(1, 1)] * clamp(1 - ((1-color.r) + (1-color.g)), 0, 1)
-        ) / (1 + (1 - color.r) + (1 - color.g) + color.r * color.g);
+        + image[center.xy + uint2(1, 0)] * (1 - color.r)
+        + image[center.xy + uint2(0, 1)] * (1 - color.g)
+        + image[center.xy + uint2(1, 1)] * clamp(1 - ((1 - color.r) + (1 - color.g)), 0, 1)
+    ) / (1 + (1 - color.r) + (1 - color.g) + color.r * color.g);
     return;
 
-    if (id.x % 2 == 1) {
+    if (id.x % 2 == 1)
+    {
         // Interpolate between two values in x
-        if (id.y % 2 == 1) {
+        if (id.y % 2 == 1)
+        {
             // Interpolate between two values in y
-            result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)] + image[center.xy + uint2(0, 1)] + image[center.xy + uint2(1, 1)]) / 4;
+            result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)] + image[center.xy + uint2(0, 1)] + image[
+                center.xy + uint2(1, 1)]) / 4;
             return;
         }
-        if (id.y % 2 == 0) {
+        if (id.y % 2 == 0)
+        {
             // On a clear value in the y direction
             result[id.xy] = (image[center.xy] + image[center.xy + uint2(1, 0)]) / 2;
             return;
         }
     }
-    if (id.x % 2 == 0) {
+    if (id.x % 2 == 0)
+    {
         // On a clear value in the x direction
-        if (id.y % 2 == 1) {
+        if (id.y % 2 == 1)
+        {
             // Interpolate between two values in y
-            result[id.xy] =(image[center.xy] + image[center.xy + uint2(0, 1)]) / 2;
+            result[id.xy] = (image[center.xy] + image[center.xy + uint2(0, 1)]) / 2;
             return;
         }
-        if (id.y % 2 == 0) {
+        if (id.y % 2 == 0)
+        {
             // On a clear value in the y direction
             result[id.xy] = image[center.xy];
             return;
         }
     }
-
 }
 
 
 [numthreads(8, 8, 1)]
 void Smooth(uint3 id : SV_DispatchThreadID)
 {
-    result[id.xy] = (1 - restrictionsTexture[id.xy].x) * 0.25 * (
+    result[id.xy] = 0.25 * (
         result[id.xy - uint2(0, 1)] +
         result[id.xy - uint2(1, 0)] +
         result[id.xy - uint2(-1, 0)] +
@@ -266,12 +295,10 @@ void Smooth(uint3 id : SV_DispatchThreadID)
 void RestrictedSmoothing(uint3 id : SV_DispatchThreadID)
 {
     result[id.xy] = (seedTexture[id.xy].x > 0 ? 1 : 0) * 0.25 * (
-        result[id.xy - uint2(0, 1)] +
-        result[id.xy - uint2(1, 0)] +
-        result[id.xy - uint2(-1, 0)] +
-        result[id.xy - uint2(0, -1)])
+            result[id.xy - uint2(0, 1)] +
+            result[id.xy - uint2(1, 0)] +
+            result[id.xy - uint2(-1, 0)] +
+            result[id.xy - uint2(0, -1)])
         +
-        (seedTexture[id.xy].x > 0 ? 0 : 1) * result[id.xy]
-        ;
+        (seedTexture[id.xy].x > 0 ? 0 : 1) * result[id.xy];
 }
-

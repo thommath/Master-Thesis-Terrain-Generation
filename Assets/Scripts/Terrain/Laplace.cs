@@ -205,7 +205,7 @@ public class Laplace : MonoBehaviour
         }
     }
 
-    private void TerrainRelaxation(RenderTexture seedTexture, RenderTexture restrictionsTexture, RenderTexture normals, RenderTexture outputImage, int iterations)
+    private void TerrainRelaxation(RenderTexture seedTexture, RenderTexture restrictionsTexture, RenderTexture normals, RenderTexture terrainHeight, int iterations)
     {
         /**
          * 
@@ -221,7 +221,6 @@ public class Laplace : MonoBehaviour
         normalizedNormals.enableRandomWrite = true;
         normalizedNormals.autoGenerateMips = false;
         normalizedNormals.Create();
-
         
         int normalizeKernelHandle = laplace.FindKernel("NormalizeNormals");
         laplace.SetTexture(normalizeKernelHandle, "normals", normals);
@@ -233,12 +232,12 @@ public class Laplace : MonoBehaviour
         laplace.SetTexture(relaxKernelHandle, "seedTexture", seedTexture);
         laplace.SetTexture(relaxKernelHandle, "restrictionsTexture", restrictionsTexture);
         laplace.SetTexture(relaxKernelHandle, "normals", normalizedNormals);
-        laplace.SetTexture(relaxKernelHandle, "terrainHeight", outputImage);
-        laplace.SetInt("image_size", outputImage.width);
+        laplace.SetTexture(relaxKernelHandle, "terrainHeight", terrainHeight);
+        laplace.SetInt("image_size", terrainHeight.width);
 
         for (int n = 0; n < iterations; n++)
         {
-            laplace.Dispatch(relaxKernelHandle, outputImage.width, outputImage.height, 1);
+            laplace.Dispatch(relaxKernelHandle, terrainHeight.width, terrainHeight.height, 1);
         }
     }
     public void ImageSmoothing(RenderTexture image, int iterations)
