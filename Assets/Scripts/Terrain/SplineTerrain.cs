@@ -25,8 +25,8 @@ public class SplineTerrain : MonoBehaviour
     public int terrainResolution = 512;
 
     [Header("Rasterizing")]
-    [Range(20, 200)]
-    public int splineSamplings = 50;
+    [Range(20, 500)]
+    public int splineSamplings = 200;
 
     [Header("Diffusion")]
     [Range(1, 20)]

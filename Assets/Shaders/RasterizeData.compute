@@ -1,11 +1,8 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel RasterizeThickLines
-#pragma kernel RasterizeGradients
-#pragma kernel RasterizeLines
 #pragma kernel RasterizeSplines
 #pragma kernel RasterizeAverageGradients
-#pragma kernel FillTextures
 #pragma kernel RasterizeAverageThickLines
+#pragma kernel FillTextures
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -13,29 +10,6 @@ RWTexture2D<float4> result;
 RWTexture2D<float4> normal;
 RWTexture2D<float4> restriction;
 RWTexture2D<float4> noise;
-
-struct Line
-{
-    float2 v;
-    float2 w;
-    float h1;
-    float h2;
-};
-
-StructuredBuffer<Line> lines;
-
-struct Triangle
-{
-    float2 a;
-    float2 b;
-    float2 c;
-
-    float4 c1;
-    float4 c2;
-    float4 c3;
-};
-
-StructuredBuffer<Triangle> triangles;
 
 struct Spline
 {
@@ -54,31 +28,6 @@ StructuredBuffer<float4> colors;
 
 float textureDivTerrain;
 float2 center;
-
-///////////////////////
-//
-//  Util for dist between point and line
-//
-///////////////////////
-float dist2(float2 v, float2 w)
-{
-    return pow(v.x - w.x, 2) + pow(v.y - w.y, 2);
-}
-
-float distToSegmentSquared(float2 p, float2 v, float2 w, out float t)
-{
-    float l2 = dist2(v, w);
-    if (l2 == 0) return dist2(p, v);
-    t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-    t = clamp(t, 0, 1);
-    return dist2(p, float2(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
-}
-
-float distToSegment(float2 p, float2 v, float2 w, out float t)
-{
-    return sqrt(distToSegmentSquared(p, v, w, t));
-}
-
 
 ///////////////////////
 //
@@ -121,175 +70,15 @@ float2 vertexToWordspace(float3 vertex, float2 center, float WdivT)
     return (center + vertex.xz) * WdivT;
 }
 
-///////////////////////
-//
-//  Rasterize Gradients
-//
-///////////////////////
-
-[numthreads(8, 8, 1)]
-void RasterizeGradients(uint3 id : SV_DispatchThreadID)
-{
-    float4 res = float4(0, 0, 0, 1);
-    int counter = 0;
-
-    float2 p = id.xy + float2(0.5, 0.5);
-
-    uint numOfStructs;
-    uint stride;
-
-    indices.GetDimensions(numOfStructs, stride);
-
-    for (int n = 0; n < numOfStructs; n += 3)
-    {
-        float2 a = vertexToWordspace(vertices[indices[n]], center, textureDivTerrain);
-        float2 b = vertexToWordspace(vertices[indices[n + 1]], center, textureDivTerrain);
-        float2 c = vertexToWordspace(vertices[indices[n + 2]], center, textureDivTerrain);
-
-        if (
-            (p.x < a.x && p.x < b.x && p.x < c.x) ||
-            (p.x > a.x && p.x > b.x && p.x > c.x) ||
-            (p.y < a.y && p.y < b.y && p.y < c.y) ||
-            (p.y > a.y && p.y > b.y && p.y > c.y)
-        )
-        {
-            continue;
-        }
-
-        float3 bary = barycentric(
-            a, b, c,
-            p);
-
-        if (isInside(bary) == true)
-        {
-            res = colorFromBary(bary, colors[indices[n]], colors[indices[n + 1]], colors[indices[n + 2]]);
-            counter++;
-        }
-    }
-    if (counter == 1)
-    {
-        result[id.xy] = res;
-    }
-}
-
-
-///////////////////////
-//
-//  Rasterize ThickLines
-//
-///////////////////////
-
-[numthreads(8, 8, 1)]
-void RasterizeThickLines(uint3 id : SV_DispatchThreadID)
-{
-    float4 res = float4(0, 0, 0, 1);
-    int counter = 0;
-
-    float2 p = id.xy + float2(0.5, 0.5);
-    uint numOfStructs;
-    uint stride;
-
-    indices.GetDimensions(numOfStructs, stride);
-
-    for (int n = 0; n < numOfStructs; n += 3)
-    {
-        float2 a = vertexToWordspace(vertices[indices[n]], center, textureDivTerrain);
-        float2 b = vertexToWordspace(vertices[indices[n + 1]], center, textureDivTerrain);
-        float2 c = vertexToWordspace(vertices[indices[n + 2]], center, textureDivTerrain);
-
-        if (
-            (p.x < a.x && p.x < b.x && p.x < c.x) ||
-            (p.x > a.x && p.x > b.x && p.x > c.x) ||
-            (p.y < a.y && p.y < b.y && p.y < c.y) ||
-            (p.y > a.y && p.y > b.y && p.y > c.y)
-        )
-        {
-            continue;
-        }
-
-        float3 bary = barycentric(
-            a, b, c,
-            p);
-
-        if (isInside(bary) == true)
-        {
-            res = colorFromBary(bary, colors[indices[n]], colors[indices[n + 1]], colors[indices[n + 2]]);
-            counter++;
-        }
-    }
-    if (counter == 1)
-    {
-        result[id.xy] = res;
-    }
-}
-
-
-[numthreads(8, 8, 1)]
-void RasterizeTriangles(uint3 id : SV_DispatchThreadID)
-{
-    float4 res = float4(0, 0, 0, 1);
-    float tt = 0;
-    int nn = 0;
-
-    uint numOfStructs;
-    uint stride;
-
-    triangles.GetDimensions(numOfStructs, stride);
-
-    for (int n = 0; n < numOfStructs; n++)
-    {
-        Triangle t = triangles[n];
-        float3 bary = barycentric(t.a, t.b, t.c, id.xy);
-        if (isInside(bary) == true)
-        {
-            res = colorFromBary(bary, t.c1, t.c2, t.c3);
-        }
-    }
-    result[id.xy] = res;
-}
-
-
-[numthreads(8, 8, 1)]
-void RasterizeLines(uint3 id : SV_DispatchThreadID)
-{
-    float res = 1;
-    float tt = 0;
-    int nn = 0;
-
-    uint numOfStructs;
-    uint stride;
-
-    lines.GetDimensions(numOfStructs, stride);
-
-    for (int n = 0; n < numOfStructs; n++)
-    {
-        // https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
-        float t;
-        float dist = distToSegment(id.xy, lines[n].v, lines[n].w, t);
-        if (dist < res)
-        {
-            tt = t;
-            nn = n;
-            res = min(res, dist);
-        }
-    }
-
-    res = clamp(1 - res, 0, 1);
-
-    res = res * (tt * lines[nn].h2 + (1 - tt) * lines[nn].h1);
-
-    result[id.xy] = float4(res, res, res, 1.0);
-}
-
-
 int width;
 int height;
-float maxHeight;
+int maxHeight;
 
-void handlePixel(int2 p, float err, float2 colors, int2 start, float distBetweenPoints, float2 perpendicular)
+void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetweenPoints, float2 perpendicular)
 {
-    const float distOnLine = distance(start, p);
+    const float distOnLine = distance(float2(p), float2(start));
     const float interpolatedHeight = colors.x + (colors.y - colors.x) * (distOnLine / distBetweenPoints);
+    
     result[p] = float4(interpolatedHeight / maxHeight, 0, 0, 1);
     restriction[p] = float4(0, 0, 0, 1);
 
@@ -307,16 +96,17 @@ void handlePixel(int2 p, float err, float2 colors, int2 start, float distBetween
 
 void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, float2 perpendicular)
 {
-    const float distBetweenPoints = distance(int2(x0, y0), int2(x1, y1));
+    const float distBetweenPoints = distance(float2(x0, y0), float2(x1, y1));
+    const uint2 start = int2(x0,y0);
 
     const int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
     const int dy = abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
     int x2, e2, err = dx - dy; /* error value e_xy */
-    const int ed = dx + dy == 0 ? 1 : ((int)sqrt((float)dx * dx + (float)dy * dy));
+    const uint ed = dx + dy == 0 ? 1 : ((int)sqrt((float)dx * dx + (float)dy * dy));
     for (; ;)
     {
         /* pixel loop */
-        handlePixel(int2(x0, y0), 255 * abs(err - dx + dy) / ed, colors, int2(x0, y0), distBetweenPoints,
+        handlePixel(uint2(x0, y0), 255.0 * abs(err - dx + dy) / ed, colors, start, distBetweenPoints,
                     perpendicular);
         e2 = err;
         x2 = x0;
@@ -325,7 +115,7 @@ void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, floa
             /* x step */
             if (x0 == x1) break;
             if (e2 + dy < ed)
-                handlePixel(int2(x0, y0 + sy), 255 * (e2 + dy) / ed, colors, int2(x0, y0),
+                handlePixel(uint2(x0, y0 + sy), 255.0 * (e2 + dy) / ed, colors, start,
                             distBetweenPoints, perpendicular);
             err -= dy;
             x0 += sx;
@@ -335,7 +125,7 @@ void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, floa
             /* y step */
             if (y0 == y1) break;
             if (dx - e2 < ed)
-                handlePixel(int2(x2 + sx, y0), 255 * (dx - e2) / ed, colors, int2(x0, y0),
+                handlePixel(uint2(x2 + sx, y0), 255.0 * (dx - e2) / ed, colors, start,
                             distBetweenPoints, perpendicular);
             err += dx;
             y0 += sy;
@@ -357,6 +147,7 @@ float3 GetPoint(float3 p0, float3 p1, float3 p2, float3 p3, float t)
 
 float4x4 localToWorld;
 float3 position;
+float lineIncrement;
 
 [numthreads(8, 8, 1)]
 void RasterizeSplines(uint3 id : SV_DispatchThreadID)
@@ -368,17 +159,25 @@ void RasterizeSplines(uint3 id : SV_DispatchThreadID)
     float3 p4 = spline.p4;
 
     float3 oppt = mul(float4(GetPoint(p1, p2, p3, p4, 0), 1), localToWorld).xyz + position;
-    for (float r = 0.01; r <= 1; r += 0.01)
+    // 1 + line increment to make sure the last bit of the line is also added because of the error of floats
+    for (float r = lineIncrement; r <= 1+lineIncrement; r += lineIncrement)
     {
         float3 ppt = mul(float4(GetPoint(p1, p2, p3, p4, r), 1), localToWorld).xyz + position;
 
         const int2 a = round(vertexToWordspace(oppt, center, textureDivTerrain));
         const int2 b = round(vertexToWordspace(ppt, center, textureDivTerrain));
 
+        if (a.x - b.x + a.y - b.y == 0)
+        {
+            continue;
+        }
+        
         const float2 tinyLiny = (a - b).xy;
         const float2 perpendicular = normalize(float2(tinyLiny.y, -tinyLiny.x));
+        const float2 colors = float2(oppt.y, ppt.y);
 
-        pixelsOfAntiAliasedLine(a.x, a.y, b.x, b.y, float2(oppt.y, ppt.y), perpendicular);
+        pixelsOfAntiAliasedLine(a.x, a.y, b.x, b.y, colors, perpendicular);
+
         oppt = ppt;
     }
 }
