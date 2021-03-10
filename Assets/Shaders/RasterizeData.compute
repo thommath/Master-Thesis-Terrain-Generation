@@ -42,6 +42,8 @@ StructuredBuffer<float4> colors;
 float textureDivTerrain;
 float2 center;
 
+bool strictElevationContraint;
+
 
 
 ///////////////////////
@@ -59,21 +61,26 @@ float metaGetSplineTime(uint metaNr)
 
 float2 metaGetNoiseParameters(uint splinePart, float t)
 {
+    float pos = splinePart + t;
+    if (metaPointCount > 2 && pos > metaPoints[2].position && false)
+    {
+        return float2(metaPoints[2].noiseAmplitude, metaPoints[2].noiseRoughness);
+    }
     float2 noise = float2(metaPoints[0].noiseAmplitude, metaPoints[0].noiseRoughness);
     float lastPos = 0;
     for(int n = 1; n < metaPointCount; n++)
     {
-        if (metaPoints[n].position > splinePart + t)
+        if (pos > metaPoints[n].position)
         {
             noise = float2(metaPoints[n].noiseAmplitude, metaPoints[n].noiseRoughness);
             lastPos = metaPoints[n].position;
-        }
-        else if (metaPoints[n].position < splinePart + t)
-        {
-            float lerpNumber = (splinePart + t - lastPos) / (metaPoints[n].position - lastPos);
+        } else {
+            float lerpNumber = (pos - lastPos) / (metaPoints[n].position - lastPos);
             noise = noise * (1-lerpNumber) + lerpNumber * float2(metaPoints[n].noiseAmplitude, metaPoints[n].noiseRoughness);
+
             return noise;
         }
+        
     }
     return noise;
 }
@@ -97,7 +104,7 @@ float3 barycentric(float2 aV1, float2 aV2, float2 aV3, float2 aP)
     float d = aLen * bLen - ab * ab;
     float u = (aLen * bc - ab * ac) / d;
     float v = (bLen * ac - ab * bc) / d;
-    float w = 1.0f - u - v;
+    float w = 1 - u - v;
     return float3(u, v, w);
 }
 
@@ -125,28 +132,34 @@ int maxHeight;
 
 void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetweenPoints, float2 perpendicular, uint splinePart, float r)
 {
-    const float distOnLine = distance(float2(p), float2(start));
-    const float interpolatedHeight = colors.x + (colors.y - colors.x) * (distOnLine / distBetweenPoints);
+    if (strictElevationContraint)
+    {
+        const float distOnLine = distance(float2(p), float2(start));
+        const float interpolatedHeight = colors.x + (colors.y - colors.x) * (distOnLine / distBetweenPoints);
 
-    result[p] = float4(interpolatedHeight / maxHeight, 0, 0, 1);
-    restriction[p] = float4(0, 0, 0, 1);
+        result[p] = float4(interpolatedHeight / maxHeight, 0, 0, 1);
+        restriction[p] = float4(0, 0, 0, 1);
+    }
 
+    const float2 normal1 = (1 + perpendicular) / 2;
+    const float2 normal2 = (1 - perpendicular) / 2;
+    
     float2 pt = floor(p + perpendicular * 1.5);
     if (pt.x > 0 && pt.y > 0 && pt.x < width && pt.y < height)
     {
-        normal[pt] = float4((1.0 + perpendicular) / 2.0, normal[pt].z, 1);
+        normal[pt] = float4(normal1 * strictElevationContraint + normal2 * (1-strictElevationContraint), normal[pt].z, 1);
     }
     float2 pt2 = floor(p - perpendicular * 1.5);
     if (pt2.x > 0 && pt2.y > 0 && pt2.x < width && pt2.y < height)
     {
-        normal[pt2] = float4((1 - perpendicular) / 2, normal[pt2].z, 1);
+        normal[pt2] = float4(normal2 * strictElevationContraint + normal1 * (1-strictElevationContraint), normal[pt2].z, 1);
     }
+    
     if (metaPointCount > 0)
     {
         const float2 noiseParams = metaGetNoiseParameters(splinePart, r);
         noise[p] = float4(noiseParams, 0, 1);
     }
-    
 }
 
 void pixelsOfAntiAliasedLine(int x0, int y0, int x1, int y1, float2 colors, float2 perpendicular, uint splinePart, float r)
@@ -282,16 +295,29 @@ void RasterizeAverageGradients(uint3 id : SV_DispatchThreadID)
                 if (restriction[float2(x, y)].w == 0)
                 {
                     const float3 odd = float3(indices[n] % 2 == 0, indices[n + 1] % 2 == 0, indices[n + 2] % 2 == 0);
-                    const float4 color1 = gradientColorEnd * (1 - odd.x) + gradientColorStart * odd.x;
-                    const float4 color2 = gradientColorEnd * (1 - odd.y) + gradientColorStart * odd.y;
-                    const float4 color3 = gradientColorEnd * (1 - odd.z) + gradientColorStart * odd.z;
 
-                    const float4 color = colorFromBary(bary,
-                                                       color1,
-                                                       color2,
-                                                       color3);
-
-                    restriction[float2(x, y)] = float4(1 - color.y, color.y, 0, 1);
+                    if (strictElevationContraint)
+                    {
+                        const float4 color1 = gradientColorEnd * (1 - odd.x) + gradientColorStart * odd.x;
+                        const float4 color2 = gradientColorEnd * (1 - odd.y) + gradientColorStart * odd.y;
+                        const float4 color3 = gradientColorEnd * (1 - odd.z) + gradientColorStart * odd.z;
+                        const float4 color = colorFromBary(bary,
+                                                           color1,
+                                                           color2,
+                                                           color3);
+                        restriction[float2(x, y)] = float4(1 - color.y, color.y, 0, 1);
+                    }
+                    else
+                    {
+                        const float4 color1 = gradientColorStart * (1 - odd.x) + gradientColorEnd * odd.x;
+                        const float4 color2 = gradientColorStart * (1 - odd.y) + gradientColorEnd * odd.y;
+                        const float4 color3 = gradientColorStart * (1 - odd.z) + gradientColorEnd * odd.z;
+                        const float4 color = colorFromBary(bary,
+                                                           color1,
+                                                           color2,
+                                                           color3);
+                        restriction[float2(x, y)] = float4(1 - color.y, color.y, 0, 1);
+                    }
                 }
             }
         }

@@ -136,9 +136,16 @@ public class testRasterizing : MonoBehaviour
         
         foreach (BezierSpline spline in splines)
         {
+            computeShader.SetBool("strictElevationContraint", spline.elevationConstraint);
+            computeShader.SetInt("splineCount", spline.CurveCount);
+            computeShader.SetInt("metaPointCount", spline.metaPoints.Length);
+            
             RasterizeGradientMesh(spline.rasterizingData.meshLeft, normal, restriction);
             RasterizeGradientMesh(spline.rasterizingData.meshRight, normal, restriction);
-            RasterizeLineMesh(spline.rasterizingData.meshLine, result, restriction);
+            if (spline.elevationConstraint)
+            {
+                RasterizeLineMesh(spline.rasterizingData.meshLine, result, restriction);
+            }
 
             List<Spline> gpuSplines = new List<Spline>();
 
@@ -159,8 +166,6 @@ public class testRasterizing : MonoBehaviour
             metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
             computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
             
-            computeShader.SetInt("splineCount", spline.CurveCount);
-            computeShader.SetInt("metaPointCount", spline.metaPoints.Length);
 
 
             computeShader.SetVector("position", spline.transform.position);
