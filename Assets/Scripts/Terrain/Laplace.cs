@@ -58,7 +58,7 @@ public class Laplace : MonoBehaviour
      * normals and result are approximations of the result. Can be whatever - are used to improve solution over multiple iterations
      * 
      */
-    public void poissonStep(RenderTexture normals, RenderTexture heightmap, RenderTexture noise, int h, int terrainSizeExp, int iterationsMultiplier = 4, int breakOn = 1, float startHeight = 0)
+    public void poissonStep(RenderTexture normals, RenderTexture heightmap, RenderTexture noise, RenderTexture erosion, int h, int terrainSizeExp, int iterationsMultiplier = 4, int breakOn = 1, float startHeight = 0)
     {
         // Break on 1
         if (normals.width == Mathf.RoundToInt(Mathf.Pow(2, breakOn)) + 1)
@@ -91,6 +91,7 @@ public class Laplace : MonoBehaviour
         RenderTexture smallerNormals = createRenderTexture(size, 0, normals.depth, normals.format);
         RenderTexture smallerHeightmap = createRenderTexture(size, 0, heightmap.depth, heightmap.format);
         RenderTexture smallerNoise = createRenderTexture(size, 0, noise.depth, noise.format);
+        RenderTexture smallerErosion = createRenderTexture(size, 0, erosion.depth, erosion.format);
 
         // Restrict textures to smaller versions
         //Restrict(normals, smallerNormals);
@@ -98,7 +99,7 @@ public class Laplace : MonoBehaviour
         //Restrict(noise, smallerNoise);
 
         // Solve recursively
-        poissonStep(smallerNormals, smallerHeightmap, smallerNoise, h + 1, terrainSizeExp, iterationsMultiplier, breakOn, startHeight);
+        poissonStep(smallerNormals, smallerHeightmap, smallerNoise, smallerErosion, h + 1, terrainSizeExp, iterationsMultiplier, breakOn, startHeight);
 
         // Set variables
         laplace.SetFloat("h", Mathf.Pow(2, h));
@@ -144,6 +145,13 @@ public class Laplace : MonoBehaviour
         saveImage("noise " + h + " pre", noise);
         Relaxation(rd.noise, noise, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
         saveImage("noise " + h + " post", noise);
+        
+        // Solve the poisson equation for erosion
+        saveImage("erosion " + h + " seed", rd.erosion);
+        Interpolate(smallerErosion, erosion);
+        saveImage("erosion " + h + " pre", erosion);
+        Relaxation(rd.erosion, erosion, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
+        saveImage("erosion " + h + " post", erosion);
 
         // Solve poisson equation for the terrain
         Interpolate(smallerHeightmap, heightmap);
@@ -161,6 +169,7 @@ public class Laplace : MonoBehaviour
         smallerHeightmap.Release();
         smallerNormals.Release();
         smallerNoise.Release();
+        smallerErosion.Release();
     }
 
     private void Restrict(RenderTexture inputImage, RenderTexture outputImage)

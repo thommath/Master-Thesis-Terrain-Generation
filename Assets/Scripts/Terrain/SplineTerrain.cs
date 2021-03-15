@@ -56,6 +56,8 @@ public class SplineTerrain : MonoBehaviour
     public RenderTexture normals;
     [HideInInspector]
     public RenderTexture noise;
+    [HideInInspector]
+    public RenderTexture erosion;
 
     public ComputeShader noiseShader;
 
@@ -96,6 +98,10 @@ public class SplineTerrain : MonoBehaviour
         noise.enableRandomWrite = true;
         noise.autoGenerateMips = false;
         noise.Create();
+        RenderTexture erosion = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
+        erosion.enableRandomWrite = true;
+        erosion.autoGenerateMips = false;
+        erosion.Create();
         RenderTexture noiseSeed = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
         noiseSeed.enableRandomWrite = true;
         noiseSeed.autoGenerateMips = false;
@@ -119,7 +125,7 @@ public class SplineTerrain : MonoBehaviour
         //l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
         //Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
 
-        l.poissonStep(normals, heightmap, noiseSeed, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
+        l.poissonStep(normals, heightmap, noiseSeed, erosion, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
         
         //l.ImageSmoothing(heightmap, 5);
 
@@ -173,6 +179,7 @@ public class SplineTerrain : MonoBehaviour
         this.heightmap = result;
         this.normals = normals;
         this.noise = noise;
+        this.erosion = erosion;
 
         updatedData.Invoke();
         saveState();
@@ -184,6 +191,7 @@ public class SplineTerrain : MonoBehaviour
         saveImage("_normals", normals);
         saveImage("_heightmap", heightmap, TextureFormat.RFloat);
         saveImage("_noise", noise);
+        saveImage("_erosion", erosion);
     }
     private void loadState()
     {

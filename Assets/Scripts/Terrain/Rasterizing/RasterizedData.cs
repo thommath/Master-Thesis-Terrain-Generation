@@ -15,6 +15,7 @@ public struct RasterizedData
         this.restrictions = null;
         this.seedNormals = null;
         this.noise = null;
+        this.erosion = null;
     }
 
     public Texture2D tseedHeightmap;
@@ -27,4 +28,5 @@ public struct RasterizedData
     public RenderTexture restrictions;
     public RenderTexture seedNormals;
     public RenderTexture noise;
+    public RenderTexture erosion;
 }

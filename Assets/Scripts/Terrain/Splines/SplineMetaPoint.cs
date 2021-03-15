@@ -15,10 +15,20 @@ public class SplineMetaPoint
 	public float gradientLengthRight = 1;
 	public float gradientAngleRight = 0;
 
+	[Header("Nosie")]
 	[Range(0, 1f)]
 	public float noiseAmplitude = 0;
 	[Range(0, 1f)]
 	public float noiseRoughness = 0;
+	
+	[Header("Erosion")]
+	[Range(0, 1f)]
+	public float erosionRain = 1f;
+	[Range(0, 1f)]
+	public float erosionHardness = 1f;
+	[Range(0, 1f)]
+	public float sedimentCapacity = 1f;
+	
 
 
 	public SplineMetaPoint clone()

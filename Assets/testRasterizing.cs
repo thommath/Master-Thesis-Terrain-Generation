@@ -31,8 +31,13 @@ public class testRasterizing : MonoBehaviour
         float gradientAngleLeft;
         float gradientLengthRight;
         float gradientAngleRight;
+        
         float noiseAmplitude;
         float noiseRoughness;
+
+        float erosionRain;
+        float erosionHardness;
+        float sedimentCapacity;
 
         public MetaPoint(SplineMetaPoint metaPoint)
         {
@@ -42,8 +47,14 @@ public class testRasterizing : MonoBehaviour
             gradientAngleLeft = metaPoint.gradientAngleLeft;
             gradientLengthRight = metaPoint.gradientLengthRight;
             gradientAngleRight = metaPoint.gradientAngleRight;
+            
             noiseAmplitude = metaPoint.noiseAmplitude;
             noiseRoughness = metaPoint.noiseRoughness;
+            
+            erosionRain = metaPoint.erosionRain;
+            erosionHardness = metaPoint.erosionHardness;
+            sedimentCapacity = metaPoint.sedimentCapacity;
+
         }
     }
     
@@ -117,6 +128,10 @@ public class testRasterizing : MonoBehaviour
         noise.enableRandomWrite = true;
         noise.autoGenerateMips = false;
         noise.Create();
+        RenderTexture erosion = new RenderTexture(textureSize, textureSize, 0, RenderTextureFormat.ARGBFloat);
+        erosion.enableRandomWrite = true;
+        erosion.autoGenerateMips = false;
+        erosion.Create();
         
         int gradientsKernelHandle = computeShader.FindKernel("RasterizeSplines");
 
@@ -129,6 +144,7 @@ public class testRasterizing : MonoBehaviour
         computeShader.SetTexture(gradientsKernelHandle, "noise", noise);
         computeShader.SetTexture(gradientsKernelHandle, "restriction", restriction);
         computeShader.SetTexture(gradientsKernelHandle, "normal", normal);
+        computeShader.SetTexture(gradientsKernelHandle, "erosion", erosion);
 
         computeShader.SetInt("width", textureSize);
         computeShader.SetInt("height", textureSize);
@@ -137,6 +153,8 @@ public class testRasterizing : MonoBehaviour
         foreach (BezierSpline spline in splines)
         {
             computeShader.SetBool("strictElevationContraint", spline.elevationConstraint);
+            computeShader.SetBool("noiseConstraint", spline.noiseConstraint);
+            computeShader.SetBool("erosionConstraint", spline.erosionConstraint);
             computeShader.SetInt("splineCount", spline.CurveCount);
             computeShader.SetInt("metaPointCount", spline.metaPoints.Length);
             
@@ -162,7 +180,7 @@ public class testRasterizing : MonoBehaviour
             ComputeBuffer splinesBuffer = new ComputeBuffer(gpuSplines.Count, sizeof(float) * 3 * 4);
             splinesBuffer.SetData(gpuSplines);
             
-            ComputeBuffer metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 8);
+            ComputeBuffer metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 11);
             metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
             computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
             
@@ -193,6 +211,7 @@ public class testRasterizing : MonoBehaviour
         data.restrictions = restriction;
         data.seedHeightmap = result;
         data.seedNormals = normal;
+        data.erosion = erosion;
         return data;
         /*
         ///////////////

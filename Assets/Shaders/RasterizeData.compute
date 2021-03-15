@@ -10,6 +10,7 @@ RWTexture2D<float4> result;
 RWTexture2D<float4> normal;
 RWTexture2D<float4> restriction;
 RWTexture2D<float4> noise;
+RWTexture2D<float4> erosion;
 
 struct Spline
 {
@@ -29,8 +30,13 @@ struct MetaPoint
     float gradientAngleLeft;
     float gradientLengthRight;
     float gradientAngleRight;
+    
     float noiseAmplitude;
     float noiseRoughness;
+
+    float erosionRain;
+    float erosionHardness;
+    float sedimentCapacity;
 };
 
 StructuredBuffer<MetaPoint> metaPoints;
@@ -43,7 +49,8 @@ float textureDivTerrain;
 float2 center;
 
 bool strictElevationContraint;
-
+bool noiseConstraint;
+bool erosionConstraint;
 
 
 ///////////////////////
@@ -61,11 +68,7 @@ float metaGetSplineTime(uint metaNr)
 
 float2 metaGetNoiseParameters(uint splinePart, float t)
 {
-    float pos = splinePart + t;
-    if (metaPointCount > 2 && pos > metaPoints[2].position && false)
-    {
-        return float2(metaPoints[2].noiseAmplitude, metaPoints[2].noiseRoughness);
-    }
+    const float pos = splinePart + t;
     float2 noise = float2(metaPoints[0].noiseAmplitude, metaPoints[0].noiseRoughness);
     float lastPos = 0;
     for(int n = 1; n < metaPointCount; n++)
@@ -75,7 +78,7 @@ float2 metaGetNoiseParameters(uint splinePart, float t)
             noise = float2(metaPoints[n].noiseAmplitude, metaPoints[n].noiseRoughness);
             lastPos = metaPoints[n].position;
         } else {
-            float lerpNumber = (pos - lastPos) / (metaPoints[n].position - lastPos);
+            const float lerpNumber = (pos - lastPos) / (metaPoints[n].position - lastPos);
             noise = noise * (1-lerpNumber) + lerpNumber * float2(metaPoints[n].noiseAmplitude, metaPoints[n].noiseRoughness);
 
             return noise;
@@ -83,6 +86,27 @@ float2 metaGetNoiseParameters(uint splinePart, float t)
         
     }
     return noise;
+}
+float3 metaGetErosionParameters(uint splinePart, float t)
+{
+    const float pos = splinePart + t;
+    float3 erosion = float3(metaPoints[0].erosionRain, metaPoints[0].erosionHardness, metaPoints[0].sedimentCapacity);
+    float lastPos = 0;
+    for(int n = 1; n < metaPointCount; n++)
+    {
+        if (pos > metaPoints[n].position)
+        {
+            erosion = float3(metaPoints[n].erosionRain, metaPoints[n].erosionHardness, metaPoints[n].sedimentCapacity);
+            lastPos = metaPoints[n].position;
+        } else {
+            const float lerpNumber = (pos - lastPos) / (metaPoints[n].position - lastPos);
+            erosion = erosion * (1-lerpNumber) + lerpNumber * float3(metaPoints[n].erosionRain, metaPoints[n].erosionHardness, metaPoints[n].sedimentCapacity);
+
+            return erosion;
+        }
+        
+    }
+    return erosion;
 }
 
 ///////////////////////
@@ -155,10 +179,15 @@ void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetwe
         normal[pt2] = float4(normal2 * strictElevationContraint + normal1 * (1-strictElevationContraint), normal[pt2].z, 1);
     }
     
-    if (metaPointCount > 0)
+    if (noiseConstraint * metaPointCount > 0)
     {
         const float2 noiseParams = metaGetNoiseParameters(splinePart, r);
         noise[p] = float4(noiseParams, 0, 1);
+    }
+    if (erosionConstraint * metaPointCount > 0)
+    {
+        const float3 erosionParams = metaGetErosionParameters(splinePart, r);
+        erosion[p] = float4(erosionParams, 1);
     }
 }
 
