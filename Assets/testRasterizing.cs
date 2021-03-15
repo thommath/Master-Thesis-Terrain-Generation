@@ -193,6 +193,7 @@ public class testRasterizing : MonoBehaviour
             computeShader.Dispatch(gradientsKernelHandle, splinesBuffer.count, 1, 1);
             
             splinesBuffer.Release();
+            metaPointsBuffer.Release();
         }
         ///////////////
         ///

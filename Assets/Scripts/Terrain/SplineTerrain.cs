@@ -126,6 +126,8 @@ public class SplineTerrain : MonoBehaviour
         //Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
 
         l.poissonStep(normals, heightmap, noiseSeed, erosion, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
+
+        GetComponent<HydraulicErosion>().evaporate();
         
         //l.ImageSmoothing(heightmap, 5);
 
@@ -183,6 +185,8 @@ public class SplineTerrain : MonoBehaviour
 
         updatedData.Invoke();
         saveState();
+        GetComponent<HydraulicErosion>().exportImages();
+
         Debug.Log((Time.realtimeSinceStartup - time) + "s all done");
     }
 
@@ -235,8 +239,6 @@ public class SplineTerrain : MonoBehaviour
         Debug.Log("Wrote image to " + Application.dataPath + "/" + "Terrain" + ".png");
 
         byte[] rawBytes = new byte[tex.width * tex.height];
-
-        float c = 0;
 
         for (int y = 0; y < tex.height; y++)
         {

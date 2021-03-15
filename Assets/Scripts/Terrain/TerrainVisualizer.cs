@@ -51,8 +51,15 @@ public class TerrainVisualizer : MonoBehaviour
             terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, heightmap.width, heightmap.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
         } else
         {
-            RenderTexture.active = erosion._stateTexture;
-            terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, erosion._stateTexture.width, erosion._stateTexture.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
+            
+            RenderTexture result = new RenderTexture(heightmap.width, heightmap.height, 0, RenderTextureFormat.RFloat);
+            result.enableRandomWrite = true;
+            result.autoGenerateMips = false;
+            result.Create();
+            Laplace l = this.GetComponent<Laplace>();
+            l.SumTwoTextures(result, heightmap, erosion._stateTexture, 1, 0, 1, 0);
+            RenderTexture.active = result;
+            terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, result.width, result.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
 
             terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
             terrain.materialTemplate.SetTexture("_OriginalTex", heightmap);

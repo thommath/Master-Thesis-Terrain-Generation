@@ -45,6 +45,12 @@
 
 /* ======== INPUTS ======== */
 
+// ErosionParams (R - rainParameter, G - Hardness, B - Sediment Capasity) not to be updated
+RWTexture2D<float4> ErosionParams;
+
+// InputHeight (R - height) not to be updated
+RWTexture2D<float4> InputHeight;
+
 // Heightmap (R - height, G - water height, B - suspended sediment amount, R - Surface hardness)
 RWTexture2D<float4> HeightMap;
 
@@ -91,15 +97,15 @@ float2 raindropLocation;
 
 float4 SampleBilinear(RWTexture2D<float4> tex, float2 uv)
 {
-	float2 uva = floor(uv);
-	float2 uvb = ceil(uv);
+	const float2 uva = floor(uv);
+	const float2 uvb = ceil(uv);
 
-	uint2 id00 = (uint2)uva;  // 0 0
-	uint2 id10 = uint2(uvb.x, uva.y); // 1 0
-	uint2 id01 = uint2(uva.x, uvb.y); // 0 1	
-	uint2 id11 = (uint2)uvb; // 1 1
+	const uint2 id00 = (uint2)uva;  // 0 0
+	const uint2 id10 = uint2(uvb.x, uva.y); // 1 0
+	const uint2 id01 = uint2(uva.x, uvb.y); // 0 1	
+	const uint2 id11 = (uint2)uvb; // 1 1
 
-	float2 d = uv - uva;
+	const float2 d = uv - uva;
 
 	return
 		tex[id00] * (1 - d.x) * (1 - d.y) +
@@ -137,8 +143,15 @@ void FluxComputation(uint3 id : SV_DispatchThreadID)
 	float4 stateRight = RIGHT_SAMPLE(HeightMap);
 	float4 stateTop = TOP_SAMPLE(HeightMap);
 	float4 stateBottom = BOTTOM_SAMPLE(HeightMap);
+	
+	float4 inputHeight = CURRENT_SAMPLE(InputHeight);
+	float4 inputHeightLeft = LEFT_SAMPLE(InputHeight);
+	float4 inputHeightRight = RIGHT_SAMPLE(InputHeight);
+	float4 inputHeightTop = TOP_SAMPLE(InputHeight);
+	float4 inputHeightBottom = BOTTOM_SAMPLE(InputHeight);
 
-	float terrainHeight = TERRAIN_HEIGHT(state);
+
+	float terrainHeight = TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight);
 	float waterHeight = WATER_HEIGHT(state);
 
 	// Flow simulation using shallow-water model. Computation of the velocity field and water height changes.
@@ -146,11 +159,11 @@ void FluxComputation(uint3 id : SV_DispatchThreadID)
 	float4 outputFlux = CURRENT_SAMPLE(FluxMap);
 
 	// Overall height difference in each direction
-	float4 heightDifference = FULL_HEIGHT(state) - float4(
-		FULL_HEIGHT(stateLeft),
-		FULL_HEIGHT(stateRight),
-		FULL_HEIGHT(stateTop),
-		FULL_HEIGHT(stateBottom));
+	float4 heightDifference = FULL_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight) - float4(
+		FULL_HEIGHT(stateLeft) + TERRAIN_HEIGHT(inputHeightLeft),
+		FULL_HEIGHT(stateRight) + TERRAIN_HEIGHT(inputHeightRight),
+		FULL_HEIGHT(stateTop) + TERRAIN_HEIGHT(inputHeightTop),
+		FULL_HEIGHT(stateBottom) + TERRAIN_HEIGHT(inputHeightBottom));
 
 	// Output flux	
 	outputFlux = max(0, outputFlux + _TimeDelta * _Gravity * _PipeArea * heightDifference / _PipeLength);
@@ -180,17 +193,17 @@ void FluxComputation(uint3 id : SV_DispatchThreadID)
 void FluxApply(uint3 id : SV_DispatchThreadID)
 {
 	float4 state = CURRENT_SAMPLE(HeightMap);
-	float4 outputFlux = CURRENT_SAMPLE(FluxMap);
-	float4 inputFlux = float4(
+	const float4 outputFlux = CURRENT_SAMPLE(FluxMap);
+	const float4 inputFlux = float4(
 		RDIR(LEFT_SAMPLE(FluxMap)),
 		LDIR(RIGHT_SAMPLE(FluxMap)),
 		BDIR(TOP_SAMPLE(FluxMap)),
 		TDIR(BOTTOM_SAMPLE(FluxMap)));
-	float waterHeightBefore = WATER_HEIGHT(state);
+	const float waterHeightBefore = WATER_HEIGHT(state);
 
 	// Water surface and velocity field update
 	// volume is changing by amount on incoming fluid volume minus out
-	float volumeDelta = SUM_COMPS(inputFlux) - SUM_COMPS(outputFlux);
+	const float volumeDelta = SUM_COMPS(inputFlux) - SUM_COMPS(outputFlux);
 
 	// Then, we update the water height in the current (x, y) cell:
 	WATER_HEIGHT(state) += _TimeDelta * volumeDelta / (_CellSize.x * _CellSize.y);
@@ -240,12 +253,18 @@ void TiltAngle(uint3 id : SV_DispatchThreadID)
 	// https://math.stackexchange.com/questions/1044044/local-tilt-angle-based-on-height-field
 	// Calculate this before the next step so we don't read and write from the same data
 	// Save the values in a different grid - now using TerrainFluxMap
-	float4 state = CURRENT_SAMPLE(HeightMap);
-	float4 stateLeft = LEFT_SAMPLE(HeightMap);
-	float4 stateRight = RIGHT_SAMPLE(HeightMap);
-	float4 stateTop = TOP_SAMPLE(HeightMap);
-	float4 stateBottom = BOTTOM_SAMPLE(HeightMap);
-	float2 velocity = CURRENT_SAMPLE(VelocityMap);
+	const float4 state = CURRENT_SAMPLE(HeightMap);
+	const float4 stateLeft = LEFT_SAMPLE(HeightMap);
+	const float4 stateRight = RIGHT_SAMPLE(HeightMap);
+	const float4 stateTop = TOP_SAMPLE(HeightMap);
+	const float4 stateBottom = BOTTOM_SAMPLE(HeightMap);
+	const float2 velocity = CURRENT_SAMPLE(VelocityMap);
+	
+	const float4 inputHeight = CURRENT_SAMPLE(InputHeight);
+	const float4 inputHeightLeft = LEFT_SAMPLE(InputHeight);
+	const float4 inputHeightRight = RIGHT_SAMPLE(InputHeight);
+	const float4 inputHeightTop = TOP_SAMPLE(InputHeight);
+	const float4 inputHeightBottom = BOTTOM_SAMPLE(InputHeight);
 
 	// Calculate the delta in the direction of the water flow
 	// Limit to 0 because it is the abs value we care about and we only want to pick up sediment if it is downhill
@@ -299,17 +318,17 @@ void TiltAngle(uint3 id : SV_DispatchThreadID)
 	/*
 	Not too fancy calculation as in report
 	*/
-	float dx = 50 * (max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateRight)) +
-		max(0, TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateLeft)));
+	const float dx = 50 * (max(0, (TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateRight) + TERRAIN_HEIGHT(inputHeightRight))) +
+		max(0, (TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateLeft) + TERRAIN_HEIGHT(inputHeightLeft))));
 
-	float dy = 50 * (max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateTop))) +
-		max(0, (TERRAIN_HEIGHT(state) - TERRAIN_HEIGHT(stateBottom))));
+	const float dy = 50 * (max(0, ((TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateTop) + TERRAIN_HEIGHT(inputHeightTop)))) +
+		max(0, ((TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateBottom) + TERRAIN_HEIGHT(inputHeightBottom)))));
 	
-	float3 v = float3(dx, dy, 1);
-	float3 u = float3(0, 0, 1);
+	const float3 v = float3(dx, dy, 1);
+	const float3 u = float3(0, 0, 1);
 	
-	float cosAngle = (dot(v, u)) / (length(v) * length(u));
-	float sinAngle = sqrt(1 - cosAngle * cosAngle);
+	const float cosAngle = (dot(v, u)) / (length(v) * length(u));
+	const float sinAngle = sqrt(1 - cosAngle * cosAngle);
 	TerrainFluxMap[id.xy] = float4(sinAngle, TerrainFluxMap[id.xy].gba);
 
 }
@@ -320,25 +339,25 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 {
 	// Sample the heighmap (state map)
 	float4 state = CURRENT_SAMPLE(HeightMap);
-	float2 velocity = CURRENT_SAMPLE(VelocityMap);
+	const float2 velocity = CURRENT_SAMPLE(VelocityMap);
 
 	// Tilt angle computation
 	// Might want a condition to this, if it is bigger than 0. If it is 0 it might be uphill
 	// This min value should be able to be changed to a diffused value similar to the noise value in the other paper
-	float sinangle = max(0.001, TerrainFluxMap[id.xy].r);
+	const float sinangle = max(0.001, TerrainFluxMap[id.xy].r);
 
 	// float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * WATER_HEIGHT(state);
-	float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle;
+	const float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle;
 	
 	if (SEDIMENT(state) < sedimentTransportCapacity)
 	{
-		float mod = _TimeDelta * _SuspensionRate * (sedimentTransportCapacity - SEDIMENT(state));
+		const float mod = _TimeDelta * _SuspensionRate * (sedimentTransportCapacity - SEDIMENT(state));
 		TERRAIN_HEIGHT(state) -= mod;
 		HARDNESS(state) = SEDIMENT(state) + mod;
 	}
 	else
 	{
-		float mod = _TimeDelta * _DepositionRate * (SEDIMENT(state) - sedimentTransportCapacity);
+		const float mod = _TimeDelta * _DepositionRate * (SEDIMENT(state) - sedimentTransportCapacity);
 		TERRAIN_HEIGHT(state) += mod;
 		HARDNESS(state) = SEDIMENT(state) - mod;
 	}
@@ -357,7 +376,7 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 void SedimentAdvection(uint3 id : SV_DispatchThreadID)
 {
 	float4 state = CURRENT_SAMPLE(HeightMap);
-	float2 velocity = CURRENT_SAMPLE(VelocityMap);
+	const float2 velocity = CURRENT_SAMPLE(VelocityMap);
 	//velocity *= 0.1;
 	// Sediment advection
 	// What the paper describes that has mass loss

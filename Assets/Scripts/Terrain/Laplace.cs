@@ -47,6 +47,8 @@ public class Laplace : MonoBehaviour
         renderTexture = new RenderTexture(size, size, depth, tf);
         renderTexture.enableRandomWrite = true;
         renderTexture.autoGenerateMips = false;
+        renderTexture.filterMode = FilterMode.Point;
+        renderTexture.wrapMode = TextureWrapMode.Clamp;
         renderTexture.Create();
         return renderTexture;
     }
@@ -76,6 +78,8 @@ public class Laplace : MonoBehaviour
                 tex.Apply();
                 Graphics.Blit(tex, heightmap);
             }
+
+            initErosion(heightmap, erosion);
 
             return;
         }
@@ -163,13 +167,41 @@ public class Laplace : MonoBehaviour
         TerrainRelaxation(rd.seedHeightmap, rd.restrictions, normals, heightmap, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
         saveImage("heightmap " + h + " post", heightmap);
 
-        RestrictedSmoothing(heightmap, rd.seedHeightmap, 0);
-        saveImage("heightmap " + h + " smooth", heightmap);
+        //RestrictedSmoothing(heightmap, rd.seedHeightmap, 0);
+        //saveImage("heightmap " + h + " smooth", heightmap);
+
+        runErosion(heightmap, erosion);
 
         smallerHeightmap.Release();
         smallerNormals.Release();
         smallerNoise.Release();
         smallerErosion.Release();
+    }
+
+    private void initErosion(RenderTexture heightmap, RenderTexture erosion)
+    {
+        HydraulicErosion hyEro = GetComponent<HydraulicErosion>();
+        hyEro.initializeTextures(heightmap, erosion);
+    }
+    private void runErosion(RenderTexture heightmap, RenderTexture erosion)
+    {
+        HydraulicErosion hyEro = GetComponent<HydraulicErosion>();
+        hyEro._inputHeight = heightmap;
+        hyEro._erosionParams = erosion;
+        hyEro.interpolate();
+        hyEro.exportImages("1-" + heightmap.width);
+        
+        Debug.Log(hyEro._stateTexture.width + " " + heightmap.width);
+        
+        if (heightmap.width > 2048 / 2)
+        {
+            return;
+        }
+        for (int n = 0; n < 100; n++)
+        {
+            hyEro.runStep();
+        }
+        hyEro.exportImages("" + heightmap.width);
     }
 
     private void Restrict(RenderTexture inputImage, RenderTexture outputImage)
@@ -182,7 +214,7 @@ public class Laplace : MonoBehaviour
 
         laplace.Dispatch(restrictKernelHandle, outputImage.width, outputImage.height, 1);
     }
-    private void Interpolate(RenderTexture inputImage, RenderTexture outputImage)
+    public void Interpolate(RenderTexture inputImage, RenderTexture outputImage)
     {
         // Interpolate image to normal size
         int interpolateKernelHandle = laplace.FindKernel("Interpolate");
@@ -295,6 +327,7 @@ public class Laplace : MonoBehaviour
             RenderTexture.active = null;
             System.IO.File.WriteAllBytes(Application.dataPath + "/Images/" + name + ".exr", tex2D.EncodeToEXR(Texture2D.EXRFlags.None));
             Debug.Log("Wrote image to " + Application.dataPath + "/Images/" + name + ".exr");
+            RenderTexture.active = null;
         }
         else
         {
@@ -306,6 +339,7 @@ public class Laplace : MonoBehaviour
             RenderTexture.active = null;
             System.IO.File.WriteAllBytes(Application.dataPath + "/Images/" + name + ".png", tex2D.EncodeToPNG());
             Debug.Log("Wrote image to " + Application.dataPath + "/Images/" + name + ".png");
+            RenderTexture.active = null;
         }
 
     }

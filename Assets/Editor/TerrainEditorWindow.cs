@@ -3,11 +3,6 @@ using UnityEditor;
 
 public class TerrainEditorWindow : EditorWindow
 {
-    string myString = "Hello World";
-    bool groupEnabled;
-    bool myBool = true;
-    float myFloat = 1.23f;
-
     // Add menu named "My Window" to the Window menu
     [MenuItem("Window/Terrain Editor")]
     static void Init()

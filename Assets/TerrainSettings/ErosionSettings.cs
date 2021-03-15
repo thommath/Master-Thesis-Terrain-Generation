@@ -5,13 +5,13 @@ public class ErosionSetting : ScriptableObject
 {
     [Header("Terrain")]
     [Range(0, 500)]
-    public int SmoothingIterationsOnStart = 100;
+    public int SmoothingIterationsOnStart = 0;
 
     [Header("Flow settings")]
     [Range(0.1f, 10f)]
     public float PipeArea = 1f;
     [Range(0.1f, 20f)]
-    public float Gravity = 9.81f;
+    public float Gravity = 3f;
     [Range(0.1f, 1f)]
     public float PipeLength = 1f;
     [Range(0.1f, 1f)]
@@ -19,11 +19,11 @@ public class ErosionSetting : ScriptableObject
 
     [Header("Erosion and deposition settings")]
     [Range(0.1f, 100f)]
-    public float SedimentCapacity = 0.7f;
+    public float SedimentCapacity = 1f;
     [Range(0.1f, 1f)]
-    public float SuspensionRate = 0.7f;
+    public float SuspensionRate = 1f;
     [Range(0.1f, 1f)]
-    public float DepositionRate = 0.7f; 
+    public float DepositionRate = 1f; 
      
     [Header("Rain and evaporation")]
     public bool AddWater = true;

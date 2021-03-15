@@ -227,13 +227,16 @@ void Interpolate(uint3 id : SV_DispatchThreadID)
     // result[id.xy] = (image[center.xy] + image[center.xy + uint2(0, 1)]) / 2;
     // if r == 0 && g == 0
     // result[id.xy] = image[center.xy];
+    
+    //result[id.xy] = float4(id.x % 2, id.y % 2, 0, 1);
+    //return;
 
     result[id.xy] = (
         image[center.xy]
-        + image[center.xy + uint2(1, 0)] * (1 - color.r)
-        + image[center.xy + uint2(0, 1)] * (1 - color.g)
-        + image[center.xy + uint2(1, 1)] * clamp(1 - ((1 - color.r) + (1 - color.g)), 0, 1)
-    ) / (1 + (1 - color.r) + (1 - color.g) + color.r * color.g);
+        + image[center.xy + uint2(1, 0)] * color.r
+        + image[center.xy + uint2(0, 1)] * color.g
+        + image[center.xy + uint2(1, 1)] * color.r * color.g
+    ) / (1 + color.r + color.g + color.r * color.g);
     return;
 
     if (id.x % 2 == 1)
