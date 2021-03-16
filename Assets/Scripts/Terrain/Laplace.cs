@@ -1,28 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.TerrainAPI;
 
 public class Laplace : MonoBehaviour
 {
     public ComputeShader laplace;
+    public ComputeShader noiseShader;
     public Texture RedGreenBlackTexture;
 
     public bool saveImages = false;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     
-
     Dictionary<int, RasterizedData> rasterizedDataDict = new Dictionary<int, RasterizedData>();
 
     public void clearRasterizedDataDict()
@@ -44,7 +32,7 @@ public class Laplace : MonoBehaviour
     private RenderTexture createRenderTexture(int size, int layer, int depth, RenderTextureFormat tf = RenderTextureFormat.ARGBFloat)
     {
         RenderTexture renderTexture;
-        renderTexture = new RenderTexture(size, size, depth, tf);
+        renderTexture = new RenderTexture(size, size, depth, tf, RenderTextureReadWrite.Linear);
         renderTexture.enableRandomWrite = true;
         renderTexture.autoGenerateMips = false;
         renderTexture.filterMode = FilterMode.Point;
@@ -170,7 +158,7 @@ public class Laplace : MonoBehaviour
         //RestrictedSmoothing(heightmap, rd.seedHeightmap, 0);
         //saveImage("heightmap " + h + " smooth", heightmap);
 
-        runErosion(heightmap, erosion);
+        runErosion(heightmap, erosion, noise);
 
         smallerHeightmap.Release();
         smallerNormals.Release();
@@ -183,11 +171,13 @@ public class Laplace : MonoBehaviour
         HydraulicErosion hyEro = GetComponent<HydraulicErosion>();
         hyEro.initializeTextures(heightmap, erosion);
     }
-    private void runErosion(RenderTexture heightmap, RenderTexture erosion)
+    private void runErosion(RenderTexture heightmap, RenderTexture erosion, RenderTexture noiseSeed)
     {
         HydraulicErosion hyEro = GetComponent<HydraulicErosion>();
-        hyEro._inputHeight = heightmap;
+        
+        hyEro._inputHeight = AddNoise(heightmap, noiseSeed);;
         hyEro._erosionParams = erosion;
+
         hyEro.interpolate();
         hyEro.exportImages("1-" + heightmap.width);
         
@@ -202,6 +192,27 @@ public class Laplace : MonoBehaviour
             hyEro.runStep();
         }
         hyEro.exportImages("" + heightmap.width);
+    }
+
+    private RenderTexture AddNoise(RenderTexture input, RenderTexture noiseSeed)
+    {
+        RenderTexture result = createRenderTexture(input.width, 0, input.depth, input.format);
+        RenderTexture noise = createRenderTexture(input.width, 0, input.depth, input.format);
+        int genKernelHandle = noiseShader.FindKernel("GenerateNoise");
+        noiseShader.SetTexture(genKernelHandle, "seedNoise", noiseSeed);
+        noiseShader.SetTexture(genKernelHandle, "result", noise);
+
+        SplineTerrain s = GetComponent<SplineTerrain>();
+        
+        noiseShader.SetFloat("scale", s.noiseScale);
+
+        noiseShader.Dispatch(genKernelHandle, noiseSeed.width, noiseSeed.height, 1);
+
+        SumTwoTextures(result, input, noise, 1, 0, s.noiseAmplitude * 0.005f * (100f / s.height), 0f);
+        noise.Release();
+        
+        saveImage("noise " + input.width, result);
+        return result;
     }
 
     private void Restrict(RenderTexture inputImage, RenderTexture outputImage)

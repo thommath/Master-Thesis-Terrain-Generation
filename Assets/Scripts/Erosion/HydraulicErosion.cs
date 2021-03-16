@@ -427,10 +427,10 @@ public class HydraulicErosion : MonoBehaviour
 
     public void exportImages(string suffix = "")
     {
-        saveImage("stateTexture" + suffix, _stateTexture, TextureFormat.RGBAFloat, false);
-        saveImage("velocityTexture" + suffix, _velocityTexture, TextureFormat.RGBAFloat, false);
-        saveImage("waterFluxTexture" + suffix, _waterFluxTexture, TextureFormat.RGBAFloat, false);
-        saveImage("terrainFluxTexture" + suffix, _terrainFluxTexture, TextureFormat.RGBAFloat, false);
+        saveImage("stateTexture" + suffix, _stateTexture, TextureFormat.RGBAFloat);
+        saveImage("velocityTexture" + suffix, _velocityTexture, TextureFormat.RGBAFloat);
+        saveImage("waterFluxTexture" + suffix, _waterFluxTexture, TextureFormat.RGBAFloat);
+        saveImage("terrainFluxTexture" + suffix, _terrainFluxTexture, TextureFormat.RGBAFloat);
     }
 
 
