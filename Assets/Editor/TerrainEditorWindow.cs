@@ -46,6 +46,19 @@ public class TerrainEditorWindow : EditorWindow
                     visualizer.fastExport();
                 }
             }
+            HydraulicErosion erosion = null;
+            if (Selection.activeGameObject.GetComponentInParent<HydraulicErosion>())
+            {
+                erosion = Selection.activeGameObject.GetComponentInParent<HydraulicErosion>();
+                GUILayout.Space(10);
+                int seed = EditorGUILayout.IntSlider("Erosion seed", erosion.seed, 0, 20);
+                if (erosion.seed != seed)
+                {
+                    erosion.seed = seed;
+                    Undo.RecordObject(erosion, "Change seed");
+                    EditorUtility.SetDirty(erosion);
+                }
+            }
             
             GUILayout.Space(10);
             GUI.backgroundColor = new Color(138f / 255, 242f / 255, 116f / 255);

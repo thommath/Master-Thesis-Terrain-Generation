@@ -29,5 +29,5 @@ MonoBehaviour:
   RainFrequency: 0
   StopRainAfterTime: 4764
   RandomizedRain: 1
-  TimeDelta: 0.1
+  TimeDelta: 0.156
   IterationsEachStep: 32

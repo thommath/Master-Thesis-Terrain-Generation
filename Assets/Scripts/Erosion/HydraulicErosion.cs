@@ -32,12 +32,15 @@ public class HydraulicErosion : MonoBehaviour
     [HideInInspector]
     public UnityEvent updatedData;
 
+    [Range(0, 20)]
+    public int seed = 0;
 
     float lastRaindrop = 0f;
     public float time = 0f;
 
     public void initializeTextures()
     {
+        Random.InitState(seed);
         RenderTexture heightmap = this.gameObject.GetComponent<SplineTerrain>().heightmap;
         _inputHeight = heightmap;
         RenderTexture erosion = this.gameObject.GetComponent<SplineTerrain>().erosion;
@@ -132,6 +135,7 @@ public class HydraulicErosion : MonoBehaviour
     }
     public void initializeTextures(RenderTexture heightmap, RenderTexture erosion)
     {
+        Random.InitState(seed);
         _inputHeight = heightmap;
         _erosionParams = erosion;
         

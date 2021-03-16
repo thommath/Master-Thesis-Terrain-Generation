@@ -199,7 +199,7 @@ public class Laplace : MonoBehaviour
         {
             return;
         }
-        for (int n = 0; n < 200; n++)
+        for (int n = 0; n < 300; n++)
         {
             hyEro.runStep();
         }
