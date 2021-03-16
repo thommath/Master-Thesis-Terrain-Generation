@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using UnityEngine.Experimental.TerrainAPI;
 
 public class TerrainEditorWindow : EditorWindow
 {
@@ -27,8 +28,26 @@ public class TerrainEditorWindow : EditorWindow
         SplineTerrain terrain = null;
         if (Selection.activeGameObject && Selection.activeGameObject.GetComponentInParent<SplineTerrain>())
         {
+            GUILayout.Space(10);
             terrain = Selection.activeGameObject.GetComponentInParent<SplineTerrain>();
             GUILayout.Label("Terrain options", EditorStyles.boldLabel);
+
+            TerrainVisualizer visualizer = null;
+            if (Selection.activeGameObject.GetComponentInParent<TerrainVisualizer>())
+            {
+                visualizer = Selection.activeGameObject.GetComponentInParent<TerrainVisualizer>();
+                GUILayout.Space(10);
+                bool renderErosion = EditorGUILayout.Toggle("Render erosion", visualizer.viewMode == TerrainVisualizer.ViewMode.Heightmap);
+                if ((visualizer.viewMode == TerrainVisualizer.ViewMode.Heightmap) != renderErosion)
+                {
+                    visualizer.viewMode = renderErosion ? TerrainVisualizer.ViewMode.Heightmap : TerrainVisualizer.ViewMode.HeightmapNoErosion;
+                    Undo.RecordObject(visualizer, "Toggle viewMode");
+                    EditorUtility.SetDirty(visualizer);
+                    visualizer.fastExport();
+                }
+            }
+            
+            GUILayout.Space(10);
             GUI.backgroundColor = new Color(138f / 255, 242f / 255, 116f / 255);
             if (GUILayout.Button("Render terrain"))
             {
@@ -36,6 +55,7 @@ public class TerrainEditorWindow : EditorWindow
                 terrain.GetComponent<TerrainVisualizer>().fastExport();
             }
             GUI.backgroundColor = before;
+            GUILayout.Space(10);
 
             if (GUILayout.Button("Add Spline"))
             {
@@ -51,7 +71,15 @@ public class TerrainEditorWindow : EditorWindow
         {
             GUILayout.Space(20);
             GUILayout.Label("Spline options", EditorStyles.boldLabel);
+            
+            bool elevationConstraint = EditorGUILayout.Toggle("Elevation constraints", spline.elevationConstraint);
+            spline.elevationConstraint = elevationConstraint;
+            bool noiseConstraint = EditorGUILayout.Toggle("Noise constraints", spline.noiseConstraint);
+            spline.noiseConstraint = noiseConstraint;
+            bool erosionConstraint = EditorGUILayout.Toggle("Erosion constraints", spline.erosionConstraint);
+            spline.erosionConstraint = erosionConstraint;
 
+            GUILayout.Space(10);
             GUI.backgroundColor = before;
             if (GUILayout.Button("Add Curve"))
             {
@@ -88,10 +116,25 @@ public class TerrainEditorWindow : EditorWindow
             float position = EditorGUILayout.Slider("Position", metaPoint.position, 0, spline.CurveCount);
             metaPoint.position = position;
 
-            float noiseAmplitude = EditorGUILayout.Slider("Noise Amplitude", metaPoint.noiseAmplitude, 0, 1);
-            metaPoint.noiseAmplitude = noiseAmplitude;
-            float noiseRoughness = EditorGUILayout.Slider("Noise Roughness", metaPoint.noiseRoughness, 0, 1);
-            metaPoint.noiseRoughness = noiseRoughness;
+            if (spline.noiseConstraint)
+            {
+                GUILayout.Space(5);
+                float noiseAmplitude = EditorGUILayout.Slider("Noise Amplitude", metaPoint.noiseAmplitude, 0, 1);
+                metaPoint.noiseAmplitude = noiseAmplitude;
+                float noiseRoughness = EditorGUILayout.Slider("Noise Roughness", metaPoint.noiseRoughness, 0, 1);
+                metaPoint.noiseRoughness = noiseRoughness;
+            }
+            
+            if (spline.erosionConstraint)
+            {
+                GUILayout.Space(5);
+                float erosionRain = EditorGUILayout.Slider("Erosion Rain", metaPoint.erosionRain, 0, 1);
+                metaPoint.erosionRain = erosionRain;
+                float erosionHardness = EditorGUILayout.Slider("Erosion hardness", metaPoint.erosionHardness, 0, 1);
+                metaPoint.erosionHardness = erosionHardness;
+                float sedimentCapacity = EditorGUILayout.Slider("Erosion hardness", metaPoint.sedimentCapacity, 0, 1);
+                metaPoint.sedimentCapacity = sedimentCapacity;
+            }
 
             Undo.RecordObject(spline, "Update Meta Point");
             EditorUtility.SetDirty(spline);
