@@ -187,7 +187,7 @@ void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetwe
     if (erosionConstraint * metaPointCount > 0)
     {
         const float3 erosionParams = metaGetErosionParameters(splinePart, r);
-        erosion[p] = float4(erosionParams, 1);
+        erosion[p] = float4(erosionParams, 3);
     }
 }
 

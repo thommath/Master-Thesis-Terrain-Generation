@@ -27,6 +27,11 @@
 #define HARDNESS(col) (col.a)
 #define FULL_HEIGHT(col) ((TERRAIN_HEIGHT(col) + WATER_HEIGHT(col)))
 #define FULL_HEIGHT_AND_SEDIMENT(col) ((TERRAIN_HEIGHT(col) + WATER_HEIGHT(col) + SEDIMENT(col)))
+// Erosion params channel semantics
+
+#define RAIN_MULTIPLIER(col) (col.r)
+#define TERRAIN_HARDNESS_MULTIPLIER(col) (col.g)
+#define SEDIMENT_CAPACITY_MULTIPLIER(col) (col.b)
 
 // Velocity-map channel semantics
 #define VELOCITY_X(col) (col.r)
@@ -127,7 +132,8 @@ float rain(uint2 pos) {
 void RainAndControl(uint3 id : SV_DispatchThreadID)
 {
 	float4 currentState = CURRENT_SAMPLE(HeightMap);
-	WATER_HEIGHT(currentState) += rain(id.xy);
+	const float4 erosionParams = CURRENT_SAMPLE(ErosionParams);
+	WATER_HEIGHT(currentState) += raindropStrength * RAIN_MULTIPLIER(erosionParams);//rain(id.xy) * RAIN_MULTIPLIER(erosionParams);
 
 	CURRENT_SAMPLE(HeightMap) = currentState;
 }
@@ -340,6 +346,7 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 	// Sample the heighmap (state map)
 	float4 state = CURRENT_SAMPLE(HeightMap);
 	const float2 velocity = CURRENT_SAMPLE(VelocityMap);
+	const float4 erosionParams = CURRENT_SAMPLE(ErosionParams);
 
 	// Tilt angle computation
 	// Might want a condition to this, if it is bigger than 0. If it is 0 it might be uphill
@@ -347,7 +354,7 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 	const float sinangle = max(0.001, TerrainFluxMap[id.xy].r);
 
 	// float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * WATER_HEIGHT(state);
-	const float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle;
+	const float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle * SEDIMENT_CAPACITY_MULTIPLIER(erosionParams);
 	
 	if (SEDIMENT(state) < sedimentTransportCapacity)
 	{
