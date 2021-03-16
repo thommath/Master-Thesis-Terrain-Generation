@@ -349,7 +349,7 @@ public class HydraulicErosion : MonoBehaviour
     public void evaporate()
     {
         hydraulicShader.SetFloat("_Evaporation", 0.9f);
-        for (int n = 0; n < 1000; n++)
+        for (int n = 0; n < 100; n++)
         {
             hydraulicShader.Dispatch(FluxComputation, _stateTexture.width, _stateTexture.height, 1);
 

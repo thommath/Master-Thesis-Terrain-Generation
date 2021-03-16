@@ -109,16 +109,17 @@ RWTexture2D<float4> seedNoise;
 RWTexture2D<float4> result;
 float scale;
 
-[numthreads(8, 8, 1)]
+[numthreads(4, 4, 1)]
 void GenerateNoise(uint3 id : SV_DispatchThreadID)
 {
-    float r = 2.0;
-    float n = 4;
+    const float A = seedNoise[id.xy].r;
+    const float R = seedNoise[id.xy].g;
 
-    float x = id.x / 1000.0;
-    float y = id.y / 1000.0;
-    float R = seedNoise[id.xy].g;
-    float A = seedNoise[id.xy].r;
+    const float r = 2.0;
+    const float n = 4;
+
+    const float x = id.x / 1000.0;
+    const float y = id.y / 1000.0;
     float sum = 0;
 
     for (float k = 0; k < n; k++) {

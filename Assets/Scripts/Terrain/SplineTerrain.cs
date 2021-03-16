@@ -126,8 +126,18 @@ public class SplineTerrain : MonoBehaviour
         //Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
 
         l.poissonStep(normals, heightmap, noiseSeed, erosion, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
+        
+        RenderTexture.active = normals;
+        Texture2D tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
+        tex2D2.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
+        Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
 
         GetComponent<HydraulicErosion>().evaporate();
+        
+        RenderTexture.active = normals;
+         tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
+        tex2D2.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
+        Debug.Log((Time.realtimeSinceStartup - time) + "s for evaporation");
         
         //l.ImageSmoothing(heightmap, 5);
 
@@ -148,6 +158,7 @@ public class SplineTerrain : MonoBehaviour
         ///
         /////////////////////////////
         // Interpolate image to normal size
+        /*
         int genKernelHandle = noiseShader.FindKernel("GenerateNoise");
         noiseShader.SetTexture(genKernelHandle, "seedNoise", noiseSeed);
         noiseShader.SetTexture(genKernelHandle, "result", noise);
@@ -156,11 +167,11 @@ public class SplineTerrain : MonoBehaviour
         noiseShader.Dispatch(genKernelHandle, noiseSeed.width, noiseSeed.height, 1);
 
         l.SumTwoTextures(result, heightmap, noise, 1, 0, noiseAmplitude * 0.005f * (100f / height), 0f);
-
+        */
         RenderTexture.active = normals;
-        Texture2D tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
+         tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
         tex2D2.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
-        Debug.Log((Time.realtimeSinceStartup - time) + "s for noise and sum");
+        Debug.Log((Time.realtimeSinceStartup - time) + "s for all");
 
         l.clearRasterizedDataDict();
         noiseSeed.Release();
@@ -184,8 +195,12 @@ public class SplineTerrain : MonoBehaviour
         this.erosion = erosion;
 
         updatedData.Invoke();
-        saveState();
-        GetComponent<HydraulicErosion>().exportImages();
+
+        if (saveImages)
+        {
+            saveState();
+            GetComponent<HydraulicErosion>().exportImages();
+        }
 
         Debug.Log((Time.realtimeSinceStartup - time) + "s all done");
     }

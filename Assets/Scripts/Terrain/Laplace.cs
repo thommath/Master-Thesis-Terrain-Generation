@@ -194,12 +194,21 @@ public class Laplace : MonoBehaviour
         hyEro._erosionParams = erosion;
 
         hyEro.interpolate();
-        
-        if (heightmap.width > 2048 / 2 || heightmap.width < 128 * 2)
+
+        int iterations = 0;
+
+        switch (heightmap.width)
         {
-            return;
+            case 257: iterations = 300;
+                break;
+            case 513: iterations = 200;
+                break;
+            case 1025: iterations = 20;
+                break;
+            case 2049: iterations = 10;
+                break;
         }
-        for (int n = 0; n < 300; n++)
+        for (int n = 0; n < iterations; n++)
         {
             hyEro.runStep();
         }

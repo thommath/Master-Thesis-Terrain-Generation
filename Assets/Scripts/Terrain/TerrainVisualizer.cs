@@ -35,7 +35,7 @@ public class TerrainVisualizer : MonoBehaviour
     public void fastExport()
     {
         HydraulicErosion erosion = this.gameObject.GetComponent<HydraulicErosion>();
-        RenderTexture heightmap = this.gameObject.GetComponent<SplineTerrain>().heightmap;
+        RenderTexture heightmap = erosion._inputHeight;
 
         int size = this.gameObject.GetComponent<SplineTerrain>().terrainSize;
         int terrainResolution = this.gameObject.GetComponent<SplineTerrain>().terrainResolution;
