@@ -133,8 +133,8 @@ void RainAndControl(uint3 id : SV_DispatchThreadID)
 {
 	float4 currentState = CURRENT_SAMPLE(HeightMap);
 	const float4 erosionParams = CURRENT_SAMPLE(ErosionParams);
-	WATER_HEIGHT(currentState) += raindropStrength * RAIN_MULTIPLIER(erosionParams);//rain(id.xy) * RAIN_MULTIPLIER(erosionParams);
-
+//	WATER_HEIGHT(currentState) += raindropStrength * RAIN_MULTIPLIER(erosionParams);
+	WATER_HEIGHT(currentState) += rain(id.xy) * RAIN_MULTIPLIER(erosionParams);
 	CURRENT_SAMPLE(HeightMap) = currentState;
 }
 
@@ -352,6 +352,7 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 	// Might want a condition to this, if it is bigger than 0. If it is 0 it might be uphill
 	// This min value should be able to be changed to a diffused value similar to the noise value in the other paper
 	const float sinangle = max(0.001, TerrainFluxMap[id.xy].r);
+
 
 	// float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * WATER_HEIGHT(state);
 	const float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle * SEDIMENT_CAPACITY_MULTIPLIER(erosionParams);

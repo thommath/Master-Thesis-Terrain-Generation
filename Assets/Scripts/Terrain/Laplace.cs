@@ -67,6 +67,21 @@ public class Laplace : MonoBehaviour
                 Graphics.Blit(tex, heightmap);
             }
 
+            {
+                // Erosion default values
+                
+                Texture2D tex = new Texture2D(erosion.width, erosion.height, TextureFormat.RGBAFloat, false);
+                Color[] cs = new Color[erosion.width * erosion.height];
+                Color c = new Color(0, 1, 1, 0);
+                for(int n = 0; n < cs.Length; n++)
+                {
+                    cs[n] = c;
+                }
+                tex.SetPixels(cs);
+                tex.Apply();
+                Graphics.Blit(tex, erosion);
+            }
+
             initErosion(heightmap, erosion);
 
             return;
@@ -179,19 +194,21 @@ public class Laplace : MonoBehaviour
         hyEro._erosionParams = erosion;
 
         hyEro.interpolate();
-        hyEro.exportImages("1-" + heightmap.width);
         
-        Debug.Log(hyEro._stateTexture.width + " " + heightmap.width);
-        
-        if (heightmap.width > 2048 / 2)
+        if (heightmap.width > 2048 / 2 || heightmap.width < 128 * 2)
         {
             return;
         }
-        for (int n = 0; n < 100; n++)
+        for (int n = 0; n < 200; n++)
         {
             hyEro.runStep();
         }
-        hyEro.exportImages("" + heightmap.width);
+        // hyEro.evaporate();
+
+        if (saveImages)
+        {
+            hyEro.exportImages("" + heightmap.width);
+        }
     }
 
     private RenderTexture AddNoise(RenderTexture input, RenderTexture noiseSeed)

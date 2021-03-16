@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ErosionSetting
   SmoothingIterationsOnStart: 0
   PipeArea: 1
-  Gravity: 4
+  Gravity: 1
   PipeLength: 1
   CellSize: 1
   SedimentCapacity: 1
@@ -22,10 +22,10 @@ MonoBehaviour:
   DepositionRate: 1
   AddWater: 1
   Evaporation: 0.081
-  MaxRainIntensity: 0.307
-  MinRainIntensity: 0
-  MaxRainSize: 20.4
-  MinRainSize: 2
+  MaxRainIntensity: 1
+  MinRainIntensity: 0.791
+  MaxRainSize: 29.8
+  MinRainSize: 21.8
   RainFrequency: 0
   StopRainAfterTime: 4764
   RandomizedRain: 1
