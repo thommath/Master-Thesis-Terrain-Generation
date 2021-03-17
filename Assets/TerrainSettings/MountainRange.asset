@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MountainRange
   m_EditorClassIdentifier: Assembly-CSharp::ErosionSetting
   SmoothingIterationsOnStart: 0
-  PipeArea: 1.91
+  PipeArea: 1
   Gravity: 3.48
   PipeLength: 1
   CellSize: 1
@@ -21,10 +21,10 @@ MonoBehaviour:
   SuspensionRate: 0.525
   DepositionRate: 0.812
   AddWater: 1
-  Evaporation: 0.153
-  MaxRainIntensity: 0.583
+  Evaporation: 0.195
+  MaxRainIntensity: 0.502
   MinRainIntensity: 0.276
-  MaxRainSize: 40.2
+  MaxRainSize: 34.9
   MinRainSize: 15.3
   RainFrequency: 0
   StopRainAfterTime: 3874

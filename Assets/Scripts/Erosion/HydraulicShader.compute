@@ -181,12 +181,17 @@ void FluxComputation(uint3 id : SV_DispatchThreadID)
 	*/
 	outputFlux *= min(1, waterHeight * _CellSize.x * _CellSize.y / (SUM_COMPS(outputFlux) * _TimeDelta));
 
-	// Boundaries (uncomment thisif you want water to bounce of boundaries)						
+	// Boundaries (uncomment thisif you want water to bounce of boundaries)
+	if (id.x == 0) LDIR(outputFlux) = 0;
+	if (id.y == 0) BDIR(outputFlux) = 0;
+	if (id.x == _Width - 1) RDIR(outputFlux) = 0;
+	if (id.y == _Height - 1) TDIR(outputFlux) = 0;
+	/*
 	LDIR(outputFlux) *= id.x == 0;
 	BDIR(outputFlux) *= id.y == 0;				
 	RDIR(outputFlux) *= id.x == _Width - 1;
 	TDIR(outputFlux) *= id.y == _Height - 1;
-
+*/
 	// Write new flux to the FluxMap
 	CURRENT_SAMPLE(FluxMap) = max(0, outputFlux);
 }
@@ -379,7 +384,7 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 	// Write heighmap
 	CURRENT_SAMPLE(HeightMap) = state;
 
-	TerrainFluxMap[id.xy] = float4(TerrainFluxMap[id.xy].rgb, TerrainFluxMap[id.xy].b - TerrainFluxMap[id.xy].g);
+	// TerrainFluxMap[id.xy] = float4(TerrainFluxMap[id.xy].rgb, TerrainFluxMap[id.xy].b - TerrainFluxMap[id.xy].g);
 }
 
 

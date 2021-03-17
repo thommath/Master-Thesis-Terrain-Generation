@@ -61,9 +61,6 @@ public class SplineTerrain : MonoBehaviour
     [HideInInspector]
     public RenderTexture erosion;
 
-    public ComputeShader noiseShader;
-
-
     [HideInInspector]
     public UnityEvent updatedData;
 
@@ -130,10 +127,6 @@ public class SplineTerrain : MonoBehaviour
         if (erode)
         {
             GetComponent<HydraulicErosion>().evaporate();
-            RenderTexture.active = normals;
-            Texture2D tex2D4 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
-            tex2D4.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
-            Debug.Log((Time.realtimeSinceStartup - time) + "s for evaporation");
         }
         else
         {
@@ -149,6 +142,19 @@ public class SplineTerrain : MonoBehaviour
         RenderTexture.active = null;
 
         l.clearRasterizedDataDict();
+
+        updatedData.Invoke();
+        this.heightmap = heightmap;
+        this.normals = normals;
+        this.erosion = erosion;
+        this.noise = noiseSeed;
+
+        if (saveImages)
+        {
+            saveState();
+            GetComponent<HydraulicErosion>().exportImages();
+        }
+        
         noiseSeed.Release();
 
         if (this.heightmap)
@@ -160,16 +166,7 @@ public class SplineTerrain : MonoBehaviour
             this.normals.Release();
         }
 
-        updatedData.Invoke();
-
-        if (saveImages)
-        {
-            saveState();
-            GetComponent<HydraulicErosion>().exportImages();
-        }
-
         Debug.Log((Time.realtimeSinceStartup - time) + "s all done");
-        
         
 
         int curveCount = splines.Select(spline => spline.CurveCount).Sum();
@@ -177,7 +174,8 @@ public class SplineTerrain : MonoBehaviour
             spline.metaPoints.Length * (
                 (spline.erosionConstraint ? 3 : 0) + (spline.noiseConstraint ? 2 : 0))).Sum());
         
-        Debug.Log("Size: " + terrainResolution+ " , number of features: " + curveCount + ", Size: " + size + "kB");
+        Debug.Log("Size: " + terrainResolution+ " , number of features: " + curveCount + ", Size: " + size + "kB, Time: " +
+                  (Time.realtimeSinceStartup - time) + "s");
     }
 
     private void saveState()

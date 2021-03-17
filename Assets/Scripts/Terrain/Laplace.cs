@@ -55,7 +55,7 @@ public class Laplace : MonoBehaviour
         {
             if (startHeight > 0)
             {
-                Texture2D tex = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RFloat, false);
+                Texture2D tex = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RGBAFloat, false);
                 Color[] cs = new Color[heightmap.width * heightmap.height];
                 Color c = new Color(startHeight, 0, 0, 1);
                 for(int n = 0; n < cs.Length; n++)

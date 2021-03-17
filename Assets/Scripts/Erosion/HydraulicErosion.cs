@@ -201,8 +201,8 @@ public class HydraulicErosion : MonoBehaviour
         // Graphics.Blit(heightmap, _stateTexture);
 
 
-        //Laplace l = this.GetComponent<Laplace>();
-        //l.ImageSmoothing(_stateTexture, settings.SmoothingIterationsOnStart);
+        Laplace l = this.GetComponent<Laplace>();
+        l.ImageSmoothing(_stateTexture, settings.SmoothingIterationsOnStart);
 
         RainAndControl = hydraulicShader.FindKernel("RainAndControl");
         FluxComputation = hydraulicShader.FindKernel("FluxComputation");
