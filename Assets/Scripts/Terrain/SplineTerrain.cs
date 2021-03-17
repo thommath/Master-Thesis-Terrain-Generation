@@ -38,6 +38,8 @@ public class SplineTerrain : MonoBehaviour
     [Range(0f, 1f)]
     public float startHeight = 0;
 
+    [Header("Erosion")]
+    public bool erode = false;
 
     [Header("Noise Global")]
     [Range(1, 50f)]
@@ -94,10 +96,6 @@ public class SplineTerrain : MonoBehaviour
         heightmap.enableRandomWrite = true;
         heightmap.autoGenerateMips = false;
         heightmap.Create();
-        RenderTexture noise = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
-        noise.enableRandomWrite = true;
-        noise.autoGenerateMips = false;
-        noise.Create();
         RenderTexture erosion = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
         erosion.enableRandomWrite = true;
         erosion.autoGenerateMips = false;
@@ -106,10 +104,6 @@ public class SplineTerrain : MonoBehaviour
         noiseSeed.enableRandomWrite = true;
         noiseSeed.autoGenerateMips = false;
         noiseSeed.Create();
-        RenderTexture result = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.RFloat);
-        result.enableRandomWrite = true;
-        result.autoGenerateMips = false;
-        result.Create();
 
         l.clearRasterizedDataDict();
 
@@ -125,53 +119,33 @@ public class SplineTerrain : MonoBehaviour
         //l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
         //Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
 
-        l.poissonStep(normals, heightmap, noiseSeed, erosion, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2);
-        
+        l.poissonStep(normals, heightmap, noiseSeed, erosion, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2, erode);
+
+        RenderTexture.active = normals;
+        Texture2D tex2D3 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
+        tex2D3.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
+        Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
+
+        if (erode)
+        {
+            GetComponent<HydraulicErosion>().evaporate();
+            RenderTexture.active = normals;
+            Texture2D tex2D4 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
+            tex2D4.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
+            Debug.Log((Time.realtimeSinceStartup - time) + "s for evaporation");
+        }
+        else
+        {
+            RenderTexture result = l.AddNoise(heightmap, noiseSeed);
+            GetComponent<HydraulicErosion>()._inputHeight = result;
+        }
+        //l.ImageSmoothing(heightmap, 5);
+    
         RenderTexture.active = normals;
         Texture2D tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
         tex2D2.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
-        Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
-
-        GetComponent<HydraulicErosion>().evaporate();
-        
-        RenderTexture.active = normals;
-         tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
-        tex2D2.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
-        Debug.Log((Time.realtimeSinceStartup - time) + "s for evaporation");
-        
-        //l.ImageSmoothing(heightmap, 5);
-
-        ///////////////
-        ///
-        /// Time process by reading one pixel
-        ///
-        ///////////////
-        /*
-        RenderTexture.active = normals;
-        Texture2D tex2D = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
-        tex2D.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
-        Debug.Log((Time.realtimeSinceStartup - time) + "s diffusion done, read one pixel");
-        */
-        /////////////////////////////
-        ///
-        ///  noise 
-        ///
-        /////////////////////////////
-        // Interpolate image to normal size
-        /*
-        int genKernelHandle = noiseShader.FindKernel("GenerateNoise");
-        noiseShader.SetTexture(genKernelHandle, "seedNoise", noiseSeed);
-        noiseShader.SetTexture(genKernelHandle, "result", noise);
-        noiseShader.SetFloat("scale", noiseScale);
-
-        noiseShader.Dispatch(genKernelHandle, noiseSeed.width, noiseSeed.height, 1);
-
-        l.SumTwoTextures(result, heightmap, noise, 1, 0, noiseAmplitude * 0.005f * (100f / height), 0f);
-        */
-        RenderTexture.active = normals;
-         tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
-        tex2D2.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
         Debug.Log((Time.realtimeSinceStartup - time) + "s for all");
+        RenderTexture.active = null;
 
         l.clearRasterizedDataDict();
         noiseSeed.Release();
@@ -180,19 +154,10 @@ public class SplineTerrain : MonoBehaviour
         {
             this.heightmap.Release();
         }
-        if (this.noise)
-        {
-            this.noise.Release();
-        }
         if (this.normals)
         {
             this.normals.Release();
         }
-
-        this.heightmap = result;
-        this.normals = normals;
-        this.noise = noise;
-        this.erosion = erosion;
 
         updatedData.Invoke();
 

@@ -31,19 +31,31 @@ public class TerrainEditorWindow : EditorWindow
             GUILayout.Space(10);
             terrain = Selection.activeGameObject.GetComponentInParent<SplineTerrain>();
             GUILayout.Label("Terrain options", EditorStyles.boldLabel);
+            
+            bool erode = EditorGUILayout.Toggle("Erode the terrain", terrain.erode);
+            if (erode != terrain.erode)
+            {
+                terrain.erode = erode;
+                Undo.RecordObject(terrain, "Toggle Erode");
+                EditorUtility.SetDirty(terrain);
+            }
 
             TerrainVisualizer visualizer = null;
             if (Selection.activeGameObject.GetComponentInParent<TerrainVisualizer>())
             {
-                visualizer = Selection.activeGameObject.GetComponentInParent<TerrainVisualizer>();
-                GUILayout.Space(10);
-                bool renderErosion = EditorGUILayout.Toggle("Render erosion", visualizer.viewMode == TerrainVisualizer.ViewMode.Heightmap);
-                if ((visualizer.viewMode == TerrainVisualizer.ViewMode.Heightmap) != renderErosion)
+
+                if (erode)
                 {
-                    visualizer.viewMode = renderErosion ? TerrainVisualizer.ViewMode.Heightmap : TerrainVisualizer.ViewMode.HeightmapNoErosion;
-                    Undo.RecordObject(visualizer, "Toggle viewMode");
-                    EditorUtility.SetDirty(visualizer);
-                    visualizer.fastExport();
+                    visualizer = Selection.activeGameObject.GetComponentInParent<TerrainVisualizer>();
+                    GUILayout.Space(10);
+                    bool renderErosion = EditorGUILayout.Toggle("Render erosion", visualizer.viewMode == TerrainVisualizer.ViewMode.Heightmap);
+                    if ((visualizer.viewMode == TerrainVisualizer.ViewMode.Heightmap) != renderErosion)
+                    {
+                        visualizer.viewMode = renderErosion ? TerrainVisualizer.ViewMode.Heightmap : TerrainVisualizer.ViewMode.HeightmapNoErosion;
+                        Undo.RecordObject(visualizer, "Toggle viewMode");
+                        EditorUtility.SetDirty(visualizer);
+                        visualizer.fastExport();
+                    }
                 }
             }
             HydraulicErosion erosion = null;
