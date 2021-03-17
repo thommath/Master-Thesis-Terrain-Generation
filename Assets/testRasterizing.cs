@@ -138,7 +138,7 @@ public class testRasterizing : MonoBehaviour
         computeShader.SetFloat("textureDivTerrain", 1f * textureSize / terrainSize);
         computeShader.SetVector("center", new Vector2(terrainSize * 0.5f, terrainSize * 0.5f));
         computeShader.SetInt("maxHeight", maxHeight);
-        computeShader.SetFloat("lineIncrement", 1f / resolution);
+        computeShader.SetFloat("lineIncrement", (1f / resolution));
 
         computeShader.SetTexture(gradientsKernelHandle, "result", result);
         computeShader.SetTexture(gradientsKernelHandle, "noise", noise);
@@ -187,8 +187,6 @@ public class testRasterizing : MonoBehaviour
                 metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
                 computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
             }
-            
-
 
             computeShader.SetVector("position", spline.transform.position);
             computeShader.SetBuffer(gradientsKernelHandle, "splines", splinesBuffer);
@@ -274,12 +272,12 @@ public class testRasterizing : MonoBehaviour
         */
     }
 
-    public Dictionary<int, RasterizedData> rasterizeData(int terrainSizeExp, int textureSizeExp, int breakOnLevel, int maxHeight, int resolution)
+    public Dictionary<int, RasterizedData> rasterizeData(BezierSpline[] splines, int terrainSizeExp, int textureSizeExp, int breakOnLevel, int maxHeight, int resolution)
     {
         float time = Time.realtimeSinceStartup;
-        Transform terrainFeatures = this.gameObject.transform.GetComponentsInChildren<Transform>()
-            .FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
-        BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
+        //Transform terrainFeatures = this.gameObject.transform.GetComponentsInChildren<Transform>()
+        //    .FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
+        //BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
         
         
         foreach (BezierSpline spline in splines)

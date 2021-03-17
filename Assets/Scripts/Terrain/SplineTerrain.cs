@@ -76,6 +76,7 @@ public class SplineTerrain : MonoBehaviour
     public void runSolver()
     {
         Transform terrainFeatures = this.gameObject.GetComponentsInChildren<Transform>().FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
+        BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
 
         if (!terrainFeatures)
         {
@@ -112,7 +113,7 @@ public class SplineTerrain : MonoBehaviour
         // l.rasterizeTriangles(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
 
         testRasterizing tr = this.GetComponent<testRasterizing>();
-        Dictionary<int, RasterizedData> dict = tr.rasterizeData(terrainSizeExp, terrainResolutionExp, breakOnLevel, height * 2, splineSamplings);
+        Dictionary<int, RasterizedData> dict = tr.rasterizeData(splines, terrainSizeExp, terrainResolutionExp, breakOnLevel, height * 2, splineSamplings);
         l.setRasterizedDataDict(dict);
                 
         Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 1 ");
@@ -168,6 +169,15 @@ public class SplineTerrain : MonoBehaviour
         }
 
         Debug.Log((Time.realtimeSinceStartup - time) + "s all done");
+        
+        
+
+        int curveCount = splines.Select(spline => spline.CurveCount).Sum();
+        float size = 0.001f * sizeof(float) * (splines.Select(spline => spline.points.Length).Sum() + splines.Select(spline =>
+            spline.metaPoints.Length * (
+                (spline.erosionConstraint ? 3 : 0) + (spline.noiseConstraint ? 2 : 0))).Sum());
+        
+        Debug.Log("Size: " + terrainResolution+ " , number of features: " + curveCount + ", Size: " + size + "kB");
     }
 
     private void saveState()
