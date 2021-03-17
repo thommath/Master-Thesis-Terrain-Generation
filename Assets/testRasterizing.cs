@@ -179,10 +179,14 @@ public class testRasterizing : MonoBehaviour
 
             ComputeBuffer splinesBuffer = new ComputeBuffer(gpuSplines.Count, sizeof(float) * 3 * 4);
             splinesBuffer.SetData(gpuSplines);
-            
-            ComputeBuffer metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 11);
-            metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
-            computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
+
+            ComputeBuffer metaPointsBuffer = null;
+            if (spline.metaPoints.Length > 0)
+            {
+                metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 11);
+                metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
+                computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
+            }
             
 
 
@@ -193,7 +197,10 @@ public class testRasterizing : MonoBehaviour
             computeShader.Dispatch(gradientsKernelHandle, splinesBuffer.count, 1, 1);
             
             splinesBuffer.Release();
-            metaPointsBuffer.Release();
+            if (metaPointsBuffer != null)
+            {
+                metaPointsBuffer.Release();
+            }
         }
         ///////////////
         ///

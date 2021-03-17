@@ -324,10 +324,10 @@ void TiltAngle(uint3 id : SV_DispatchThreadID)
 	/*
 	Not too fancy calculation as in report
 	*/
-	const float dx = 50 * (max(0, (TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateRight) + TERRAIN_HEIGHT(inputHeightRight))) +
+	const float dx = 200 * (max(0, (TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateRight) + TERRAIN_HEIGHT(inputHeightRight))) +
 		max(0, (TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateLeft) + TERRAIN_HEIGHT(inputHeightLeft))));
 
-	const float dy = 50 * (max(0, ((TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateTop) + TERRAIN_HEIGHT(inputHeightTop)))) +
+	const float dy = 200 * (max(0, ((TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateTop) + TERRAIN_HEIGHT(inputHeightTop)))) +
 		max(0, ((TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight)) - (TERRAIN_HEIGHT(stateBottom) + TERRAIN_HEIGHT(inputHeightBottom)))));
 	
 	const float3 v = float3(dx, dy, 1);

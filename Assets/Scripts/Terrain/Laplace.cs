@@ -199,11 +199,11 @@ public class Laplace : MonoBehaviour
 
         switch (heightmap.width)
         {
-            case 257: iterations = 300;
+            case 257: iterations = 200;
                 break;
-            case 513: iterations = 200;
+            case 513: iterations = 700;
                 break;
-            case 1025: iterations = 20;
+            case 1025: iterations = 500;
                 break;
             case 2049: iterations = 10;
                 break;

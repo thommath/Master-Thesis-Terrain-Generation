@@ -319,7 +319,7 @@ public class HydraulicErosion : MonoBehaviour
         if (settings.AddWater && settings.StopRainAfterTime > time && time - lastRaindrop > settings.RainFrequency)
         {
             hydraulicShader.SetFloat("raindropStrength", Random.Range(settings.MinRainIntensity, settings.MaxRainIntensity) / 25);
-            hydraulicShader.SetFloat("raindropRadius", Random.Range(settings.MinRainSize, settings.MaxRainSize));
+            hydraulicShader.SetFloat("raindropRadius", Random.Range(settings.MinRainSize, settings.MaxRainSize * (_stateTexture.width / 512f)));
 
             // Add random rain
             if (settings.RandomizedRain)
