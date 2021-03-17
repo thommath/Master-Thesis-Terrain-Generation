@@ -144,28 +144,26 @@ void RainAndControl(uint3 id : SV_DispatchThreadID)
 void FluxComputation(uint3 id : SV_DispatchThreadID)
 {
 	// Sample the heighmap (state map)
-	float4 state = CURRENT_SAMPLE(HeightMap);
-	float4 stateLeft = LEFT_SAMPLE(HeightMap);
-	float4 stateRight = RIGHT_SAMPLE(HeightMap);
-	float4 stateTop = TOP_SAMPLE(HeightMap);
-	float4 stateBottom = BOTTOM_SAMPLE(HeightMap);
+	const float4 state = CURRENT_SAMPLE(HeightMap);
+	const float4 stateLeft = LEFT_SAMPLE(HeightMap);
+	const float4 stateRight = RIGHT_SAMPLE(HeightMap);
+	const float4 stateTop = TOP_SAMPLE(HeightMap);
+	const float4 stateBottom = BOTTOM_SAMPLE(HeightMap);
 	
-	float4 inputHeight = CURRENT_SAMPLE(InputHeight);
-	float4 inputHeightLeft = LEFT_SAMPLE(InputHeight);
-	float4 inputHeightRight = RIGHT_SAMPLE(InputHeight);
-	float4 inputHeightTop = TOP_SAMPLE(InputHeight);
-	float4 inputHeightBottom = BOTTOM_SAMPLE(InputHeight);
+	const float4 inputHeight = CURRENT_SAMPLE(InputHeight);
+	const float4 inputHeightLeft = LEFT_SAMPLE(InputHeight);
+	const float4 inputHeightRight = RIGHT_SAMPLE(InputHeight);
+	const float4 inputHeightTop = TOP_SAMPLE(InputHeight);
+	const float4 inputHeightBottom = BOTTOM_SAMPLE(InputHeight);
 
-
-	float terrainHeight = TERRAIN_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight);
-	float waterHeight = WATER_HEIGHT(state);
+	const float waterHeight = WATER_HEIGHT(state);
 
 	// Flow simulation using shallow-water model. Computation of the velocity field and water height changes.
 	// Sample flux
 	float4 outputFlux = CURRENT_SAMPLE(FluxMap);
 
 	// Overall height difference in each direction
-	float4 heightDifference = FULL_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight) - float4(
+	const float4 heightDifference = FULL_HEIGHT(state) + TERRAIN_HEIGHT(inputHeight) - float4(
 		FULL_HEIGHT(stateLeft) + TERRAIN_HEIGHT(inputHeightLeft),
 		FULL_HEIGHT(stateRight) + TERRAIN_HEIGHT(inputHeightRight),
 		FULL_HEIGHT(stateTop) + TERRAIN_HEIGHT(inputHeightTop),
@@ -184,10 +182,10 @@ void FluxComputation(uint3 id : SV_DispatchThreadID)
 	outputFlux *= min(1, waterHeight * _CellSize.x * _CellSize.y / (SUM_COMPS(outputFlux) * _TimeDelta));
 
 	// Boundaries (uncomment thisif you want water to bounce of boundaries)						
-	if (id.x == 0) LDIR(outputFlux) = 0;
-	if (id.y == 0) BDIR(outputFlux) = 0;
-	if (id.x == _Width - 1) RDIR(outputFlux) = 0;
-	if (id.y == _Height - 1) TDIR(outputFlux) = 0;
+	LDIR(outputFlux) *= id.x == 0;
+	BDIR(outputFlux) *= id.y == 0;				
+	RDIR(outputFlux) *= id.x == _Width - 1;
+	TDIR(outputFlux) *= id.y == _Height - 1;
 
 	// Write new flux to the FluxMap
 	CURRENT_SAMPLE(FluxMap) = max(0, outputFlux);
@@ -218,10 +216,10 @@ void FluxApply(uint3 id : SV_DispatchThreadID)
 	CURRENT_SAMPLE(HeightMap) = state;
 
 	// Compute new velocity from flux to the VelocityMap
-	if (waterHeightBefore < 0.001 && WATER_HEIGHT(state) < 0.001) {
-		CURRENT_SAMPLE(VelocityMap) = float2(0, 0);
-	}
-	else
+	//if (waterHeightBefore < 0.001 && WATER_HEIGHT(state) < 0.001) {
+	//	CURRENT_SAMPLE(VelocityMap) = float2(0, 0);
+	//}
+	//else
 	{
 		/*
 		What is in the paper
@@ -256,6 +254,12 @@ void FluxApply(uint3 id : SV_DispatchThreadID)
 [NUMTHREADS]
 void TiltAngle(uint3 id : SV_DispatchThreadID)
 {
+	const float2 velocity = CURRENT_SAMPLE(VelocityMap);
+	
+	if (length(velocity) * SEDIMENT_CAPACITY_MULTIPLIER(CURRENT_SAMPLE(ErosionParams)) == 0)
+	{
+		return;
+	}
 	// https://math.stackexchange.com/questions/1044044/local-tilt-angle-based-on-height-field
 	// Calculate this before the next step so we don't read and write from the same data
 	// Save the values in a different grid - now using TerrainFluxMap
@@ -264,13 +268,13 @@ void TiltAngle(uint3 id : SV_DispatchThreadID)
 	const float4 stateRight = RIGHT_SAMPLE(HeightMap);
 	const float4 stateTop = TOP_SAMPLE(HeightMap);
 	const float4 stateBottom = BOTTOM_SAMPLE(HeightMap);
-	const float2 velocity = CURRENT_SAMPLE(VelocityMap);
 	
 	const float4 inputHeight = CURRENT_SAMPLE(InputHeight);
 	const float4 inputHeightLeft = LEFT_SAMPLE(InputHeight);
 	const float4 inputHeightRight = RIGHT_SAMPLE(InputHeight);
 	const float4 inputHeightTop = TOP_SAMPLE(InputHeight);
 	const float4 inputHeightBottom = BOTTOM_SAMPLE(InputHeight);
+
 
 	// Calculate the delta in the direction of the water flow
 	// Limit to 0 because it is the abs value we care about and we only want to pick up sediment if it is downhill

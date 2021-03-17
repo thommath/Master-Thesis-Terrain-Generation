@@ -19,7 +19,7 @@ public class ErosionSetting : ScriptableObject
 
     [Header("Erosion and deposition settings")]
     [Range(0.1f, 100f)]
-    public float SedimentCapacity = 1f;
+    public float SedimentCapacity = 0.7f;
     [Range(0.1f, 1f)]
     public float SuspensionRate = 1f;
     [Range(0.1f, 1f)]
@@ -33,11 +33,11 @@ public class ErosionSetting : ScriptableObject
     public float Evaporation = 0.1f;
 
     [Range(0, 1f)]
-    public float MaxRainIntensity = 0.1f;
+    public float MaxRainIntensity = 0.5f;
     [Range(0, 1f)]
     public float MinRainIntensity = 0f;
     [Range(2, 50f)]
-    public float MaxRainSize = 5f;
+    public float MaxRainSize = 30f;
     [Range(2, 50f)]
     public float MinRainSize = 2f;
 
@@ -45,7 +45,7 @@ public class ErosionSetting : ScriptableObject
     public float RainFrequency = 0.01f;
 
     [Range(0f, 10000f)]
-    public float StopRainAfterTime = 0.01f;
+    public float StopRainAfterTime = 1000f;
 
     public bool RandomizedRain = true;
 
