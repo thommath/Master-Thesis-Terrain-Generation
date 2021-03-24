@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: MountainRange
+  m_Name: Hi ho
   m_EditorClassIdentifier: Assembly-CSharp::ErosionSetting
   SmoothingIterationsOnStart: 0
   PipeArea: 1
-  Gravity: 3.48
+  Gravity: 3
   PipeLength: 1
   CellSize: 1
-  SedimentCapacity: 1
-  SuspensionRate: 0.525
-  DepositionRate: 0.812
+  SedimentCapacity: 0.9
+  SuspensionRate: 1
+  DepositionRate: 1
   AddWater: 1
-  Evaporation: 0.195
-  MaxRainIntensity: 0.502
-  MinRainIntensity: 0.276
-  MaxRainSize: 34.9
-  MinRainSize: 15.3
-  RainFrequency: 0
-  StopRainAfterTime: 3874
+  Evaporation: 0.1
+  MaxRainIntensity: 0.5
+  MinRainIntensity: 0
+  MaxRainSize: 32
+  MinRainSize: 2
+  RainFrequency: 0.01
+  StopRainAfterTime: 1000
   RandomizedRain: 1
-  TimeDelta: 0.198
+  TimeDelta: 0.01
   IterationsEachStep: 500

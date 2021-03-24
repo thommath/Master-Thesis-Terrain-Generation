@@ -190,7 +190,7 @@ public class testRasterizing : MonoBehaviour
             else
             {
                 metaPointsBuffer = new ComputeBuffer(1, sizeof(float));
-                metaPointsBuffer.BeginWrite()
+                //metaPointsBuffer.BeginWrite()
                 metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
                 computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
             }

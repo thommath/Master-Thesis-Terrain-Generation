@@ -82,7 +82,10 @@ public class Laplace : MonoBehaviour
                 Graphics.Blit(tex, erosion);
             }
 
-            initErosion(heightmap, erosion);
+            if (erode)
+            {
+                initErosion(heightmap, erosion);
+            }
 
             return;
         }

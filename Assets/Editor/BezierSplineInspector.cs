@@ -157,7 +157,7 @@ public class BezierSplineInspector : Editor {
 		Vector3 point = handleTransform.TransformPoint(spline.points[index]);
 		float size = HandleUtility.GetHandleSize(point);
 		Handles.color = Color.white;
-		if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.DotCap)) {
+		if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.DotHandleCap)) {
 			selectedIndex = index;
 		}
 		if (selectedIndex == index) {
@@ -186,7 +186,7 @@ public class BezierSplineInspector : Editor {
 
 		float size = HandleUtility.GetHandleSize(point);
 		Handles.color = Color.red;
-		if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.DotCap))
+		if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.DotHandleCap))
 		{
 			selectedIndex = index;
 			

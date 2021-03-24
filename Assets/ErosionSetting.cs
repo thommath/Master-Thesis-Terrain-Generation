@@ -19,7 +19,7 @@ public class ErosionSetting : ScriptableObject
 
     [Header("Erosion and deposition settings")]
     [Range(0.1f, 100f)]
-    public float SedimentCapacity = 0.7f;
+    public float SedimentCapacity = 0.9f;
     [Range(0.1f, 1f)]
     public float SuspensionRate = 1f;
     [Range(0.1f, 1f)]
