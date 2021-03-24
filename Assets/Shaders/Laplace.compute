@@ -151,7 +151,7 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
     const float Li = seedTexture[id.xy].x;
 
     terrainHeight[id.xy] =
-        float4((Ll2) * alpha + (Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
+        float4((Ll) * alpha + (Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
 }
 
 

@@ -57,15 +57,71 @@ public class testRasterizing : MonoBehaviour
 
         }
     }
+
+    private ComputeBuffer a;
+    private ComputeBuffer b;
+    private ComputeBuffer c;
+    
+    
+    private ComputeBuffer getBuffer<T>(T[] data, int stride, int bufferNr = 0) where T : struct
+    {
+        ComputeBuffer buffer;
+        if (bufferNr == 1)
+        {
+            if (a == null)
+            {
+                a = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
+            } else if (a.count < data.Length)
+            {
+                a.Release();
+                a = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
+            }
+            buffer = a;
+        } else if (bufferNr == 2)
+        {
+            if (b == null)
+            {
+                b = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
+            } else if (a.count < data.Length)
+            {
+                b.Release();
+                b = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
+            }
+            buffer = b;
+        } else if (bufferNr == 3)
+        {
+            if (c == null)
+            {
+                c = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
+            } else if (a.count < data.Length)
+            {
+                c.Release();
+                c = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
+            }
+            buffer = c;
+        }
+        else
+        {
+            buffer = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
+        }
+
+        Unity.Collections.NativeArray<T> dd = buffer.BeginWrite<T>(0, data.Length);
+        for(int i = 0; i < data.Length; i++)
+        {
+            dd[i] = data[i];
+        }
+        buffer.EndWrite<float>(data.Length);
+        return buffer;
+    }
     
     private void RasterizeGradientMesh(Mesh mesh, RenderTexture normal, RenderTexture restriction)
     {
-        ComputeBuffer verticesGradients = new ComputeBuffer(mesh.vertices.Length, sizeof(float) * 3);
-        ComputeBuffer indicesGradients = new ComputeBuffer(mesh.triangles.Length, sizeof(int));
-        ComputeBuffer colorsGradients = new ComputeBuffer(mesh.colors.Length, sizeof(float) * 4);
-        verticesGradients.SetData(mesh.vertices);
-        indicesGradients.SetData(mesh.triangles);
-        colorsGradients.SetData(mesh.colors);
+        ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
+        ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
+        ComputeBuffer colorsGradients = getBuffer(mesh.colors, sizeof(float) * 4, 3);
+        //verticesGradients.SetData(mesh.vertices);
+        //indicesGradients.SetData(mesh.triangles);
+        //colorsGradients.SetData(mesh.colors);
 
         int gradientsKernelHandle = computeShader.FindKernel("RasterizeAverageGradients");
         
@@ -81,18 +137,18 @@ public class testRasterizing : MonoBehaviour
 
         computeShader.Dispatch(gradientsKernelHandle, indicesGradients.count / 3, 1, 1);
             
-        verticesGradients.Release();
-        indicesGradients.Release();
-        colorsGradients.Release();
+        //verticesGradients.Release();
+        //indicesGradients.Release();
+        //colorsGradients.Release();
     }
     private void RasterizeLineMesh(Mesh mesh, RenderTexture result, RenderTexture restriction)
     {
-        ComputeBuffer verticesGradients = new ComputeBuffer(mesh.vertices.Length, sizeof(float) * 3);
-        ComputeBuffer indicesGradients = new ComputeBuffer(mesh.triangles.Length, sizeof(int));
-        ComputeBuffer colorsGradients = new ComputeBuffer(mesh.colors.Length, sizeof(float) * 4);
-        verticesGradients.SetData(mesh.vertices);
-        indicesGradients.SetData(mesh.triangles);
-        colorsGradients.SetData(mesh.colors);
+        ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
+        ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
+        ComputeBuffer colorsGradients = getBuffer(mesh.colors, sizeof(float) * 4, 3);
+        //verticesGradients.SetData(mesh.vertices);
+        //indicesGradients.SetData(mesh.triangles);
+        //colorsGradients.SetData(mesh.colors);
 
         int linesKernelHandle = computeShader.FindKernel("RasterizeAverageThickLines");
         
@@ -105,9 +161,9 @@ public class testRasterizing : MonoBehaviour
 
         computeShader.Dispatch(linesKernelHandle, indicesGradients.count / 3, 1, 1);
             
-        verticesGradients.Release();
-        indicesGradients.Release();
-        colorsGradients.Release();
+        //verticesGradients.Release();
+        //indicesGradients.Release();
+        //colorsGradients.Release();
     }
     
     public RasterizedData drawLinesAndTriangles(IEnumerable<BezierSpline> splines, int terrainSize, int textureSize, int maxHeight, int resolution)
@@ -183,17 +239,19 @@ public class testRasterizing : MonoBehaviour
             ComputeBuffer metaPointsBuffer = null;
             if (spline.metaPoints.Length > 0)
             {
-                metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 11);
-                metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
-                computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
+                int type = 1 << 4 + 1 << 3;
+                metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 11, ComputeBufferType.Default, ComputeBufferMode.Immutable);
+                metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint))
+                    .ToArray());
             }
             else
             {
-                metaPointsBuffer = new ComputeBuffer(1, sizeof(float));
-                //metaPointsBuffer.BeginWrite()
-                metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint)).ToArray());
-                computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
+                // Meta points has to be set so we write a buffer as small as possible
+                metaPointsBuffer = new ComputeBuffer(1, sizeof(float), ComputeBufferType.Default, ComputeBufferMode.SubUpdates);
+                Unity.Collections.NativeArray<float> dd = metaPointsBuffer.BeginWrite<float>(0, 1);
+                metaPointsBuffer.EndWrite<float>(1);
             }
+            computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
 
             computeShader.SetVector("position", spline.transform.position);
             computeShader.SetBuffer(gradientsKernelHandle, "splines", splinesBuffer);
@@ -281,12 +339,11 @@ public class testRasterizing : MonoBehaviour
 
     public Dictionary<int, RasterizedData> rasterizeData(BezierSpline[] splines, int terrainSizeExp, int textureSizeExp, int breakOnLevel, int maxHeight, int resolution)
     {
-        float time = Time.realtimeSinceStartup;
+        //float time = Time.realtimeSinceStartup;
         //Transform terrainFeatures = this.gameObject.transform.GetComponentsInChildren<Transform>()
         //    .FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
         //BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
-        
-        
+
         foreach (BezierSpline spline in splines)
         {
             spline.rasterizingData = RasterizingTriangles.getSplineData(spline, 0, maxHeight, resolution);

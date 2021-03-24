@@ -209,9 +209,9 @@ public class Laplace : MonoBehaviour
         {
             case 257: iterations = 500;
                 break;
-            case 513: iterations = 500;
+            case 513: iterations = 1500;
                 break;
-            case 1025: iterations = 500;
+            case 1025: iterations = 000;
                 break;
             case 2049: iterations = 10;
                 break;
