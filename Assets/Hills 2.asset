@@ -10,28 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c4142e86edd2fc4eb4305807d623045, type: 3}
-  m_Name: Hills
+  m_Name: Hills 2
   m_EditorClassIdentifier: 
   SmoothingIterationsOnStart: 0
   PipeArea: 1
-  Gravity: 2.11
+  Gravity: 3
   PipeLength: 1
-  CellSize: 0.567
+  CellSize: 1
   SedimentCapacity: 1
-  SuspensionRate: 0.721
-  DepositionRate: 0.494
+  SuspensionRate: 0.559
+  DepositionRate: 0.883
   AddWater: 1
-  Evaporation: 0.065
-  MaxRainIntensity: 0.631
-  MinRainIntensity: 0.272
-  MaxRainSize: 43.3
-  MinRainSize: 12.7
+  Evaporation: 0.024
+  MaxRainIntensity: 0.762
+  MinRainIntensity: 0.519
+  MaxRainSize: 43.5
+  MinRainSize: 28.2
   RainFrequency: 0
-  StopRainAfterTime: 1000
+  StopRainAfterTime: 8337
   RandomizedRain: 1
-  TimeDelta: 0.203
+  TimeDelta: 0.202
   IterationsEachStep: 500
-  iterationsOn257: 500
-  iterationsOn513: 1500
-  iterationsOn1025: 0
+  iterationsOn257: 2000
+  iterationsOn513: 1002
+  iterationsOn1025: 500
   iterationsOn2049: 10

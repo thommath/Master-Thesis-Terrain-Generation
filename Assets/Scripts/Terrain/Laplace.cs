@@ -207,13 +207,13 @@ public class Laplace : MonoBehaviour
 
         switch (heightmap.width)
         {
-            case 257: iterations = 500;
+            case 257: iterations = hyEro.settings.iterationsOn257;
                 break;
-            case 513: iterations = 1500;
+            case 513: iterations = hyEro.settings.iterationsOn513;
                 break;
-            case 1025: iterations = 000;
+            case 1025: iterations = hyEro.settings.iterationsOn1025;
                 break;
-            case 2049: iterations = 10;
+            case 2049: iterations = hyEro.settings.iterationsOn2049;
                 break;
         }
         for (int n = 0; n < iterations; n++)

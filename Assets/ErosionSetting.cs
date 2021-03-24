@@ -56,4 +56,14 @@ public class ErosionSetting : ScriptableObject
     [Range(1, 5000)]
     public float IterationsEachStep = 500f;
 
+    [Header("Iterations on different sizes")]
+    [Range(0, 5000)] 
+    public int iterationsOn257 = 500;
+    [Range(0, 2000)] 
+    public int iterationsOn513 = 500;
+    [Range(0, 1000)] 
+    public int iterationsOn1025 = 500;
+    [Range(0, 500)] 
+    public int iterationsOn2049 = 10;
+
 }
