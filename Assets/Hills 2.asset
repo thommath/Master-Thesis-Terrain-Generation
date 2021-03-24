@@ -31,7 +31,7 @@ MonoBehaviour:
   RandomizedRain: 1
   TimeDelta: 0.202
   IterationsEachStep: 500
-  iterationsOn257: 2000
-  iterationsOn513: 1002
-  iterationsOn1025: 500
-  iterationsOn2049: 10
+  iterationsOn257: 0
+  iterationsOn513: 0
+  iterationsOn1025: 0
+  iterationsOn2049: 0
