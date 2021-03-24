@@ -179,12 +179,12 @@ void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetwe
         normal[pt2] = float4(normal2 * strictElevationContraint + normal1 * (1-strictElevationContraint), normal[pt2].z, 1);
     }
     
-    if (noiseConstraint * metaPointCount > 0)
+    if (noiseConstraint * metaPointCount != 0)
     {
         const float2 noiseParams = metaGetNoiseParameters(splinePart, r);
         noise[p] = float4(noiseParams, 0, 1);
     }
-    if (erosionConstraint * metaPointCount > 0)
+    if (erosionConstraint * metaPointCount != 0)
     {
         const float3 erosionParams = metaGetErosionParameters(splinePart, r);
         erosion[p] = float4(erosionParams, 3);

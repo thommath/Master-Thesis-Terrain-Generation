@@ -37,7 +37,7 @@ public class ErosionSetting : ScriptableObject
     [Range(0, 1f)]
     public float MinRainIntensity = 0f;
     [Range(2, 50f)]
-    public float MaxRainSize = 30f;
+    public float MaxRainSize = 32f;
     [Range(2, 50f)]
     public float MinRainSize = 2f;
 
