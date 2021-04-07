@@ -7,9 +7,10 @@
 #pragma kernel ThermalErosion
 #pragma kernel ApplyThermalErosion
 #pragma kernel TiltAngle
+#pragma kernel AddWaterEverywhere
 
 // Number of threads in each kernel
-#define NUMTHREADS numthreads(8, 8, 1)
+#define NUMTHREADS numthreads(4, 4, 1)
 
 // Directional maps channel semantics
 // It means that for textures with 4-directional data (like flux)
@@ -127,7 +128,16 @@ float rain(uint2 pos) {
 	return 0;
 }
 
-/* Pass 1. Rain simulation and brush drawing */
+/* Add water */
+[NUMTHREADS]
+void AddWaterEverywhere(uint3 id : SV_DispatchThreadID)
+{
+	float4 currentState = CURRENT_SAMPLE(HeightMap);
+	WATER_HEIGHT(currentState) = max(raindropStrength, WATER_HEIGHT(currentState));
+	CURRENT_SAMPLE(HeightMap) = currentState;
+}
+
+/* Pass 1. Rain simulation  */
 [NUMTHREADS]
 void RainAndControl(uint3 id : SV_DispatchThreadID)
 {

@@ -348,6 +348,27 @@ public class HydraulicErosion : MonoBehaviour
 
     public void evaporate()
     {
+        hydraulicShader.SetFloat("raindropStrength", 0.05f);
+        
+        
+        int addWaterKernelHandle = hydraulicShader.FindKernel("AddWaterEverywhere");
+        hydraulicShader.SetTexture(addWaterKernelHandle, "HeightMap", _stateTexture);
+        hydraulicShader.SetTexture(addWaterKernelHandle, "ErosionParams", _erosionParams);
+        //hydraulicShader.Dispatch(addWaterKernelHandle, _stateTexture.width, _stateTexture.height, 1);
+        /*
+        hydraulicShader.SetFloat("_Evaporation", 0.05f);
+        for (int n = 0; n < 100; n++)
+        {
+            hydraulicShader.Dispatch(FluxComputation, _stateTexture.width, _stateTexture.height, 1);
+
+            hydraulicShader.Dispatch(FluxApply, _stateTexture.width, _stateTexture.height, 1);
+
+            hydraulicShader.Dispatch(TiltAngle, _stateTexture.width, _stateTexture.height, 1);
+
+            hydraulicShader.Dispatch(HydraulicErosionKernel, _stateTexture.width, _stateTexture.height, 1);
+
+            hydraulicShader.Dispatch(SedimentAdvection, _stateTexture.width, _stateTexture.height, 1);
+        }*/
         hydraulicShader.SetFloat("_Evaporation", 0.9f);
         for (int n = 0; n < 100; n++)
         {

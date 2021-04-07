@@ -21,17 +21,17 @@ MonoBehaviour:
   SuspensionRate: 0.559
   DepositionRate: 0.883
   AddWater: 1
-  Evaporation: 0.024
-  MaxRainIntensity: 0.762
-  MinRainIntensity: 0.519
-  MaxRainSize: 43.5
-  MinRainSize: 28.2
-  RainFrequency: 0
-  StopRainAfterTime: 8337
+  Evaporation: 0
+  MaxRainIntensity: 0.164
+  MinRainIntensity: 0.047
+  MaxRainSize: 36.2
+  MinRainSize: 20.7
+  RainFrequency: 0.227
+  StopRainAfterTime: 10000
   RandomizedRain: 1
   TimeDelta: 0.202
   IterationsEachStep: 500
-  iterationsOn257: 0
+  iterationsOn257: 819
   iterationsOn513: 0
   iterationsOn1025: 0
   iterationsOn2049: 0

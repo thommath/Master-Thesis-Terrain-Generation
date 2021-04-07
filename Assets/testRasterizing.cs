@@ -116,12 +116,17 @@ public class testRasterizing : MonoBehaviour
     
     private void RasterizeGradientMesh(Mesh mesh, RenderTexture normal, RenderTexture restriction)
     {
-        ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
-        ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
-        ComputeBuffer colorsGradients = getBuffer(mesh.colors, sizeof(float) * 4, 3);
-        //verticesGradients.SetData(mesh.vertices);
-        //indicesGradients.SetData(mesh.triangles);
-        //colorsGradients.SetData(mesh.colors);
+        //ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
+        //ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
+        //ComputeBuffer colorsGradients = getBuffer(mesh.colors, sizeof(float) * 4, 3);
+
+        ComputeBuffer verticesGradients = new ComputeBuffer(mesh.vertices.Length, sizeof(float) * 3);
+        ComputeBuffer indicesGradients = new ComputeBuffer(mesh.triangles.Length, sizeof(int));
+        ComputeBuffer colorsGradients = new ComputeBuffer(mesh.colors.Length, sizeof(float) * 4);
+
+        verticesGradients.SetData(mesh.vertices);
+        indicesGradients.SetData(mesh.triangles);
+        colorsGradients.SetData(mesh.colors);
 
         int gradientsKernelHandle = computeShader.FindKernel("RasterizeAverageGradients");
         
@@ -137,18 +142,22 @@ public class testRasterizing : MonoBehaviour
 
         computeShader.Dispatch(gradientsKernelHandle, indicesGradients.count / 3, 1, 1);
             
-        //verticesGradients.Release();
-        //indicesGradients.Release();
-        //colorsGradients.Release();
+        verticesGradients.Release();
+        indicesGradients.Release();
+        colorsGradients.Release();
     }
     private void RasterizeLineMesh(Mesh mesh, RenderTexture result, RenderTexture restriction)
     {
-        ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
-        ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
-        ComputeBuffer colorsGradients = getBuffer(mesh.colors, sizeof(float) * 4, 3);
-        //verticesGradients.SetData(mesh.vertices);
-        //indicesGradients.SetData(mesh.triangles);
-        //colorsGradients.SetData(mesh.colors);
+        //ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
+        //ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
+        //ComputeBuffer colorsGradients = getBuffer(mesh.colors, sizeof(float) * 4, 3);
+        
+        ComputeBuffer verticesGradients = new ComputeBuffer(mesh.vertices.Length, sizeof(float) * 3);
+        ComputeBuffer indicesGradients = new ComputeBuffer(mesh.triangles.Length, sizeof(int));
+        ComputeBuffer colorsGradients = new ComputeBuffer(mesh.colors.Length, sizeof(float) * 4);
+        verticesGradients.SetData(mesh.vertices);
+        indicesGradients.SetData(mesh.triangles);
+        colorsGradients.SetData(mesh.colors);
 
         int linesKernelHandle = computeShader.FindKernel("RasterizeAverageThickLines");
         
@@ -161,9 +170,9 @@ public class testRasterizing : MonoBehaviour
 
         computeShader.Dispatch(linesKernelHandle, indicesGradients.count / 3, 1, 1);
             
-        //verticesGradients.Release();
-        //indicesGradients.Release();
-        //colorsGradients.Release();
+        verticesGradients.Release();
+        indicesGradients.Release();
+        colorsGradients.Release();
     }
     
     public RasterizedData drawLinesAndTriangles(IEnumerable<BezierSpline> splines, int terrainSize, int textureSize, int maxHeight, int resolution)

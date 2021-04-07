@@ -48,7 +48,7 @@ public class Laplace : MonoBehaviour
      * normals and result are approximations of the result. Can be whatever - are used to improve solution over multiple iterations
      * 
      */
-    public void poissonStep(RenderTexture normals, RenderTexture heightmap, RenderTexture noise, RenderTexture erosion, int h, int terrainSizeExp, int iterationsMultiplier = 4, int breakOn = 1, float startHeight = 0, bool erode = false)
+    public void poissonStep(RenderTexture normals, RenderTexture heightmap, RenderTexture noise, RenderTexture erosion, int h, int terrainSizeExp, float iterationsMultiplier = 4, int breakOn = 1, float startHeight = 0, bool erode = false)
     {
         // Break on 1
         if (normals.width == Mathf.RoundToInt(Mathf.Pow(2, breakOn)) + 1)
@@ -142,18 +142,20 @@ public class Laplace : MonoBehaviour
         Graphics.Blit(rd.tNoise, seedNoise);
         */
 
+        int iterations = terrainSizeExp;
+
         // Solve the poisson equation for normals
         saveImage("normals " + h + " seed", rd.seedNormals);
         Interpolate(smallerNormals, normals);
         saveImage("normals " + h + " pre", normals);
-        Relaxation(rd.seedNormals, normals, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
+        Relaxation(rd.seedNormals, normals, Mathf.RoundToInt(iterationsMultiplier * iterations));
         saveImage("normals " + h + " post", normals);
 
         // Solve the poisson equation for noise
         saveImage("noise " + h + " seed", rd.noise);
         Interpolate(smallerNoise, noise);
         saveImage("noise " + h + " pre", noise);
-        Relaxation(rd.noise, noise, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
+        Relaxation(rd.noise, noise, Mathf.RoundToInt(iterationsMultiplier / 2 * iterations));
         saveImage("noise " + h + " post", noise);
         
         if (erode)
@@ -162,7 +164,7 @@ public class Laplace : MonoBehaviour
             saveImage("erosion " + h + " seed", rd.erosion);
             Interpolate(smallerErosion, erosion);
             saveImage("erosion " + h + " pre", erosion);
-            Relaxation(rd.erosion, erosion, iterationsMultiplier / 2 * (1 + terrainSizeExp - h - breakOn));
+            Relaxation(rd.erosion, erosion, Mathf.RoundToInt(iterationsMultiplier / 2 * iterations));
             saveImage("erosion " + h + " post", erosion);
         }
 
@@ -173,7 +175,8 @@ public class Laplace : MonoBehaviour
         saveImage("restrictions " + h, rd.restrictions);
         saveImage("heightmap " + h + " pre", heightmap);
 
-        TerrainRelaxation(rd.seedHeightmap, rd.restrictions, normals, heightmap, iterationsMultiplier * (1 + terrainSizeExp - h - breakOn));
+
+        TerrainRelaxation(rd.seedHeightmap, rd.restrictions, normals, heightmap, Mathf.RoundToInt(iterationsMultiplier * iterations));
         saveImage("heightmap " + h + " post", heightmap);
 
         //RestrictedSmoothing(heightmap, rd.seedHeightmap, 0);
@@ -292,6 +295,28 @@ public class Laplace : MonoBehaviour
         }
     }
 
+    private int[] gaussian5x5 = new[]
+    {
+        1, 4, 7, 4, 1, 4, 16, 26, 16, 4, 7, 26, 41, 26, 7, 4, 16, 26, 16, 4, 1, 4, 7, 4, 1
+    };
+    private int[] gaussian5x5NoIdentity = new[]
+    {
+        1, 4, 7, 4, 1, 4, 16, 26, 16, 4, 7, 26, 0, 26, 7, 4, 16, 26, 16, 4, 1, 4, 7, 4, 1
+    };
+    private int[] gaussian3x3 = new[]
+    {
+        1,2,1,2,4,2,1,2,1
+    };
+    private int[] gaussian3x3NoIdentity = new[]
+    {
+        1,2,1,2,0,2,1,2,1
+    };
+    private int[] terrainPaper3x3 = new[]
+    {
+        0,1,0,1,0,1,0,1,0
+    };
+    
+
     private void TerrainRelaxation(RenderTexture seedTexture, RenderTexture restrictionsTexture, RenderTexture normals, RenderTexture terrainHeight, int iterations)
     {
         /**
@@ -302,7 +327,6 @@ public class Laplace : MonoBehaviour
          * 
          */
 
-        // normalize normals
 
         RenderTexture normalizedNormals = new RenderTexture(normals.width, normals.width, 0, normals.format);
         normalizedNormals.enableRandomWrite = true;
@@ -318,23 +342,132 @@ public class Laplace : MonoBehaviour
         int relaxKernelHandle = laplace.FindKernel("TerrainRelaxation");
         laplace.SetTexture(relaxKernelHandle, "seedTexture", seedTexture);
         laplace.SetTexture(relaxKernelHandle, "restrictionsTexture", restrictionsTexture);
-        laplace.SetTexture(relaxKernelHandle, "normals", normalizedNormals);
+        laplace.SetTexture(relaxKernelHandle, "normals", normals);
         laplace.SetTexture(relaxKernelHandle, "terrainHeight", terrainHeight);
         laplace.SetInt("image_size", terrainHeight.width);
+        
+        
+        
+        int kernelType = GetComponent<SplineTerrain>().kernelType;
+        ComputeBuffer kernel;
+        switch (kernelType)
+        {
+            case 1:
+            {
+                kernel = new ComputeBuffer(9, sizeof(int));
+                kernel.SetData(gaussian3x3);
+                laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 1);
+                break;
+            }
+            case 2:
+            {
+                kernel = new ComputeBuffer(9, sizeof(int));
+                kernel.SetData(gaussian3x3NoIdentity);
+                laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 1);
+                break;
+            }
+            case 3:
+            {
+                kernel = new ComputeBuffer(25, sizeof(int));
+                kernel.SetData(gaussian5x5);
+                laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 2);
+                break;
+            }
+            case 4:
+            {
+                kernel = new ComputeBuffer(25, sizeof(int));
+                kernel.SetData(gaussian5x5NoIdentity);
+                laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 2);
+                break;
+            }
+            default:
+            {
+                kernel = new ComputeBuffer(9, sizeof(int));
+                kernel.SetData(terrainPaper3x3);
+                laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 1);
+                break;
+            }
+        }
+        
+        
+        RenderTexture newTerrain = new RenderTexture(terrainHeight.width, terrainHeight.width, 0, terrainHeight.format);
+        newTerrain.enableRandomWrite = true;
+        newTerrain.autoGenerateMips = false;
+        newTerrain.Create();
 
         for (int n = 0; n < iterations; n++)
         {
+            laplace.SetTexture(relaxKernelHandle, "terrainHeight", terrainHeight);
+            laplace.SetTexture(relaxKernelHandle, "result", newTerrain);
+            laplace.Dispatch(relaxKernelHandle, terrainHeight.width, terrainHeight.height, 1);
+            laplace.SetTexture(relaxKernelHandle, "terrainHeight", newTerrain);
+            laplace.SetTexture(relaxKernelHandle, "result", terrainHeight);
             laplace.Dispatch(relaxKernelHandle, terrainHeight.width, terrainHeight.height, 1);
         }
+        kernel.Release();
+        newTerrain.Release();
     }
     public void ImageSmoothing(RenderTexture image, int iterations)
     {
-        int smoothKernelHandle = laplace.FindKernel("Smooth");
+        int smoothKernelHandle = laplace.FindKernel("SmoothKernel");
         laplace.SetTexture(smoothKernelHandle, "result", image);
+        
+        int kernelType = GetComponent<SplineTerrain>().kernelType;
+        ComputeBuffer kernel;
+        switch (kernelType)
+        {
+            case 1:
+            {
+                kernel = new ComputeBuffer(9, sizeof(int));
+                kernel.SetData(gaussian3x3);
+                laplace.SetBuffer(smoothKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 1);
+                break;
+            }
+            case 2:
+            {
+                kernel = new ComputeBuffer(9, sizeof(int));
+                kernel.SetData(gaussian3x3NoIdentity);
+                laplace.SetBuffer(smoothKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 1);
+                break;
+            }
+            case 3:
+            {
+                kernel = new ComputeBuffer(25, sizeof(int));
+                kernel.SetData(gaussian5x5);
+                laplace.SetBuffer(smoothKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 2);
+                break;
+            }
+            case 4:
+            {
+                kernel = new ComputeBuffer(25, sizeof(int));
+                kernel.SetData(gaussian5x5NoIdentity);
+                laplace.SetBuffer(smoothKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 2);
+                break;
+            }
+            default:
+            {
+                kernel = new ComputeBuffer(9, sizeof(int));
+                kernel.SetData(terrainPaper3x3);
+                laplace.SetBuffer(smoothKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 1);
+                break;
+            }
+        }
+        
         for (int n = 0; n < iterations; n++)
         {
             laplace.Dispatch(smoothKernelHandle, image.width, image.height, 1);
         }
+        kernel.Release();
     }
     public void RestrictedSmoothing(RenderTexture image, RenderTexture seedTexture, int iterations)
     {

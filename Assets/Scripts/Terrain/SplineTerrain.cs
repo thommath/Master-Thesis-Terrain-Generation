@@ -29,14 +29,19 @@ public class SplineTerrain : MonoBehaviour
     public int splineSamplings = 200;
 
     [Header("Diffusion")]
-    [Range(1, 20)]
-    public int diffusionIterationMultiplier = 10;
+    [Range(0.0f, 20)]
+    public float diffusionIterationMultiplier = 10;
 
     [Range(1, 10)]
     public int breakOnLevel = 2;
 
+    [Range(1, 5)]
+    public int kernelType = 1;
+
     [Range(0f, 1f)]
     public float startHeight = 0;
+
+    [Range(0, 30)] public int postSmoothing = 0;
 
     [Header("Erosion")]
     public bool erode = false;
@@ -124,6 +129,8 @@ public class SplineTerrain : MonoBehaviour
         tex2D3.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
         Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
 
+        l.ImageSmoothing(heightmap, postSmoothing);
+        
         if (erode)
         {
             GetComponent<HydraulicErosion>().evaporate();
@@ -133,21 +140,33 @@ public class SplineTerrain : MonoBehaviour
             RenderTexture result = l.AddNoise(heightmap, noiseSeed);
             GetComponent<HydraulicErosion>()._inputHeight = result;
         }
-        //l.ImageSmoothing(heightmap, 5);
     
         RenderTexture.active = normals;
         Texture2D tex2D2 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
         tex2D2.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
-        Debug.Log((Time.realtimeSinceStartup - time) + "s for all");
+        float done = (Time.realtimeSinceStartup - time);
+        Debug.Log(done + "s for all");
         RenderTexture.active = null;
 
         l.clearRasterizedDataDict();
+        
+        if (this.heightmap)
+        {
+            this.heightmap.Release();
+        }
+        if (this.normals)
+        {
+            this.normals.Release();
+        }
+        if (this.erosion)
+        {
+            this.erosion.Release();
+        }
 
         updatedData.Invoke();
         this.heightmap = heightmap;
         this.normals = normals;
         this.erosion = erosion;
-        this.noise = noiseSeed;
 
         if (saveImages)
         {
@@ -175,7 +194,7 @@ public class SplineTerrain : MonoBehaviour
                 (spline.erosionConstraint ? 3 : 0) + (spline.noiseConstraint ? 2 : 0))).Sum());
         
         Debug.Log("Size: " + terrainResolution+ " , number of features: " + curveCount + ", Size: " + size + "kB, Time: " +
-                  (Time.realtimeSinceStartup - time) + "s");
+                  done + "s");
     }
 
     private void saveState()
