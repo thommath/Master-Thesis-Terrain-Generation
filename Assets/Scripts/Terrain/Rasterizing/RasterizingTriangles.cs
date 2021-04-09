@@ -57,6 +57,9 @@ public class RasterizingTriangles
                 {
                     colorsRight[n * 2] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleRight / metaPoint.gradientLengthRight) / maxHeight);
                     colorsRight[n * 2 + 1] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleRight / metaPoint.gradientLengthRight) / maxHeight);
+                    
+                    colorsRight[n * 2] = new Color(0f, 0f, point.y / maxHeight);
+                    colorsRight[n * 2 + 1] = new Color(0f, 0f, (point.y + metaPoint.gradientAngleRight) / maxHeight);
                 }
                 else
                 {
@@ -84,6 +87,9 @@ public class RasterizingTriangles
                 {
                     colorsLeft[n * 2] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleLeft / metaPoint.gradientLengthLeft) / maxHeight);
                     colorsLeft[n * 2 + 1] = new Color(0f, 0f, 0.5f - 0.5f * (metaPoint.gradientAngleLeft / metaPoint.gradientLengthLeft) / maxHeight);
+                    
+                    colorsLeft[n * 2] = new Color(0f, 0f, point.y / maxHeight);
+                    colorsLeft[n * 2 + 1] = new Color(0f, 0f, (point.y + metaPoint.gradientAngleLeft) / maxHeight);
                 }
                 else
                 {

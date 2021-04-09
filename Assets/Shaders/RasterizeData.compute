@@ -314,9 +314,11 @@ void RasterizeAverageGradients(uint3 id : SV_DispatchThreadID)
                     float4 normalColor = colorFromBary(bary, colors[indices[n]], colors[indices[n + 1]],
                                                        colors[indices[n + 2]]);
                     normal[float2(x, y)] = float4(oldNormal.xy, normalColor.z, oldNormal.w);
+                    result[float2(x, y)] = float4(normalColor.z, 0, 0, 1);
                 }
                 else
                 {
+                    result[float2(x, y)] = float4(0, 0, 0, 1);
                     normal[float2(x, y)] = float4(oldNormal.xy, 0, oldNormal.w);
                     restriction[float2(x, y)] = float4(1, 0, 0, 1);
                 }

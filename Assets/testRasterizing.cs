@@ -114,7 +114,7 @@ public class testRasterizing : MonoBehaviour
         return buffer;
     }
     
-    private void RasterizeGradientMesh(Mesh mesh, RenderTexture normal, RenderTexture restriction)
+    private void RasterizeGradientMesh(Mesh mesh, RenderTexture normal, RenderTexture restriction, RenderTexture result)
     {
         //ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
         //ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
@@ -130,11 +130,12 @@ public class testRasterizing : MonoBehaviour
 
         int gradientsKernelHandle = computeShader.FindKernel("RasterizeAverageGradients");
         
-        computeShader.SetVector("gradientColorStart", new Vector4(0.7f, 0.3f, 0, 1f));
-        computeShader.SetVector("gradientColorEnd", new Vector4(1f, 0f, 0, 1f));
+        computeShader.SetVector("gradientColorStart", new Vector4(1f, 1f, 0, 1f));
+        computeShader.SetVector("gradientColorEnd", new Vector4(1f, 1f, 0, 1f));
 
         computeShader.SetTexture(gradientsKernelHandle, "normal", normal);
         computeShader.SetTexture(gradientsKernelHandle, "restriction", restriction);
+        computeShader.SetTexture(gradientsKernelHandle, "result", result);
 
         computeShader.SetBuffer(gradientsKernelHandle, "vertices", verticesGradients);
         computeShader.SetBuffer(gradientsKernelHandle, "indices", indicesGradients);
@@ -223,8 +224,8 @@ public class testRasterizing : MonoBehaviour
             computeShader.SetInt("splineCount", spline.CurveCount);
             computeShader.SetInt("metaPointCount", spline.metaPoints.Length);
             
-            RasterizeGradientMesh(spline.rasterizingData.meshLeft, normal, restriction);
-            RasterizeGradientMesh(spline.rasterizingData.meshRight, normal, restriction);
+            RasterizeGradientMesh(spline.rasterizingData.meshLeft, normal, restriction, result);
+            RasterizeGradientMesh(spline.rasterizingData.meshRight, normal, restriction, result);
             if (spline.elevationConstraint)
             {
                 RasterizeLineMesh(spline.rasterizingData.meshLine, result, restriction);

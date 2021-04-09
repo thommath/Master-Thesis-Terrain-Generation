@@ -215,18 +215,21 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
         terrainHeight[id.xy - uint2(1, 0)] +
         terrainHeight[id.xy - uint2(-1, 0)] +
         terrainHeight[id.xy - uint2(0, -1)]);
-
+/*
     const float Lg = (
         pow(normal.x, 2) * (getTerrainHeight(id.xy + int2(sign(normal.x), 0)) * 0.7 + 0.3 * getTerrainHeight(id.xy + 2*int2(sign(normal.x), 0))) +
         pow(normal.y, 2) * (getTerrainHeight(id.xy + int2(0, sign(normal.y))) * 0.7 + 0.3 * getTerrainHeight(id.xy + 2*int2(0, sign(normal.y)))) +
         //pow(normal.y, 2) * getTerrainHeight(id.xy + int2(0, sign(normal.y))) + //terrainHeight[id.xy + int2(0, sign(normal.y))] +
         gradient
     );
-
+*/
+    float Lg = Ll;
     const float Li = seedTexture[id.xy].x;
 
+    //terrainHeight[id.xy] =
+    //    float4((Ll) * alpha + (Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
     terrainHeight[id.xy] =
-        float4((Ll) * alpha + (Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
+        float4((Ll) * alpha + Li * (1 - alpha), 0, 0, 1);
 }
 
 
