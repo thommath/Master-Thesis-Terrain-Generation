@@ -315,6 +315,14 @@ public class Laplace : MonoBehaviour
     {
         0,1,0,1,0,1,0,1,0
     };
+    private int[] doubleDerivativeLaplace3x3 = new[]
+    {
+        0,1,0,1,-4,1,0,1,0
+    };
+    private int[] doubleDerivativeLaplaceAlternative3x3 = new[]
+    {
+        1,1,1,1,-8,1,1,1,1
+    };
     
 
     private void TerrainRelaxation(RenderTexture seedTexture, RenderTexture restrictionsTexture, RenderTexture normals, RenderTexture terrainHeight, int iterations)
@@ -347,6 +355,7 @@ public class Laplace : MonoBehaviour
         laplace.SetInt("image_size", terrainHeight.width);
         
         
+        laplace.SetBool("doubleDerivative", false);
         
         int kernelType = GetComponent<SplineTerrain>().kernelType;
         ComputeBuffer kernel;
@@ -382,6 +391,24 @@ public class Laplace : MonoBehaviour
                 kernel.SetData(gaussian5x5NoIdentity);
                 laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
                 laplace.SetInt("kernelSize", 2);
+                break;
+            }
+            case 5:
+            {
+                kernel = new ComputeBuffer(9, sizeof(int));
+                kernel.SetData(doubleDerivativeLaplace3x3);
+                laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 2);
+                laplace.SetBool("doubleDerivative", true);
+                break;
+            }
+            case 6:
+            {
+                kernel = new ComputeBuffer(9, sizeof(int));
+                kernel.SetData(doubleDerivativeLaplaceAlternative3x3);
+                laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
+                laplace.SetInt("kernelSize", 2);
+                laplace.SetBool("doubleDerivative", true);
                 break;
             }
             default:

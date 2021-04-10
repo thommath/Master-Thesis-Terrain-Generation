@@ -35,7 +35,7 @@ public class SplineTerrain : MonoBehaviour
     [Range(1, 10)]
     public int breakOnLevel = 2;
 
-    [Range(1, 5)]
+    [Range(1, 7)]
     public int kernelType = 1;
 
     [Range(0f, 1f)]

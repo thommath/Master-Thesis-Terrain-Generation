@@ -159,6 +159,8 @@ void TerrainRelaxationNormal(uint3 id : SV_DispatchThreadID)
 StructuredBuffer<int> kernel;
 int kernelSize;
 
+bool doubleDerivative;
+
 [numthreads(4, 4, 1)]
 void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 {
@@ -186,7 +188,10 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
             div += kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
         }
     }
-    Ll /= div;
+    if (div != 0)
+    {
+        Ll /= abs(div);
+    }
 
     // It crashes it normalize is run on (0,0) vector
     //normal = length(normal) > 0 ? normalize(normal) : float2(1, 0);
@@ -225,8 +230,7 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 
     const float Li = seedTexture[id.xy].x;
 
-    terrainHeight[id.xy] =
-        float4((Ll) * alpha + (Lg) * beta + Li * (1 - alpha - beta), 0, 0, 1);
+    terrainHeight[id.xy] = float4( max(0, (terrainHeight[id.xy].x + 0.001 * Ll) * alpha + Lg * beta + Li * (1 - alpha - beta)), 0, 0, 1);
 }
 
 
