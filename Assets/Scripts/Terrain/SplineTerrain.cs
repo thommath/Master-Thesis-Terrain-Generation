@@ -117,7 +117,7 @@ public class SplineTerrain : MonoBehaviour
         testRasterizing tr = this.GetComponent<testRasterizing>();
         Dictionary<int, RasterizedData> dict = tr.rasterizeData(splines, terrainSizeExp, terrainResolutionExp, breakOnLevel, height * 2, splineSamplings);
         l.setRasterizedDataDict(dict);
-                
+        
         Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 1 ");
         //l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
         //Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
@@ -128,6 +128,7 @@ public class SplineTerrain : MonoBehaviour
         Texture2D tex2D3 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
         tex2D3.ReadPixels(new Rect(0, 0, 1, 1), 0, 0, false);
         Debug.Log((Time.realtimeSinceStartup - time) + "s for diffusion");
+        RenderTexture.active = null;
 
         l.ImageSmoothing(heightmap, postSmoothing);
         

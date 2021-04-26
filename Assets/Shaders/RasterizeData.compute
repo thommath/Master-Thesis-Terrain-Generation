@@ -108,6 +108,27 @@ float3 metaGetErosionParameters(uint splinePart, float t)
     }
     return erosion;
 }
+float metaGetLineRadius(uint splinePart, float t)
+{
+    const float pos = splinePart + t;
+    float radius = metaPoints[0].lineRadius;
+    float lastPos = 0;
+    for(int n = 1; n < metaPointCount; n++)
+    {
+        if (pos > metaPoints[n].position)
+        {
+            radius = metaPoints[n].lineRadius;
+            lastPos = metaPoints[n].position;
+        } else {
+            const float lerpNumber = (pos - lastPos) / (metaPoints[n].position - lastPos);
+            radius = radius * (1-lerpNumber) + lerpNumber * metaPoints[n].lineRadius;
+
+            return radius;
+        }
+        
+    }
+    return radius;
+}
 
 ///////////////////////
 //
@@ -167,13 +188,14 @@ void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetwe
 
     const float2 normal1 = (1 + perpendicular) / 2;
     const float2 normal2 = (1 - perpendicular) / 2;
+    const float lineRadius = metaGetLineRadius(splinePart, r) * 0;
     
-    float2 pt = floor(p + perpendicular * 1.5);
+    float2 pt = floor(p + perpendicular * max(1.5, lineRadius));
     if (pt.x > 0 && pt.y > 0 && pt.x < width && pt.y < height)
     {
         normal[pt] = float4(normal1 * strictElevationContraint + normal2 * (1-strictElevationContraint), normal[pt].z, 1);
     }
-    float2 pt2 = floor(p - perpendicular * 1.5);
+    float2 pt2 = floor(p - perpendicular * max(1.5, lineRadius));
     if (pt2.x > 0 && pt2.y > 0 && pt2.x < width && pt2.y < height)
     {
         normal[pt2] = float4(normal2 * strictElevationContraint + normal1 * (1-strictElevationContraint), normal[pt2].z, 1);

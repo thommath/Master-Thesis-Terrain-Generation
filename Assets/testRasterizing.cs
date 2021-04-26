@@ -57,69 +57,9 @@ public class testRasterizing : MonoBehaviour
 
         }
     }
-
-    private ComputeBuffer a;
-    private ComputeBuffer b;
-    private ComputeBuffer c;
-    
-    
-    private ComputeBuffer getBuffer<T>(T[] data, int stride, int bufferNr = 0) where T : struct
-    {
-        ComputeBuffer buffer;
-        if (bufferNr == 1)
-        {
-            if (a == null)
-            {
-                a = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
-            } else if (a.count < data.Length)
-            {
-                a.Release();
-                a = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
-            }
-            buffer = a;
-        } else if (bufferNr == 2)
-        {
-            if (b == null)
-            {
-                b = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
-            } else if (a.count < data.Length)
-            {
-                b.Release();
-                b = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
-            }
-            buffer = b;
-        } else if (bufferNr == 3)
-        {
-            if (c == null)
-            {
-                c = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
-            } else if (a.count < data.Length)
-            {
-                c.Release();
-                c = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
-            }
-            buffer = c;
-        }
-        else
-        {
-            buffer = new ComputeBuffer(data.Length, stride, ComputeBufferType.Constant, ComputeBufferMode.SubUpdates);
-        }
-
-        Unity.Collections.NativeArray<T> dd = buffer.BeginWrite<T>(0, data.Length);
-        for(int i = 0; i < data.Length; i++)
-        {
-            dd[i] = data[i];
-        }
-        buffer.EndWrite<float>(data.Length);
-        return buffer;
-    }
     
     private void RasterizeGradientMesh(Mesh mesh, RenderTexture normal, RenderTexture restriction)
     {
-        //ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
-        //ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
-        //ComputeBuffer colorsGradients = getBuffer(mesh.colors, sizeof(float) * 4, 3);
-
         ComputeBuffer verticesGradients = new ComputeBuffer(mesh.vertices.Length, sizeof(float) * 3);
         ComputeBuffer indicesGradients = new ComputeBuffer(mesh.triangles.Length, sizeof(int));
         ComputeBuffer colorsGradients = new ComputeBuffer(mesh.colors.Length, sizeof(float) * 4);
@@ -148,10 +88,6 @@ public class testRasterizing : MonoBehaviour
     }
     private void RasterizeLineMesh(Mesh mesh, RenderTexture result, RenderTexture restriction)
     {
-        //ComputeBuffer verticesGradients = getBuffer(mesh.vertices, sizeof(float) * 3, 1);
-        //ComputeBuffer indicesGradients = getBuffer(mesh.triangles, sizeof(int), 2);
-        //ComputeBuffer colorsGradients = getBuffer(mesh.colors, sizeof(float) * 4, 3);
-        
         ComputeBuffer verticesGradients = new ComputeBuffer(mesh.vertices.Length, sizeof(float) * 3);
         ComputeBuffer indicesGradients = new ComputeBuffer(mesh.triangles.Length, sizeof(int));
         ComputeBuffer colorsGradients = new ComputeBuffer(mesh.colors.Length, sizeof(float) * 4);

@@ -63,7 +63,9 @@ public class TerrainVisualizer : MonoBehaviour
 
             terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
             terrain.materialTemplate.SetTexture("_OriginalTex", heightmap);
+            result.Release();
         }
+        RenderTexture.active = null;
     }
 
 }

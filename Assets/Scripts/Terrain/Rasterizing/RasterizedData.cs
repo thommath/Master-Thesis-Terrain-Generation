@@ -18,6 +18,30 @@ public struct RasterizedData
         this.erosion = null;
     }
 
+    public void release()
+    {
+        if (this.seedHeightmap != null && this.seedHeightmap.IsCreated())
+        {
+            this.seedHeightmap.Release();
+        }
+        if (this.restrictions != null && this.restrictions.IsCreated())
+        {
+            this.restrictions.Release();
+        }
+        if (this.seedNormals != null && this.seedNormals.IsCreated())
+        {
+            this.seedNormals.Release();
+        }
+        if (this.noise != null && this.noise.IsCreated())
+        {
+            this.noise.Release();
+        }
+        if (this.erosion != null && this.erosion.IsCreated())
+        {
+            this.erosion.Release();
+        }
+    }
+
     public Texture2D tseedHeightmap;
     public Texture2D tRestrictions;
     public Texture2D tseedNormals;

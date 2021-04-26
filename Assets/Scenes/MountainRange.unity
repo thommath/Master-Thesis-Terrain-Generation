@@ -490,7 +490,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: 8.878571, y: 106.707855, z: 160.20795}
+  - {x: 8.878571, y: 106.707886, z: 173.32883}
   - {x: 10.463913, y: 71.07727, z: 147.1875}
   - {x: 78.241714, y: 57.151855, z: 132.02103}
   - {x: 77.05792, y: -108.76016, z: -147.31163}
@@ -505,8 +505,8 @@ MonoBehaviour:
     lineRadius: 0.5
     gradientLengthLeft: 24.244736
     gradientAngleLeft: -23.740417
-    gradientLengthRight: 34.06548
-    gradientAngleRight: -33.936035
+    gradientLengthRight: 0
+    gradientAngleRight: 0
     noiseAmplitude: 0.841
     noiseRoughness: 0.83
     erosionRain: 1
@@ -525,12 +525,12 @@ MonoBehaviour:
     sedimentCapacity: 1
   - position: 0.989
     lineRadius: 39.019573
-    gradientLengthLeft: 21.454117
+    gradientLengthLeft: 29.954432
     gradientAngleLeft: -35.668335
-    gradientLengthRight: 13.815271
+    gradientLengthRight: 5.127619
     gradientAngleRight: 7.1885376
-    noiseAmplitude: 0.56
-    noiseRoughness: 0.708
+    noiseAmplitude: 0.826
+    noiseRoughness: 0.836
     erosionRain: 1
     erosionHardness: 1
     sedimentCapacity: 1
@@ -540,7 +540,7 @@ MonoBehaviour:
     gradientAngleLeft: 0
     gradientLengthRight: 1
     gradientAngleRight: 0
-    noiseAmplitude: 0.549
+    noiseAmplitude: 0.712
     noiseRoughness: 0.939
     erosionRain: 1
     erosionHardness: 1
@@ -614,26 +614,62 @@ MonoBehaviour:
   - position: 0.49
     lineRadius: 32.4347
     gradientLengthLeft: 63.82158
-    gradientAngleLeft: 0
+    gradientAngleLeft: 41.91461
     gradientLengthRight: 48.411728
-    gradientAngleRight: 209.72253
-    noiseAmplitude: 0.679
-    noiseRoughness: 0.643
+    gradientAngleRight: 29.943237
+    noiseAmplitude: 0.886
+    noiseRoughness: 1
     erosionRain: 1
     erosionHardness: 1
     sedimentCapacity: 1
   - position: 2
-    lineRadius: 22.316141
+    lineRadius: 14.225779
     gradientLengthLeft: 36.248272
     gradientAngleLeft: 0
     gradientLengthRight: 23.435831
-    gradientAngleRight: 9.131714
-    noiseAmplitude: 0
-    noiseRoughness: 0
+    gradientAngleRight: 8.494568
+    noiseAmplitude: 0.737
+    noiseRoughness: 0.769
     erosionRain: 0.34
     erosionHardness: 1
     sedimentCapacity: 0.33
---- !u!84 &658999966
+--- !u!84 &757532454
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 3
+  m_Width: 2049
+  m_Height: 2049
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 52
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+--- !u!84 &804055109
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -745,23 +781,23 @@ MonoBehaviour:
     sedimentCapacity: 0.368
   - position: 0.859
     lineRadius: 49.767643
-    gradientLengthLeft: 34.8382
-    gradientAngleLeft: 7.4332275
-    gradientLengthRight: 0.6397624
+    gradientLengthLeft: 16.073517
+    gradientAngleLeft: 4.175537
+    gradientLengthRight: 16.99516
     gradientAngleRight: 1.0888062
-    noiseAmplitude: 0.101
+    noiseAmplitude: 0.235
     noiseRoughness: 0.866
     erosionRain: 0.686
     erosionHardness: 1
     sedimentCapacity: 0.563
   - position: 0.5
     lineRadius: 0.5
-    gradientLengthLeft: 1
+    gradientLengthLeft: 10.570104
     gradientAngleLeft: 0
     gradientLengthRight: 1
     gradientAngleRight: 0
-    noiseAmplitude: 0
-    noiseRoughness: 0
+    noiseAmplitude: 0.544
+    noiseRoughness: 0.794
     erosionRain: 1
     erosionHardness: 1
     sedimentCapacity: 1
@@ -809,20 +845,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: 8.878571, y: 106.707855, z: 160.20795}
+  - {x: 8.878571, y: 106.707886, z: 177.13586}
   - {x: 10.463913, y: 71.07727, z: 147.1875}
-  - {x: 61.332138, y: 17.408447, z: 132.02103}
-  - {x: 111.033066, y: -76.76834, z: 1.5319214}
+  - {x: 118.03404, y: 17.408447, z: 132.02103}
+  - {x: 69.36253, y: -76.65204, z: -12.974106}
   elevationConstraint: 1
   noiseConstraint: 0
   erosionConstraint: 1
   metaPoints:
-  - position: 0.191
+  - position: 0.523
     lineRadius: 0.5
-    gradientLengthLeft: 24.244736
-    gradientAngleLeft: -23.740417
-    gradientLengthRight: 34.06548
-    gradientAngleRight: -33.936035
+    gradientLengthLeft: 39.29573
+    gradientAngleLeft: -28.375916
+    gradientLengthRight: 20.325945
+    gradientAngleRight: 37.110962
     noiseAmplitude: 0
     noiseRoughness: 0
     erosionRain: 0.928
@@ -832,7 +868,18 @@ MonoBehaviour:
     lineRadius: 0.5
     gradientLengthLeft: 1
     gradientAngleLeft: 0
-    gradientLengthRight: 1
+    gradientLengthRight: 2.5346239
+    gradientAngleRight: 0
+    noiseAmplitude: 0
+    noiseRoughness: 0
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+  - position: 0.984
+    lineRadius: 0
+    gradientLengthLeft: 0
+    gradientAngleLeft: 0
+    gradientLengthRight: 0
     gradientAngleRight: 0
     noiseAmplitude: 0
     noiseRoughness: 0
@@ -1022,10 +1069,10 @@ MonoBehaviour:
   metaPoints:
   - position: 0.191
     lineRadius: 0.5
-    gradientLengthLeft: 56.78713
-    gradientAngleLeft: -217.26257
-    gradientLengthRight: 250.92052
-    gradientAngleRight: 2058.0403
+    gradientLengthLeft: 31.154144
+    gradientAngleLeft: -13.571716
+    gradientLengthRight: 106.40859
+    gradientAngleRight: -111.94635
     noiseAmplitude: 0
     noiseRoughness: 0
     erosionRain: 1
@@ -1105,7 +1152,7 @@ MonoBehaviour:
     erosionRain: 0.14
     erosionHardness: 1
     sedimentCapacity: 0.47
---- !u!84 &1080132546
+--- !u!84 &1003361045
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1119,14 +1166,14 @@ RenderTexture:
   m_DownscaleFallback: 0
   m_IsAlphaChannelOptional: 0
   serializedVersion: 3
-  m_Width: 4097
-  m_Height: 4097
+  m_Width: 2049
+  m_Height: 2049
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthFormat: 0
   m_ColorFormat: 52
   m_MipMap: 0
-  m_GenerateMips: 1
+  m_GenerateMips: 0
   m_SRGB: 0
   m_UseDynamicScale: 0
   m_BindMS: 0
@@ -1141,7 +1188,7 @@ RenderTexture:
     m_WrapW: 1
   m_Dimension: 2
   m_VolumeDepth: 1
---- !u!84 &1095245193
+--- !u!84 &1037204035
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1177,7 +1224,7 @@ RenderTexture:
     m_WrapW: 1
   m_Dimension: 2
   m_VolumeDepth: 1
---- !u!84 &1097680725
+--- !u!84 &1080132546
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1191,14 +1238,14 @@ RenderTexture:
   m_DownscaleFallback: 0
   m_IsAlphaChannelOptional: 0
   serializedVersion: 3
-  m_Width: 2049
-  m_Height: 2049
+  m_Width: 4097
+  m_Height: 4097
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthFormat: 0
   m_ColorFormat: 52
   m_MipMap: 0
-  m_GenerateMips: 0
+  m_GenerateMips: 1
   m_SRGB: 0
   m_UseDynamicScale: 0
   m_BindMS: 0
@@ -1421,7 +1468,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1414080320}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -743}
+  m_LocalPosition: {x: -4, y: 5, z: -858}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1919490527}
@@ -1440,14 +1487,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: -657.5509, y: 0, z: 0}
+  - {x: -1042.7511, y: 0, z: 0}
   - {x: -100, y: 0, z: 0}
   - {x: 100, y: 0, z: 0}
-  - {x: 967.4319, y: 0, z: 0}
+  - {x: 1323.0535, y: 0, z: 0}
   elevationConstraint: 1
   noiseConstraint: 0
   erosionConstraint: 0
-  metaPoints: []
+  metaPoints:
+  - position: 0.395
+    lineRadius: 67.507935
+    gradientLengthLeft: 1.0003662
+    gradientAngleLeft: 0
+    gradientLengthRight: 2.4954224
+    gradientAngleRight: -0.0037841797
+    noiseAmplitude: 0
+    noiseRoughness: 0
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
 --- !u!1 &1424416697
 GameObject:
   m_ObjectHideFlags: 0
@@ -1585,7 +1643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: 8.878571, y: 149.03754, z: 244.2873}
+  - {x: 8.878571, y: 149.03754, z: 251.58673}
   - {x: 10.463928, y: 57.1084, z: 147.1875}
   - {x: -90.77597, y: -36.09906, z: 72.03908}
   - {x: -23.589874, y: -156.5867, z: 8.10405}
@@ -1654,7 +1712,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: 8.878571, y: 90.58197, z: 244.2873}
+  - {x: 8.878571, y: 90.58197, z: 256.15747}
   - {x: 10.463913, y: -88.27142, z: 147.1875}
   - {x: 538.198, y: -178.08624, z: -99.60448}
   - {x: 342.66907, y: -444.17896, z: -358.3717}
@@ -1673,7 +1731,7 @@ MonoBehaviour:
     erosionRain: 1
     erosionHardness: 1
     sedimentCapacity: 1
-  - position: 0
+  - position: 0.014
     lineRadius: 0.5
     gradientLengthLeft: 1
     gradientAngleLeft: 0
@@ -1706,42 +1764,6 @@ MonoBehaviour:
     erosionRain: 1
     erosionHardness: 1
     sedimentCapacity: 1
---- !u!84 &1535025771
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 2049
-  m_Height: 2049
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 52
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!84 &1692982335
 RenderTexture:
   m_ObjectHideFlags: 0
@@ -2014,7 +2036,7 @@ MonoBehaviour:
   _waterFluxTexture: {fileID: 1692982335}
   _velocityTexture: {fileID: 388735412}
   _terrainFluxTexture: {fileID: 1818284341}
-  _inputHeight: {fileID: 1095245193}
+  _inputHeight: {fileID: 1037204035}
   _erosionParams: {fileID: 2058525674}
   hydraulicShader: {fileID: 7200000, guid: 5a4bd05d51e42f64ebc121cc9da8686d, type: 3}
   settings: {fileID: 11400000, guid: 2990ff7fbd5e33347957e994fdd11f06, type: 2}
@@ -2046,20 +2068,20 @@ MonoBehaviour:
   terrainResolutionExp: 11
   terrainSize: 2048
   terrainResolution: 2048
-  splineSamplings: 500
-  diffusionIterationMultiplier: 1
+  splineSamplings: 300
+  diffusionIterationMultiplier: 3
   breakOnLevel: 2
-  kernelType: 3
-  startHeight: 0.11
+  kernelType: 6
+  startHeight: 0.027
   postSmoothing: 0
   erode: 0
   noiseScale: 5.5
   noiseAmplitude: 7.8
   saveImages: 0
-  heightmap: {fileID: 658999966}
-  normals: {fileID: 1097680725}
+  heightmap: {fileID: 1003361045}
+  normals: {fileID: 757532454}
   noise: {fileID: 907263712}
-  erosion: {fileID: 1535025771}
+  erosion: {fileID: 804055109}
   updatedData:
     m_PersistentCalls:
       m_Calls: []

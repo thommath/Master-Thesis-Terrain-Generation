@@ -15,6 +15,10 @@ public class Laplace : MonoBehaviour
 
     public void clearRasterizedDataDict()
     {
+        foreach (var rd in rasterizedDataDict.Values)
+        {
+            rd.release();
+        }
         rasterizedDataDict.Clear();
     }
 
@@ -103,11 +107,6 @@ public class Laplace : MonoBehaviour
         RenderTexture smallerNoise = createRenderTexture(size, 0, noise.depth, noise.format);
         RenderTexture smallerErosion = createRenderTexture(size, 0, erosion.depth, erosion.format);
 
-        // Restrict textures to smaller versions
-        //Restrict(normals, smallerNormals);
-        //Restrict(heightmap, smallerHeightmap);
-        //Restrict(noise, smallerNoise);
-
         // Solve recursively
         poissonStep(smallerNormals, smallerHeightmap, smallerNoise, smallerErosion, h + 1, terrainSizeExp, iterationsMultiplier, breakOn, startHeight, erode);
 
@@ -120,27 +119,6 @@ public class Laplace : MonoBehaviour
         {
             throw new System.Exception("Could not get rasterized data. Run rasterizeData with size " + heightmap.width + " first");
         }
-
-        // Create rendertextures
-        /*RenderTexture seedHeightmap = new RenderTexture(heightmap.width, heightmap.width, 0, heightmap.format);
-        seedHeightmap.enableRandomWrite = true;
-        seedHeightmap.autoGenerateMips = false;
-        seedHeightmap.Create();
-        RenderTexture seedNoise;
-        seedNoise = new RenderTexture(noise.width, noise.width, 0, noise.format);
-        seedNoise.enableRandomWrite = true;
-        seedNoise.autoGenerateMips = false;
-        seedNoise.Create();
-
-        RenderTexture seedNormals = createRenderTexture(normals.width, 0, 0);
-        RenderTexture restrictions = createRenderTexture(heightmap.width, 0, 0);
-
-        // Copy to rendertextures
-        Graphics.Blit(rd.tseedHeightmap, seedHeightmap);
-        Graphics.Blit(rd.tseedNormals, seedNormals);
-        Graphics.Blit(rd.tRestrictions, restrictions);
-        Graphics.Blit(rd.tNoise, seedNoise);
-        */
 
         int iterations = terrainSizeExp;
 
@@ -190,6 +168,9 @@ public class Laplace : MonoBehaviour
         smallerNormals.Release();
         smallerNoise.Release();
         smallerErosion.Release();
+        
+        rd.release();
+        
     }
 
     private void initErosion(RenderTexture heightmap, RenderTexture erosion)
@@ -200,6 +181,15 @@ public class Laplace : MonoBehaviour
     private void runErosion(RenderTexture heightmap, RenderTexture erosion, RenderTexture noiseSeed)
     {
         HydraulicErosion hyEro = GetComponent<HydraulicErosion>();
+
+        if (hyEro._inputHeight)
+        {
+            hyEro._inputHeight.Release();
+        }
+        if (hyEro._erosionParams)
+        {
+            hyEro._erosionParams.Release();
+        }
         
         hyEro._inputHeight = AddNoise(heightmap, noiseSeed);;
         hyEro._erosionParams = erosion;
@@ -438,6 +428,7 @@ public class Laplace : MonoBehaviour
         }
         kernel.Release();
         newTerrain.Release();
+        normalizedNormals.Release();
     }
     public void ImageSmoothing(RenderTexture image, int iterations)
     {
