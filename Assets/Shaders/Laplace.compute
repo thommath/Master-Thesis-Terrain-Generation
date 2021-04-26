@@ -358,10 +358,13 @@ void Smooth(uint3 id : SV_DispatchThreadID)
         result[id.xy - uint2(-1, 0)] +
         result[id.xy - uint2(0, -1)]);
 }
+
+
+float4 smoothLayer;
+
 [numthreads(8, 8, 1)]
 void SmoothKernel(uint3 id : SV_DispatchThreadID)
 {
-    
     float Ll = 0;
     float div = 0;
 
@@ -369,7 +372,7 @@ void SmoothKernel(uint3 id : SV_DispatchThreadID)
     {
         for(int y = -kernelSize; y <= kernelSize; y++)
         {
-            const int2 pos = id.xy + int2(x, y);
+            const int2 pos = int2(id.xy) + int2(x, y);
             if (pos.x < 0 || pos.y < 0 || pos.x >= image_size || pos.y >= image_size)
             {
                 continue;
@@ -379,7 +382,7 @@ void SmoothKernel(uint3 id : SV_DispatchThreadID)
         }
     }
     Ll /= div;
-    result[id.xy] = Ll;
+    result[id.xy] = Ll * smoothLayer + result[id.xy] * (float4(1,1,1,1)-smoothLayer);
 }
 
 

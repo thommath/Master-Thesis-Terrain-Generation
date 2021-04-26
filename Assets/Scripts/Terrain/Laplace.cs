@@ -430,12 +430,22 @@ public class Laplace : MonoBehaviour
         newTerrain.Release();
         normalizedNormals.Release();
     }
-    public void ImageSmoothing(RenderTexture image, int iterations)
+    public void ImageSmoothing(RenderTexture image, int iterations, int kernelType = -1, float[] smoothlayers = null)
     {
         int smoothKernelHandle = laplace.FindKernel("SmoothKernel");
         laplace.SetTexture(smoothKernelHandle, "result", image);
+
+        if (smoothlayers == null)
+        {
+            smoothlayers = new[] {1f, 1f, 1f, 1f};
+        }
         
-        int kernelType = GetComponent<SplineTerrain>().kernelType;
+        laplace.SetFloats("smoothLayer", smoothlayers);
+
+        if (kernelType == -1)
+        {
+            kernelType = GetComponent<SplineTerrain>().kernelType;
+        }
         ComputeBuffer kernel;
         switch (kernelType)
         {

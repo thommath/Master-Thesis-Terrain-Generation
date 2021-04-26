@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using UnityEditor.SceneTemplate;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -382,11 +383,19 @@ public class HydraulicErosion : MonoBehaviour
 
             hydraulicShader.Dispatch(SedimentAdvection, _stateTexture.width, _stateTexture.height, 1);
         }
+        
+        
+        int smoothingIterations = 4;
+        int kernelType = 1;
+        Laplace l = GetComponent<Laplace>();
+        l.ImageSmoothing(_stateTexture, smoothingIterations, kernelType);
 
     }
 
     public void interpolate()
     {
+        int smoothingIterations = 4;
+        int kernelType = 1;
         Laplace l = GetComponent<Laplace>();
         RenderTexture temp = new RenderTexture((_stateTexture.width - 1) * 2 + 1, (_stateTexture.height - 1) * 2 + 1, 0, RenderTextureFormat.ARGBFloat)
         {
@@ -396,6 +405,7 @@ public class HydraulicErosion : MonoBehaviour
         };
         temp.Create();
         l.Interpolate(_stateTexture, temp);
+        l.ImageSmoothing(temp, smoothingIterations, kernelType, new []{1f, 1f, 0.0f, 0});
         _stateTexture.Release();
         _stateTexture = temp;
 
@@ -406,7 +416,6 @@ public class HydraulicErosion : MonoBehaviour
             wrapMode = TextureWrapMode.Clamp
         };
         temp.Create();
-        l.Interpolate(_velocityTexture, temp);
         _velocityTexture.Release();
         _velocityTexture = temp;
 
@@ -428,9 +437,9 @@ public class HydraulicErosion : MonoBehaviour
             wrapMode = TextureWrapMode.Clamp
         };
         temp.Create();
-        l.Interpolate(_terrainFluxTexture, temp);
         _terrainFluxTexture.Release();
         _terrainFluxTexture = temp;
+        
 
         updateShaderValues();
     }
