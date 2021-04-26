@@ -398,7 +398,7 @@ public class Laplace : MonoBehaviour
                 kernel = new ComputeBuffer(9, sizeof(int));
                 kernel.SetData(doubleDerivativeLaplace3x3);
                 laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
-                laplace.SetInt("kernelSize", 2);
+                laplace.SetInt("kernelSize", 1);
                 laplace.SetBool("doubleDerivative", true);
                 break;
             }
@@ -407,7 +407,7 @@ public class Laplace : MonoBehaviour
                 kernel = new ComputeBuffer(9, sizeof(int));
                 kernel.SetData(doubleDerivativeLaplaceAlternative3x3);
                 laplace.SetBuffer(relaxKernelHandle, "kernel", kernel);
-                laplace.SetInt("kernelSize", 2);
+                laplace.SetInt("kernelSize", 1);
                 laplace.SetBool("doubleDerivative", true);
                 break;
             }

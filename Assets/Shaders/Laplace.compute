@@ -161,6 +161,31 @@ int kernelSize;
 
 bool doubleDerivative;
 
+float getKernelValueAtPos(uint2 id)
+{
+    float Ll = 0;
+    float div = 0;
+
+    for(int x = -kernelSize; x <= kernelSize; x++)
+    {
+        for(int y = -kernelSize; y <= kernelSize; y++)
+        {
+            const int2 pos =
+                int2(
+                    clamp(0, image_size-1, id.x + x),
+                    clamp(0, image_size-1, id.y + y)
+                );
+            Ll += getTerrainHeight(pos) * kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
+            div += kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
+        }
+    }
+    if (!doubleDerivative)
+    {
+        Ll /= abs(div);
+    }
+    return Ll;
+}
+
 [numthreads(4, 4, 1)]
 void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 {
@@ -172,49 +197,8 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
     const float2 normal = normalize(length(0.5 - normals[id.xy].xy) != 0 ? normalize(0.5 - normals[id.xy].xy) : float2(0, 1));
     const float gradient = (0.5-normals[id.xy].z);
 
-    float Ll = 0;
-    float div = 0;
+    const float Ll = getKernelValueAtPos(id.xy);
 
-    for(int x = -kernelSize; x <= kernelSize; x++)
-    {
-        for(int y = -kernelSize; y <= kernelSize; y++)
-        {
-            const int2 pos = id.xy + int2(x, y);
-            if (pos.x < 0 || pos.y < 0 || pos.x >= image_size || pos.y >= image_size)
-            {
-                continue;
-            }
-            Ll += getTerrainHeight(pos) * kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
-            div += kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
-        }
-    }
-    if (div != 0)
-    {
-        Ll /= abs(div);
-    }
-
-    // It crashes it normalize is run on (0,0) vector
-    //normal = length(normal) > 0 ? normalize(normal) : float2(1, 0);
-    /*
-    const float Ll = (
-            (id.x == 0
-                 ? 0
-                 : getTerrainHeight(id.xy - uint2(1, 0)))
-            + (id.y == 0
-                   ? 0
-                 : getTerrainHeight(id.xy - uint2(0,1)))
-
-            + (id.y == image_size - 1
-                   ? 0
-                 : getTerrainHeight(id.xy - uint2(0,-1)))
-
-            + (id.x == image_size - 1
-                   ? 0
-                 : getTerrainHeight(id.xy - uint2(-1,0)))
-        ).x
-        / ((id.x == 0 ? 0 : 1) + (id.y == 0 ? 0 : 1) + (id.x == image_size - 1 ? 0 : 1) + (
-            id.y == image_size - 1 ? 0 : 1));
-    */
     const float Ll2 = 0.25 * (
         terrainHeight[id.xy - uint2(0, 1)] +
         terrainHeight[id.xy - uint2(1, 0)] +
@@ -222,15 +206,21 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
         terrainHeight[id.xy - uint2(0, -1)]);
 
     const float Lg = (
-        pow(normal.x, 2) * (getTerrainHeight(id.xy + int2(sign(normal.x), 0)) * 0.7 + 0.3 * getTerrainHeight(id.xy + 2*int2(sign(normal.x), 0))) +
-        pow(normal.y, 2) * (getTerrainHeight(id.xy + int2(0, sign(normal.y))) * 0.7 + 0.3 * getTerrainHeight(id.xy + 2*int2(0, sign(normal.y)))) +
+        pow(normal.x, 2) * getTerrainHeight(id.xy + int2(sign(normal.x), 0)) +
+        pow(normal.y, 2) * getTerrainHeight(id.xy + int2(0, sign(normal.y))) +
         //pow(normal.y, 2) * getTerrainHeight(id.xy + int2(0, sign(normal.y))) + //terrainHeight[id.xy + int2(0, sign(normal.y))] +
         gradient
     );
 
     const float Li = seedTexture[id.xy].x;
 
-    terrainHeight[id.xy] = float4( max(0, (terrainHeight[id.xy].x + 0.001 * Ll) * alpha + Lg * beta + Li * (1 - alpha - beta)), 0, 0, 1);
+    if(doubleDerivative)
+    {
+        terrainHeight[id.xy] = float4( max(0, (terrainHeight[id.xy].x + 0.05 * Ll) * alpha + Lg * beta + Li * (1 - alpha - beta)), 0, 0, 1);    
+    } else
+    {
+        terrainHeight[id.xy] = float4( max(0, Ll * alpha + Lg * beta + Li * (1 - alpha - beta)), 0, 0, 1);
+    }
 }
 
 
