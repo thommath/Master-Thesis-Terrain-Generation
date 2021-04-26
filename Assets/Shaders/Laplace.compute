@@ -147,7 +147,7 @@ void TerrainRelaxationNormal(uint3 id : SV_DispatchThreadID)
         pow(normal.x, 2) * getTerrainHeight(id.xy + int2(sign(normal.x), 0)) + //terrainHeight[id.xy + int2(sign(normal.x), 0)] +
         pow(normal.y, 2) * getTerrainHeight(id.xy + int2(0, sign(normal.y))) + //terrainHeight[id.xy + int2(0, sign(normal.y))] +
         gradient
-    ) ;
+    );
 
     const float Li = seedTexture[id.xy].x;
 
@@ -172,9 +172,9 @@ float getKernelValueAtPos(uint2 id)
         {
             const int2 pos =
                 int2(
-                    clamp(0, image_size-1, id.x + x),
-                    clamp(0, image_size-1, id.y + y)
-                );
+                    clamp(0, image_size-1, int(id.x)+ x),
+                    clamp(0, image_size-1, int(id.y) + y)
+                    );
             Ll += getTerrainHeight(pos) * kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
             div += kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
         }
