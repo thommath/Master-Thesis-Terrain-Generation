@@ -16,6 +16,7 @@ public struct RasterizedData
         this.seedNormals = null;
         this.noise = null;
         this.erosion = null;
+        this.warp = null;
     }
 
     public void release()
@@ -52,5 +53,6 @@ public struct RasterizedData
     public RenderTexture restrictions;
     public RenderTexture seedNormals;
     public RenderTexture noise;
+    public RenderTexture warp;
     public RenderTexture erosion;
 }

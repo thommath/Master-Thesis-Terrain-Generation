@@ -52,7 +52,7 @@ public class Laplace : MonoBehaviour
      * normals and result are approximations of the result. Can be whatever - are used to improve solution over multiple iterations
      * 
      */
-    public void poissonStep(RenderTexture normals, RenderTexture heightmap, RenderTexture noise, RenderTexture erosion, int h, int terrainSizeExp, float iterationsMultiplier = 4, int breakOn = 1, float startHeight = 0, bool erode = false)
+    public void poissonStep(RenderTexture normals, RenderTexture heightmap, RenderTexture noise, RenderTexture warp, RenderTexture erosion, int h, int terrainSizeExp, float iterationsMultiplier = 4, int breakOn = 1, float startHeight = 0, bool erode = false)
     {
         // Break on 1
         if (normals.width == Mathf.RoundToInt(Mathf.Pow(2, breakOn)) + 1)
@@ -105,10 +105,11 @@ public class Laplace : MonoBehaviour
         RenderTexture smallerNormals = createRenderTexture(size, 0, normals.depth, normals.format);
         RenderTexture smallerHeightmap = createRenderTexture(size, 0, heightmap.depth, heightmap.format);
         RenderTexture smallerNoise = createRenderTexture(size, 0, noise.depth, noise.format);
+        RenderTexture smallerWarp = createRenderTexture(size, 0, warp.depth, warp.format);
         RenderTexture smallerErosion = createRenderTexture(size, 0, erosion.depth, erosion.format);
 
         // Solve recursively
-        poissonStep(smallerNormals, smallerHeightmap, smallerNoise, smallerErosion, h + 1, terrainSizeExp, iterationsMultiplier, breakOn, startHeight, erode);
+        poissonStep(smallerNormals, smallerHeightmap, smallerNoise, smallerWarp, smallerErosion, h + 1, terrainSizeExp, iterationsMultiplier, breakOn, startHeight, erode);
 
         // Set variables
         laplace.SetFloat("h", Mathf.Pow(2, h));
@@ -136,6 +137,13 @@ public class Laplace : MonoBehaviour
         Relaxation(rd.noise, noise, Mathf.RoundToInt(iterationsMultiplier / 2 * iterations));
         saveImage("noise " + h + " post", noise);
         
+        // Solve the poisson equation for warp
+        saveImage("warp " + h + " seed", rd.warp);
+        Interpolate(smallerWarp, warp);
+        saveImage("warp " + h + " pre", warp);
+        Relaxation(rd.warp, warp, Mathf.RoundToInt(iterationsMultiplier / 2 * iterations));
+        saveImage("warp " + h + " post", warp);
+        
         if (erode)
         {
             // Solve the poisson equation for erosion
@@ -161,12 +169,13 @@ public class Laplace : MonoBehaviour
         //saveImage("heightmap " + h + " smooth", heightmap);
         if (erode)
         {
-            runErosion(heightmap, erosion, noise);
+            runErosion(heightmap, erosion, noise, warp);
         }
 
         smallerHeightmap.Release();
         smallerNormals.Release();
         smallerNoise.Release();
+        smallerWarp.Release();
         smallerErosion.Release();
         
         rd.release();
@@ -178,7 +187,7 @@ public class Laplace : MonoBehaviour
         HydraulicErosion hyEro = GetComponent<HydraulicErosion>();
         hyEro.initializeTextures(heightmap, erosion);
     }
-    private void runErosion(RenderTexture heightmap, RenderTexture erosion, RenderTexture noiseSeed)
+    private void runErosion(RenderTexture heightmap, RenderTexture erosion, RenderTexture noiseSeed, RenderTexture warp)
     {
         HydraulicErosion hyEro = GetComponent<HydraulicErosion>();
 
@@ -191,7 +200,7 @@ public class Laplace : MonoBehaviour
             hyEro._erosionParams.Release();
         }
         
-        hyEro._inputHeight = AddNoise(heightmap, noiseSeed);;
+        hyEro._inputHeight = AddNoise(heightmap, noiseSeed, warp);;
         hyEro._erosionParams = erosion;
 
         hyEro.interpolate();
@@ -221,12 +230,13 @@ public class Laplace : MonoBehaviour
         }
     }
 
-    public RenderTexture AddNoise(RenderTexture input, RenderTexture noiseSeed)
+    public RenderTexture AddNoise(RenderTexture input, RenderTexture noiseSeed, RenderTexture warp)
     {
         RenderTexture result = createRenderTexture(input.width, 0, input.depth, input.format);
         RenderTexture noise = createRenderTexture(input.width, 0, input.depth, input.format);
         int genKernelHandle = noiseShader.FindKernel("GenerateNoise");
         noiseShader.SetTexture(genKernelHandle, "seedNoise", noiseSeed);
+        noiseShader.SetTexture(genKernelHandle, "warp", warp);
         noiseShader.SetTexture(genKernelHandle, "result", noise);
 
         SplineTerrain s = GetComponent<SplineTerrain>();

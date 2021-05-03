@@ -34,6 +34,9 @@ public class testRasterizing : MonoBehaviour
         
         float noiseAmplitude;
         float noiseRoughness;
+        
+        float warpA;
+        float warpB;
 
         float erosionRain;
         float erosionHardness;
@@ -50,6 +53,8 @@ public class testRasterizing : MonoBehaviour
             
             noiseAmplitude = metaPoint.noiseAmplitude;
             noiseRoughness = metaPoint.noiseRoughness;
+            warpA = metaPoint.warpA;
+            warpB = metaPoint.warpB;
             
             erosionRain = metaPoint.erosionRain;
             erosionHardness = metaPoint.erosionHardness;
@@ -129,6 +134,10 @@ public class testRasterizing : MonoBehaviour
         noise.enableRandomWrite = true;
         noise.autoGenerateMips = false;
         noise.Create();
+        RenderTexture warp = new RenderTexture(textureSize, textureSize, 0, RenderTextureFormat.ARGBFloat);
+        warp.enableRandomWrite = true;
+        warp.autoGenerateMips = false;
+        warp.Create();
         RenderTexture erosion = new RenderTexture(textureSize, textureSize, 0, RenderTextureFormat.ARGBFloat);
         erosion.enableRandomWrite = true;
         erosion.autoGenerateMips = false;
@@ -142,7 +151,8 @@ public class testRasterizing : MonoBehaviour
         computeShader.SetFloat("lineIncrement", (1f / resolution));
 
         computeShader.SetTexture(gradientsKernelHandle, "result", result);
-        computeShader.SetTexture(gradientsKernelHandle, "noise", noise);d
+        computeShader.SetTexture(gradientsKernelHandle, "noise", noise);
+        computeShader.SetTexture(gradientsKernelHandle, "warp", warp);
         computeShader.SetTexture(gradientsKernelHandle, "restriction", restriction);
         computeShader.SetTexture(gradientsKernelHandle, "normal", normal);
         computeShader.SetTexture(gradientsKernelHandle, "erosion", erosion);
@@ -160,6 +170,7 @@ public class testRasterizing : MonoBehaviour
             
             computeShader.SetBool("strictElevationContraint", spline.elevationConstraint);
             computeShader.SetBool("noiseConstraint", spline.noiseConstraint);
+            computeShader.SetBool("warpConstraint", spline.warpConstraint);
             computeShader.SetBool("erosionConstraint", spline.erosionConstraint);
             computeShader.SetInt("splineCount", spline.CurveCount);
             computeShader.SetInt("metaPointCount", spline.metaPoints.Length);
@@ -190,7 +201,7 @@ public class testRasterizing : MonoBehaviour
             if (spline.metaPoints.Length > 0)
             {
                 int type = 1 << 4 + 1 << 3;
-                metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 11, ComputeBufferType.Default, ComputeBufferMode.Immutable);
+                metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 13, ComputeBufferType.Default, ComputeBufferMode.Immutable);
                 metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint))
                     .ToArray());
             }
@@ -229,6 +240,7 @@ public class testRasterizing : MonoBehaviour
         
         RasterizedData data = new RasterizedData();
         data.noise = noise;
+        data.warp = warp;
         data.restrictions = restriction;
         data.seedHeightmap = result;
         data.seedNormals = normal;

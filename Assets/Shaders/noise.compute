@@ -106,10 +106,22 @@ float perlinNoise(float3 pos) {
 // https://mrl.cs.nyu.edu/~perlin/noise/
 
 RWTexture2D<float4> seedNoise;
+RWTexture2D<float4> warp;
 RWTexture2D<float4> result;
 float scale;
 
 float textureDivTerrain;
+
+float2 Tpre(uint2 id, float2 p)
+{
+    const float a = warp[id].r;
+    const float b = warp[id].g;
+    
+    const float seed1 = 50;
+    const float seed2 = 150;
+    
+    return p + float2(a * perlinNoise(float3(seed1 + b * p, 1)), a * perlinNoise(float3(seed2 + b * p, 1)));
+}
 
 
 [numthreads(4, 4, 1)]
@@ -128,7 +140,7 @@ void GenerateNoise(uint3 id : SV_DispatchThreadID)
 
     for (float k = 0; k < n; k++) {
         sum += (1 / (pow(r, k * (1 - R)))) *
-            perlinNoise(scale * pow(r, k) * float3(x, y, 0) + float3(0, 0, 1));
+            perlinNoise(float3(Tpre(id.xy, scale * pow(r, k) * float2(x, y)), 1));
     }
     
     result[id.xy] = sum * A;

@@ -10,6 +10,7 @@ RWTexture2D<float4> result;
 RWTexture2D<float4> normal;
 RWTexture2D<float4> restriction;
 RWTexture2D<float4> noise;
+RWTexture2D<float4> warp;
 RWTexture2D<float4> erosion;
 
 struct Spline
@@ -33,6 +34,9 @@ struct MetaPoint
     
     float noiseAmplitude;
     float noiseRoughness;
+    
+    float warpA;
+    float warpB;
 
     float erosionRain;
     float erosionHardness;
@@ -50,6 +54,7 @@ float2 center;
 
 bool strictElevationContraint;
 bool noiseConstraint;
+bool warpConstraint;
 bool erosionConstraint;
 
 
@@ -86,6 +91,25 @@ float2 metaGetNoiseParameters(uint splinePart, float t)
         
     }
     return noise;
+}
+float2 metaGetWarpParameters(uint splinePart, float t)
+{
+    const float pos = splinePart + t;
+    float2 warp = float2(metaPoints[0].warpA, metaPoints[0].warpB);
+    float lastPos = 0;
+    for(int n = 1; n < metaPointCount; n++)
+    {
+        if (pos > metaPoints[n].position)
+        {
+            warp = float2(metaPoints[n].warpA, metaPoints[n].warpB);
+            lastPos = metaPoints[n].position;
+        } else {
+            const float lerpNumber = (pos - lastPos) / (metaPoints[n].position - lastPos);
+            warp = warp * (1-lerpNumber) + lerpNumber * float2(metaPoints[n].warpA, metaPoints[n].warpB);
+            return warp;
+        }
+    }
+    return warp;
 }
 float3 metaGetErosionParameters(uint splinePart, float t)
 {
@@ -206,6 +230,13 @@ void handlePixel(uint2 p, float err, float2 colors, uint2 start, float distBetwe
         const float2 noiseParams = metaGetNoiseParameters(splinePart, r);
         noise[p] = float4(noiseParams, 0, 1);
     }
+    if (warpConstraint * metaPointCount != 0)
+    {
+        const float2 warpParams = metaGetWarpParameters(splinePart, r);
+        warp[p] = float4(warpParams, 0, 1);
+    }
+
+    
     if (erosionConstraint * metaPointCount != 0)
     {
         const float3 erosionParams = metaGetErosionParameters(splinePart, r);

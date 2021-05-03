@@ -101,6 +101,8 @@ public class TerrainEditorWindow : EditorWindow
             spline.elevationConstraint = elevationConstraint;
             bool noiseConstraint = EditorGUILayout.Toggle("Noise constraints", spline.noiseConstraint);
             spline.noiseConstraint = noiseConstraint;
+            bool warpConstraint = EditorGUILayout.Toggle("Warp constraints", spline.warpConstraint);
+            spline.warpConstraint = warpConstraint;
             bool erosionConstraint = EditorGUILayout.Toggle("Erosion constraints", spline.erosionConstraint);
             spline.erosionConstraint = erosionConstraint;
 
@@ -148,6 +150,15 @@ public class TerrainEditorWindow : EditorWindow
                 metaPoint.noiseAmplitude = noiseAmplitude;
                 float noiseRoughness = EditorGUILayout.Slider("Noise Roughness", metaPoint.noiseRoughness, 0, 1);
                 metaPoint.noiseRoughness = noiseRoughness;
+            }
+            
+            if (spline.warpConstraint)
+            {
+                GUILayout.Space(5);
+                float warpA = EditorGUILayout.Slider("Warp A", metaPoint.warpA, 0, 1);
+                metaPoint.warpA = warpA;
+                float warpB = EditorGUILayout.Slider("Warp B", metaPoint.warpB, 0, 1);
+                metaPoint.warpB = warpB;
             }
             
             if (spline.erosionConstraint)

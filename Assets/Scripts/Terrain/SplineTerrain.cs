@@ -107,6 +107,10 @@ public class SplineTerrain : MonoBehaviour
         noiseSeed.enableRandomWrite = true;
         noiseSeed.autoGenerateMips = false;
         noiseSeed.Create();
+        RenderTexture warp = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
+        warp.enableRandomWrite = true;
+        warp.autoGenerateMips = false;
+        warp.Create();
 
         l.clearRasterizedDataDict();
 
@@ -122,7 +126,7 @@ public class SplineTerrain : MonoBehaviour
         //l.rasterizeData(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), terrainResolution + 1, this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
         //Debug.Log((Time.realtimeSinceStartup - time) + "s for rasterizing 2 ");
 
-        l.poissonStep(normals, heightmap, noiseSeed, erosion, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2, erode);
+        l.poissonStep(normals, heightmap, noiseSeed, warp, erosion, 1, terrainSizeExp, diffusionIterationMultiplier, breakOnLevel, startHeight / 2, erode);
 
         RenderTexture.active = normals;
         Texture2D tex2D3 = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
@@ -138,7 +142,7 @@ public class SplineTerrain : MonoBehaviour
         }
         else
         {
-            RenderTexture result = l.AddNoise(heightmap, noiseSeed);
+            RenderTexture result = l.AddNoise(heightmap, noiseSeed, warp);
             GetComponent<HydraulicErosion>()._inputHeight = result;
         }
     
@@ -176,6 +180,7 @@ public class SplineTerrain : MonoBehaviour
         }
         
         noiseSeed.Release();
+        warp.Release();
 
         if (this.heightmap)
         {

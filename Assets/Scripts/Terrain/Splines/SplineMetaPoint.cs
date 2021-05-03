@@ -20,7 +20,13 @@ public class SplineMetaPoint
 	public float noiseAmplitude = 0;
 	[Range(0, 1f)]
 	public float noiseRoughness = 0;
-	
+
+	[Header("Warp")]
+	[Range(0, 1f)]
+	public float warpA = 0.5f;
+	[Range(0, 1f)]
+	public float warpB = 0.5f;
+
 	[Header("Erosion")]
 	[Range(0, 1f)]
 	public float erosionRain = 1f;
