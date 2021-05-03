@@ -257,6 +257,8 @@ MonoBehaviour:
   elevationConstraint: 1
   noiseConstraint: 1
   erosionConstraint: 0
+  minGridLevel: 0
+  maxGridLevel: 10
   metaPoints:
   - position: 0.5
     lineRadius: 16.051102
@@ -269,42 +271,6 @@ MonoBehaviour:
     erosionRain: 1
     erosionHardness: 1
     sedimentCapacity: 1
---- !u!84 &405780695
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 2049
-  m_Height: 2049
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 52
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &419113884
 GameObject:
   m_ObjectHideFlags: 0
@@ -432,6 +398,8 @@ MonoBehaviour:
   elevationConstraint: 1
   noiseConstraint: 1
   erosionConstraint: 0
+  minGridLevel: 0
+  maxGridLevel: 2147483647
   metaPoints:
   - position: 0.5
     lineRadius: 1
@@ -444,7 +412,7 @@ MonoBehaviour:
     erosionRain: 1
     erosionHardness: 1
     sedimentCapacity: 1
---- !u!84 &586404597
+--- !u!84 &590724503
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -563,7 +531,43 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 35.07, y: -66.957, z: 8.528}
---- !u!84 &836365251
+--- !u!84 &810597376
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 3
+  m_Width: 2049
+  m_Height: 2049
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 52
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+--- !u!84 &813010053
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -599,6 +603,71 @@ RenderTexture:
     m_WrapW: 1
   m_Dimension: 2
   m_VolumeDepth: 1
+--- !u!1 &1045288119
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1045288120}
+  - component: {fileID: 1045288121}
+  m_Layer: 0
+  m_Name: Unnamed terrain feature (4)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1045288120
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1045288119}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 182, y: -14, z: -646}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1664561579}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1045288121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1045288119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -433.43283, y: 0, z: -364.9694}
+  - {x: -144.5406, y: 148.50966, z: 176.60107}
+  - {x: -135.76419, y: 54.399456, z: 258.11053}
+  - {x: 405.6526, y: 44.73719, z: 423.3465}
+  elevationConstraint: 1
+  noiseConstraint: 1
+  erosionConstraint: 0
+  minGridLevel: 2
+  maxGridLevel: 6
+  metaPoints:
+  - position: 0.5
+    lineRadius: 1
+    gradientLengthLeft: 3.0334296
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 0.73
+    noiseRoughness: 0.7
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
 --- !u!1 &1074766288
 GameObject:
   m_ObjectHideFlags: 0
@@ -650,6 +719,8 @@ MonoBehaviour:
   elevationConstraint: 1
   noiseConstraint: 1
   erosionConstraint: 0
+  minGridLevel: 0
+  maxGridLevel: 10
   metaPoints:
   - position: 0.5
     lineRadius: 1
@@ -755,7 +826,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: 30, z: 0}
---- !u!84 &1494479627
+--- !u!84 &1478388213
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -783,7 +854,7 @@ RenderTexture:
   m_EnableCompatibleFormat: 1
   m_TextureSettings:
     serializedVersion: 2
-    m_FilterMode: 0
+    m_FilterMode: 1
     m_Aniso: 1
     m_MipBias: 0
     m_WrapU: 1
@@ -822,6 +893,7 @@ Transform:
   - {fileID: 2128166137}
   - {fileID: 1074766289}
   - {fileID: 509656883}
+  - {fileID: 1045288120}
   m_Father: {fileID: 1801711077}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -911,7 +983,7 @@ MonoBehaviour:
   _waterFluxTexture: {fileID: 0}
   _velocityTexture: {fileID: 0}
   _terrainFluxTexture: {fileID: 0}
-  _inputHeight: {fileID: 1494479627}
+  _inputHeight: {fileID: 810597376}
   _erosionParams: {fileID: 0}
   hydraulicShader: {fileID: 7200000, guid: 5a4bd05d51e42f64ebc121cc9da8686d, type: 3}
   settings: {fileID: 11400000, guid: 782ad6bc55266b5488e23e2ce885f237, type: 2}
@@ -944,7 +1016,7 @@ MonoBehaviour:
   terrainSize: 1024
   terrainResolution: 2048
   splineSamplings: 100
-  diffusionIterationMultiplier: 1
+  diffusionIterationMultiplier: 1.5
   breakOnLevel: 1
   kernelType: 5
   startHeight: 0
@@ -953,10 +1025,10 @@ MonoBehaviour:
   noiseScale: 1
   noiseAmplitude: 62.6
   saveImages: 0
-  heightmap: {fileID: 836365251}
-  normals: {fileID: 405780695}
+  heightmap: {fileID: 590724503}
+  normals: {fileID: 813010053}
   noise: {fileID: 0}
-  erosion: {fileID: 586404597}
+  erosion: {fileID: 1478388213}
   updatedData:
     m_PersistentCalls:
       m_Calls: []
@@ -1043,6 +1115,8 @@ MonoBehaviour:
   elevationConstraint: 1
   noiseConstraint: 1
   erosionConstraint: 0
+  minGridLevel: 4
+  maxGridLevel: 8
   metaPoints:
   - position: 0.5
     lineRadius: 1

@@ -10,6 +10,9 @@ public class BezierSpline : MonoBehaviour {
 	public bool noiseConstraint = false;
 	public bool erosionConstraint = false;
 
+	public int minGridLevel = 0;
+	public int maxGridLevel = Int32.MaxValue;
+
 
 	public SplineMetaPoint[] metaPoints;
 

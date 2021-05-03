@@ -142,7 +142,7 @@ public class testRasterizing : MonoBehaviour
         computeShader.SetFloat("lineIncrement", (1f / resolution));
 
         computeShader.SetTexture(gradientsKernelHandle, "result", result);
-        computeShader.SetTexture(gradientsKernelHandle, "noise", noise);
+        computeShader.SetTexture(gradientsKernelHandle, "noise", noise);d
         computeShader.SetTexture(gradientsKernelHandle, "restriction", restriction);
         computeShader.SetTexture(gradientsKernelHandle, "normal", normal);
         computeShader.SetTexture(gradientsKernelHandle, "erosion", erosion);
@@ -153,6 +153,11 @@ public class testRasterizing : MonoBehaviour
         
         foreach (BezierSpline spline in splines)
         {
+            if (Mathf.Pow(2, spline.minGridLevel) > textureSize || Mathf.Pow(2, spline.maxGridLevel) < textureSize)
+            {
+                continue;
+            }
+            
             computeShader.SetBool("strictElevationContraint", spline.elevationConstraint);
             computeShader.SetBool("noiseConstraint", spline.noiseConstraint);
             computeShader.SetBool("erosionConstraint", spline.erosionConstraint);
