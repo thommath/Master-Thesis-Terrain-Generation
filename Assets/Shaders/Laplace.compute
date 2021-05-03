@@ -99,6 +99,7 @@ Texture2D<float4> redGreenBlack;
 
 float4 getTerrainHeight(uint2 pos)
 {
+    pos = clamp(pos, 0, image_size-1);
     return restrictionsTexture[pos].x + restrictionsTexture[pos].y < 0.9 ? seedTexture[pos] : terrainHeight[pos];
 }
 
@@ -172,8 +173,8 @@ float getKernelValueAtPos(uint2 id)
         {
             const int2 pos =
                 int2(
-                    clamp(0, image_size-1, int(id.x)+ x),
-                    clamp(0, image_size-1, int(id.y) + y)
+                    int(id.x) + x,
+                    int(id.y) + y
                     );
             Ll += getTerrainHeight(pos) * kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
             div += kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
@@ -199,15 +200,9 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 
     const float Ll = getKernelValueAtPos(id.xy);
 
-    const float Ll2 = 0.25 * (
-        terrainHeight[id.xy - uint2(0, 1)] +
-        terrainHeight[id.xy - uint2(1, 0)] +
-        terrainHeight[id.xy - uint2(-1, 0)] +
-        terrainHeight[id.xy - uint2(0, -1)]);
-
     const float Lg = (
-        pow(normal.x, 2) * getTerrainHeight(id.xy + int2(sign(normal.x), 0)) +
-        pow(normal.y, 2) * getTerrainHeight(id.xy + int2(0, sign(normal.y))) +
+        pow(normal.x, 2) * getTerrainHeight(int2(id.xy) + int2(sign(normal.x), 0)) +
+        pow(normal.y, 2) * getTerrainHeight(int2(id.xy) + int2(0, sign(normal.y))) +
         //pow(normal.y, 2) * getTerrainHeight(id.xy + int2(0, sign(normal.y))) + //terrainHeight[id.xy + int2(0, sign(normal.y))] +
         gradient
     );
@@ -224,7 +219,7 @@ void TerrainRelaxation(uint3 id : SV_DispatchThreadID)
 }
 
 
-[numthreads(8, 8, 1)]
+[numthreads(4, 4, 1)]
 void NormalizeNormals(uint3 id : SV_DispatchThreadID)
 {
     float z = 0.25 * (
@@ -372,11 +367,11 @@ void SmoothKernel(uint3 id : SV_DispatchThreadID)
     {
         for(int y = -kernelSize; y <= kernelSize; y++)
         {
-            const int2 pos = int2(id.xy) + int2(x, y);
-            if (pos.x < 0 || pos.y < 0 || pos.x >= image_size || pos.y >= image_size)
-            {
-                continue;
-            }
+            const int2 pos =
+                int2(
+                    clamp(0, image_size-1, int(id.x)+ x),
+                    clamp(0, image_size-1, int(id.y) + y)
+                    );
             Ll += result[pos] * kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
             div += kernel[x + kernelSize + (y + kernelSize)*(kernelSize*2+1)];
         }

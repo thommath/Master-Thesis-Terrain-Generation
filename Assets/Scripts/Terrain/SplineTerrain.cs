@@ -49,7 +49,7 @@ public class SplineTerrain : MonoBehaviour
     [Header("Noise Global")]
     [Range(1, 50f)]
     public float noiseScale = 30f;
-    [Range(1f, 30f)]
+    [Range(1f, 100f)]
     public float noiseAmplitude = 10f;
 
 
@@ -192,7 +192,7 @@ public class SplineTerrain : MonoBehaviour
         int curveCount = splines.Select(spline => spline.CurveCount).Sum();
         float size = 0.001f * sizeof(float) * (splines.Select(spline => spline.points.Length).Sum() + splines.Select(spline =>
             spline.metaPoints.Length * (
-                (spline.erosionConstraint ? 3 : 0) + (spline.noiseConstraint ? 2 : 0))).Sum());
+                (spline.erosionConstraint ? 2 : 0) + (spline.noiseConstraint ? 2 : 0))).Sum());
         
         Debug.Log("Size: " + terrainResolution+ " , number of features: " + curveCount + ", Size: " + size + "kB, Time: " +
                   done + "s");

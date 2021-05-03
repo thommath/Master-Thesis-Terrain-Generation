@@ -325,17 +325,6 @@ public class Laplace : MonoBehaviour
          * 
          */
 
-
-        RenderTexture normalizedNormals = new RenderTexture(normals.width, normals.width, 0, normals.format);
-        normalizedNormals.enableRandomWrite = true;
-        normalizedNormals.autoGenerateMips = false;
-        normalizedNormals.Create();
-        
-        int normalizeKernelHandle = laplace.FindKernel("NormalizeNormals");
-        laplace.SetTexture(normalizeKernelHandle, "normals", normals);
-        laplace.SetTexture(normalizeKernelHandle, "result", normalizedNormals);
-        laplace.Dispatch(normalizeKernelHandle, normalizedNormals.width, normalizedNormals.height, 1);
-
         // Relax solution
         int relaxKernelHandle = laplace.FindKernel("TerrainRelaxation");
         laplace.SetTexture(relaxKernelHandle, "seedTexture", seedTexture);
@@ -428,7 +417,6 @@ public class Laplace : MonoBehaviour
         }
         kernel.Release();
         newTerrain.Release();
-        normalizedNormals.Release();
     }
     public void ImageSmoothing(RenderTexture image, int iterations, int kernelType = -1, float[] smoothlayers = null)
     {

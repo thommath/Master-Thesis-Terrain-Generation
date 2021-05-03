@@ -21,7 +21,7 @@ MonoBehaviour:
   SuspensionRate: 0.5
   DepositionRate: 0.8
   AddWater: 1
-  Evaporation: 0.2
+  Evaporation: 0.151
   MaxRainIntensity: 0.5
   MinRainIntensity: 0.3
   MaxRainSize: 35
