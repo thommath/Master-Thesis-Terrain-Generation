@@ -142,6 +142,23 @@ public class SplineTerrain : MonoBehaviour
         }
         else
         {
+            /*
+             To only render noise
+            RenderTexture h2 = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
+            h2.enableRandomWrite = true;
+            h2.autoGenerateMips = false;
+            h2.Create();
+            Texture2D h2o = new Texture2D(terrainResolution + 1, terrainResolution + 1, TextureFormat.RGBAFloat, false);
+            for (int n = 0; n < terrainResolution + 1; n++)
+            {
+                for (int m = 0; m < terrainResolution + 1; m++)
+                {
+                    h2o.SetPixel(n, m, new Color(0.15f, 0, 0, 1));
+                }
+            }
+            h2o.Apply();
+            Graphics.Blit(h2o, heightmap);
+            */
             RenderTexture result = l.AddNoise(heightmap, noiseSeed, warp);
             GetComponent<HydraulicErosion>()._inputHeight = result;
         }

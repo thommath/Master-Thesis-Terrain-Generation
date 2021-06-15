@@ -199,7 +199,7 @@ public class Laplace : MonoBehaviour
         {
             hyEro._erosionParams.Release();
         }
-        
+
         hyEro._inputHeight = AddNoise(heightmap, noiseSeed, warp);;
         hyEro._erosionParams = erosion;
 
@@ -245,6 +245,8 @@ public class Laplace : MonoBehaviour
         noiseShader.SetFloat("textureDivTerrain", 1f * input.width / 2048f);
 
         noiseShader.Dispatch(genKernelHandle, noiseSeed.width, noiseSeed.height, 1);
+        
+        saveImage("pure noise " + input.width, noise);
 
         SumTwoTextures(result, input, noise, 1, 0, s.noiseAmplitude * 0.005f * (100f / s.height), 0f);
         noise.Release();

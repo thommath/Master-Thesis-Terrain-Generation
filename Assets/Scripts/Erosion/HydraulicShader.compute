@@ -372,20 +372,22 @@ void HydraulicErosion(uint3 id : SV_DispatchThreadID)
 	// This min value should be able to be changed to a diffused value similar to the noise value in the other paper
 	const float sinangle = max(0.001, TerrainFluxMap[id.xy].r);
 
+	const float maxDepth = 0.15;
+
 
 	// float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * WATER_HEIGHT(state);
-	const float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle * SEDIMENT_CAPACITY_MULTIPLIER(erosionParams);
+	const float sedimentTransportCapacity = _SedimentCapacity * length(velocity) * sinangle * SEDIMENT_CAPACITY_MULTIPLIER(erosionParams) * ((1/maxDepth)*(maxDepth - abs(TERRAIN_HEIGHT(state))));
 	
 	if (SEDIMENT(state) < sedimentTransportCapacity)
 	{
 		const float mod = _TimeDelta * _SuspensionRate * (sedimentTransportCapacity - SEDIMENT(state));
-		TERRAIN_HEIGHT(state) -= mod;
+		TERRAIN_HEIGHT(state) = max(TERRAIN_HEIGHT(state) - mod, -maxDepth);
 		HARDNESS(state) = SEDIMENT(state) + mod;
 	}
 	else
 	{
 		const float mod = _TimeDelta * _DepositionRate * (SEDIMENT(state) - sedimentTransportCapacity);
-		TERRAIN_HEIGHT(state) += mod;
+		TERRAIN_HEIGHT(state) = min(TERRAIN_HEIGHT(state) + mod, maxDepth);
 		HARDNESS(state) = SEDIMENT(state) - mod;
 	}
 	// Water evaporation.

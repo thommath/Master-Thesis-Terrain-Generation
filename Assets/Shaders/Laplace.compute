@@ -100,7 +100,7 @@ Texture2D<float4> redGreenBlack;
 float4 getTerrainHeight(uint2 pos)
 {
     pos = clamp(pos, 0, image_size-1);
-    return restrictionsTexture[pos].x + restrictionsTexture[pos].y < 0.9 ? seedTexture[pos] : terrainHeight[pos];
+    return terrainHeight[pos];
 }
 
 bool runRed;
