@@ -78,6 +78,8 @@ public class TerrainEditorWindow : EditorWindow
             {
                 terrain.runSolver();
                 terrain.GetComponent<TerrainVisualizer>().fastExport();
+                terrain.GetComponent<TerrainVisualizer>().saveToFile();
+                terrain.GetComponent<TerrainVisualizer>().loadFromFile();
             }
             GUI.backgroundColor = before;
             GUILayout.Space(10);

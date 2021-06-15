@@ -62,8 +62,6 @@ public class SplineTerrain : MonoBehaviour
     [HideInInspector]
     public RenderTexture normals;
     [HideInInspector]
-    public RenderTexture noise;
-    [HideInInspector]
     public RenderTexture erosion;
 
     [HideInInspector]
@@ -193,7 +191,10 @@ public class SplineTerrain : MonoBehaviour
         if (saveImages)
         {
             saveState();
-            GetComponent<HydraulicErosion>().exportImages();
+            if (erode)
+            {
+                GetComponent<HydraulicErosion>().exportImages();
+            }
         }
         
         noiseSeed.Release();
@@ -224,7 +225,6 @@ public class SplineTerrain : MonoBehaviour
     {
         saveImage("_normals", normals);
         saveImage("_heightmap", heightmap, TextureFormat.RFloat);
-        saveImage("_noise", noise);
         saveImage("_erosion", erosion);
     }
     private void loadState()

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEditor;
+using UnityEngine;
 
 public class TerrainVisualizer : MonoBehaviour
 {
@@ -11,6 +13,11 @@ public class TerrainVisualizer : MonoBehaviour
     public bool listenForChanges = true;
     bool isListeningForChanges = false;
 
+    private void Start()
+    {
+        loadFromFile();
+    }
+/*
     void OnValidate()
     {
         if (isListeningForChanges != listenForChanges)
@@ -27,11 +34,15 @@ public class TerrainVisualizer : MonoBehaviour
             }
             isListeningForChanges = !isListeningForChanges;
         }
-        fastExport();
+
+        if (Application.isEditor && !Application.isPlaying)
+        {
+            fastExport();
+        }
 
         //exportToTerrain();
     }
-
+*/
     public void fastExport()
     {
         HydraulicErosion erosion = this.gameObject.GetComponent<HydraulicErosion>();
@@ -66,6 +77,59 @@ public class TerrainVisualizer : MonoBehaviour
             result.Release();
         }
         RenderTexture.active = null;
+
+    }
+
+
+    public void saveToFile()
+    {
+        HydraulicErosion erosion = this.gameObject.GetComponent<HydraulicErosion>();
+        RenderTexture heightmap = erosion._inputHeight;
+        RenderTexture.active = heightmap;
+        Texture2D tex = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RFloat, false);
+        tex.ReadPixels(new Rect(0, 0, heightmap.width, heightmap.height), 0, 0);
+
+        byte[] bytes;
+        bytes = tex.GetRawTextureData();
+        
+        string path = "terrain.dat";
+        System.IO.File.WriteAllBytes(path, bytes);
+        AssetDatabase.ImportAsset(path);
+        Debug.Log("Saved to " + path);
+    }
+
+    public void loadFromFile()
+    {
+        int size = this.gameObject.GetComponent<SplineTerrain>().terrainSize;
+        int terrainResolution = this.gameObject.GetComponent<SplineTerrain>().terrainResolution;
+        int terrainHeight = this.gameObject.GetComponent<SplineTerrain>().height;
+
+        terrain.gameObject.transform.position = new Vector3(-(size) / 2, 0, -(size) / 2);
+        terrain.terrainData.heightmapResolution = terrainResolution;
+        terrain.terrainData.size = new Vector3(size, terrainHeight, size);
+        
+        
+        RenderTexture rt = new RenderTexture(terrainResolution + 1, terrainResolution + 1, 0, RenderTextureFormat.ARGBFloat);
+        string path = "terrain.dat";
+
+        if (!System.IO.File.Exists(path))
+        {
+            Debug.Log("Did not find terrain at  " + path);
+            return;
+        }
+            
+        Texture2D tex = new Texture2D(rt.width, rt.height, TextureFormat.RFloat, false);
+        byte[] bytes = System.IO.File.ReadAllBytes(path);
+        tex.LoadRawTextureData(bytes);
+        tex.Apply();
+        
+        Graphics.Blit(tex, rt);
+        RenderTexture.active = rt;
+        terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, rt.width, rt.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
+        RenderTexture.active = null;
+        rt.Release();
+        Debug.Log("Loaded terrain from " + path);
+        
     }
 
 }
