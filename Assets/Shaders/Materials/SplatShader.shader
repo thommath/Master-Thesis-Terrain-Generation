@@ -12,7 +12,11 @@ Shader "Custom/NewSurfaceShader"
         _DirtTex ("Dirt", 2D) = "white" {}
         _DirtBumpMap ("DirtNormal", 2D) = "bump" {}
         
+        _RoadTex ("Road", 2D) = "white" {}
+        _RoadBumpMap ("RoadNormal", 2D) = "bump" {}
+        
         _ReliefMap ("Reliefmap", 2D) = "black" {}
+        _RestrictionMap ("Restriction", 2D) = "white" {}
         
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
@@ -35,10 +39,14 @@ Shader "Custom/NewSurfaceShader"
         sampler2D _SandTex;
         sampler2D _SandBumpMap;
         
+        sampler2D _RoadTex;
+        sampler2D _RoadBumpMap;
+        
         sampler2D _DirtTex;
         sampler2D _DirtBumpMap;
         
         sampler2D _ReliefMap;
+        sampler2D _RestrictionMap;
 
         struct Input
         {
@@ -80,14 +88,24 @@ Shader "Custom/NewSurfaceShader"
             sandAmount *= 1-reliefTextureWeight;
             rockAmount *= 1-reliefTextureWeight;
 
+            
+            float restriction = tex2D (_RestrictionMap, IN.uv_MainTex).r;
+            dirtAmount *= restriction;
+            sandAmount *= restriction;
+            rockAmount *= restriction;
+            float roadAmount = 1-restriction;
+            
+
             o.Normal =  UnpackNormal(tex2D (_BumpMap, IN.uv_MainTex*30)) * rockAmount +
                         UnpackNormal(tex2D (_SandBumpMap, IN.uv_MainTex*30)) * sandAmount +
-                        UnpackNormal(tex2D (_DirtBumpMap, IN.uv_MainTex*30)) * dirtAmount;
+                        UnpackNormal(tex2D (_DirtBumpMap, IN.uv_MainTex*30)) * dirtAmount +
+                        UnpackNormal(tex2D (_RoadTex, IN.uv_MainTex*30)) * roadAmount;
             
             c = tex2D (_MainTex, IN.uv_MainTex*30) * rockAmount +
                 tex2D (_SandTex, IN.uv_MainTex*30) * sandAmount +
-                tex2D (_DirtTex, IN.uv_MainTex*30) * dirtAmount;
-                        c *= _Color;
+                tex2D (_DirtTex, IN.uv_MainTex*30) * dirtAmount+
+                tex2D (_RoadTex, IN.uv_MainTex*30) * roadAmount;
+            c *= _Color;
 
             o.Albedo = c.rgb;
             // Metallic and smoothness come from slider variables

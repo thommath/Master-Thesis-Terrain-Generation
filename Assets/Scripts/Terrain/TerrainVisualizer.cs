@@ -96,6 +96,8 @@ public class TerrainVisualizer : MonoBehaviour
         System.IO.File.WriteAllBytes(path, bytes);
         AssetDatabase.ImportAsset(path);
         Debug.Log("Saved to " + path);
+        
+        
     }
 
     public void loadFromFile()
@@ -127,6 +129,7 @@ public class TerrainVisualizer : MonoBehaviour
         RenderTexture.active = rt;
         terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, rt.width, rt.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
         terrain.materialTemplate.SetTexture("_ReliefMap", tex);
+        terrain.materialTemplate.SetTexture("_Restriction", tex);
         RenderTexture.active = null;
         rt.Release();
         Debug.Log("Loaded terrain from " + path);

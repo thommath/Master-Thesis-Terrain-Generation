@@ -67,6 +67,18 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _RestrictionMap:
+        m_Texture: {fileID: 2800000, guid: 31169e836ae8f1c45b8844fd3e8d56b8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RoadBumpMap:
+        m_Texture: {fileID: 2800000, guid: c8596d1bb174a0449b1ae10e9bf9f7dd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RoadTex:
+        m_Texture: {fileID: 2800000, guid: 7a898633a201e194094cb439d2252b2a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SandBumpMap:
         m_Texture: {fileID: 2800000, guid: 342968921181ae046b43b456711321b7, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -81,7 +93,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.106
+    - _Glossiness: 0
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
