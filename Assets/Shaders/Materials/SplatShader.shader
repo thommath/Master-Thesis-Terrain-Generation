@@ -5,8 +5,12 @@ Shader "Custom/NewSurfaceShader"
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _BumpMap ("Normalmap", 2D) = "bump" {}
+        
         _SandTex ("Sand", 2D) = "white" {}
         _SandBumpMap ("SandNormal", 2D) = "bump" {}
+        
+        _DirtTex ("Dirt", 2D) = "white" {}
+        _DirtBumpMap ("DirtNormal", 2D) = "bump" {}
         
         _ReliefMap ("Reliefmap", 2D) = "black" {}
         
@@ -28,6 +32,10 @@ Shader "Custom/NewSurfaceShader"
         sampler2D _MainTex;
         sampler2D _SandTex;
         sampler2D _SandBumpMap;
+        
+        sampler2D _DirtTex;
+        sampler2D _DirtBumpMap;
+        
         sampler2D _BumpMap;
         sampler2D _ReliefMap;
 
@@ -54,12 +62,27 @@ Shader "Custom/NewSurfaceShader"
             o.Normal = UnpackNormal(tex2D(_BumpMap, IN.uv_MainTex*30));
 
             float height = tex2D (_ReliefMap, IN.uv_MainTex).r;
+            
 
             float sandAmount = (height <= 0.09) + (height > 0.09 && height < 0.1) * (1-(height-0.09) * 100);
             float rockAmount = (height > 0.1) + (height > 0.09 && height < 0.1) * ((height-0.09) * 100);
 
+            
+            float relief = clamp(0, 1,
+                abs(height - tex2D (_ReliefMap, IN.uv_MainTex - float2(0.001, 0)).r) +
+                abs(height - tex2D (_ReliefMap, IN.uv_MainTex + float2(0.001, 0)).r) +
+                abs(height - tex2D (_ReliefMap, IN.uv_MainTex - float2(0, 0.001)).r) +
+                abs(height - tex2D (_ReliefMap, IN.uv_MainTex + float2(0, 0.001)).r)
+                );
+
+            float reliefTextureWeight = (relief <= 0.01) + (relief > 0.01 && relief < 0.2) * ((relief-0.01) / 0.2); 
+            float dirtAmount = 1-reliefTextureWeight;
+            sandAmount *= reliefTextureWeight;
+            rockAmount *= reliefTextureWeight;
+
             c = tex2D (_MainTex, IN.uv_MainTex*30) * rockAmount +
-                tex2D (_SandTex, IN.uv_MainTex*30) * sandAmount;
+                tex2D (_SandTex, IN.uv_MainTex*30) * sandAmount +
+                tex2D (_DirtTex, IN.uv_MainTex*30) * dirtAmount;
             c *= _Color;
             
             o.Albedo = c.rgb;
