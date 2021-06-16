@@ -72,8 +72,8 @@ public class TerrainVisualizer : MonoBehaviour
             RenderTexture.active = result;
             terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, result.width, result.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
 
-            terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
-            terrain.materialTemplate.SetTexture("_OriginalTex", heightmap);
+            //terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
+            //terrain.materialTemplate.SetTexture("_OriginalTex", heightmap);
             result.Release();
         }
         RenderTexture.active = null;
@@ -126,6 +126,7 @@ public class TerrainVisualizer : MonoBehaviour
         Graphics.Blit(tex, rt);
         RenderTexture.active = rt;
         terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, rt.width, rt.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
+        terrain.materialTemplate.SetTexture("_ReliefMap", tex);
         RenderTexture.active = null;
         rt.Release();
         Debug.Log("Loaded terrain from " + path);
