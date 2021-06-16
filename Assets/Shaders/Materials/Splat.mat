@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 5543af3ee778fd040afd632a55b759dc, type: 3}
+        m_Texture: {fileID: 2800000, guid: 3a4d9a4a76492bd4983ce55afaa7bf26, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -35,12 +35,20 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DirtBumpMap:
+        m_Texture: {fileID: 2800000, guid: c92fc88470302fa44b3fbf517cc65d70, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DirtTex:
+        m_Texture: {fileID: 2800000, guid: 4cd1049485775f54e824e19dd35472e2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 71fdadbbc1da3f74fad3f49e1b55aff9, type: 3}
+        m_Texture: {fileID: 2800000, guid: 477a9ef0e8aeb604e8c3b14d976319b4, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -60,11 +68,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SandBumpMap:
-        m_Texture: {fileID: 2800000, guid: 57dea53fbd793e440852f5b903922975, type: 3}
+        m_Texture: {fileID: 2800000, guid: 342968921181ae046b43b456711321b7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SandTex:
-        m_Texture: {fileID: 2800000, guid: 2897e0aa5e8c35846bb127805b074ee0, type: 3}
+        m_Texture: {fileID: 2800000, guid: bf14884021f4d0240a5d9a7cdc686676, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -73,7 +81,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.368
+    - _Glossiness: 0.106
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0

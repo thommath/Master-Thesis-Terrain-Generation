@@ -30,13 +30,14 @@ Shader "Custom/NewSurfaceShader"
         #pragma target 3.0
 
         sampler2D _MainTex;
+        sampler2D _BumpMap;
+        
         sampler2D _SandTex;
         sampler2D _SandBumpMap;
         
         sampler2D _DirtTex;
         sampler2D _DirtBumpMap;
         
-        sampler2D _BumpMap;
         sampler2D _ReliefMap;
 
         struct Input
@@ -59,7 +60,6 @@ Shader "Custom/NewSurfaceShader"
         {
             // Albedo comes from a texture tinted by color
             float4 c;
-            o.Normal = UnpackNormal(tex2D(_BumpMap, IN.uv_MainTex*30));
 
             float height = tex2D (_ReliefMap, IN.uv_MainTex).r;
             
@@ -75,16 +75,20 @@ Shader "Custom/NewSurfaceShader"
                 abs(height - tex2D (_ReliefMap, IN.uv_MainTex + float2(0, 0.001)).r)
                 );
 
-            float reliefTextureWeight = (relief <= 0.01) + (relief > 0.01 && relief < 0.2) * ((relief-0.01) / 0.2); 
-            float dirtAmount = 1-reliefTextureWeight;
-            sandAmount *= reliefTextureWeight;
-            rockAmount *= reliefTextureWeight;
+            float reliefTextureWeight = (relief > 0.01) + (relief < 0.01 && relief > 0.005) * (1-(0.01 - relief) / 0.005); 
+            float dirtAmount = reliefTextureWeight;
+            sandAmount *= 1-reliefTextureWeight;
+            rockAmount *= 1-reliefTextureWeight;
 
+            o.Normal =  UnpackNormal(tex2D (_BumpMap, IN.uv_MainTex*30)) * rockAmount +
+                        UnpackNormal(tex2D (_SandBumpMap, IN.uv_MainTex*30)) * sandAmount +
+                        UnpackNormal(tex2D (_DirtBumpMap, IN.uv_MainTex*30)) * dirtAmount;
+            
             c = tex2D (_MainTex, IN.uv_MainTex*30) * rockAmount +
                 tex2D (_SandTex, IN.uv_MainTex*30) * sandAmount +
                 tex2D (_DirtTex, IN.uv_MainTex*30) * dirtAmount;
-            c *= _Color;
-            
+                        c *= _Color;
+
             o.Albedo = c.rgb;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
