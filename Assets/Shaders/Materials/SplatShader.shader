@@ -110,13 +110,13 @@ Shader "Custom/NewSurfaceShader"
                         UnpackNormal(tex2D (_SandBumpMap, IN.uv_MainTex*30)) * sandAmount +
                         UnpackNormal(tex2D (_DirtBumpMap, IN.uv_MainTex*30)) * dirtAmount +
                         UnpackNormal(tex2D (_RoadBumpMap, IN.uv_MainTex*60)) * roadAmount +
-                        UnpackNormal(tex2D (_TopRockBumpMap, IN.uv_MainTex*60)) * topRockAmount;
+                        UnpackNormal(tex2D (_TopRockBumpMap, IN.uv_MainTex*30)) * topRockAmount;
             
             c = tex2D (_MainTex, IN.uv_MainTex*30) * grassAmount +
                 tex2D (_SandTex, IN.uv_MainTex*30) * sandAmount +
                 tex2D (_DirtTex, IN.uv_MainTex*30) * dirtAmount+
                 tex2D (_RoadTex, IN.uv_MainTex*60) * roadAmount+
-                tex2D (_TopRockTex, IN.uv_MainTex*60) * topRockAmount;
+                tex2D (_TopRockTex, IN.uv_MainTex*30) * topRockAmount;
             c *= _Color;
 
             o.Albedo = c.rgb;
