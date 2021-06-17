@@ -4,11 +4,20 @@ public class CameraScreenshot : MonoBehaviour
 {
     public int width = 1024;
     public int height = 1024;
+
+    public bool getHeightFromCamera = false;
+    
     public void screenshot()
     {
         Camera cam = this.GetComponent<Camera>();
+        
+        int _height = this.height;
+        if (getHeightFromCamera)
+        {
+            _height = Mathf.RoundToInt(width / cam.aspect);
+        }
 
-        RenderTexture rt = new RenderTexture(width, height, 0, RenderTextureFormat.Default);
+        RenderTexture rt = new RenderTexture(width, _height, 0, RenderTextureFormat.Default);
         rt.Create();
 
         RenderTexture target = cam.targetTexture;
@@ -16,7 +25,7 @@ public class CameraScreenshot : MonoBehaviour
         cam.targetTexture = rt;
         cam.Render();
 
-        string name = "Screenshot";
+        string name = "Screenshot" + cam.name.Substring(cam.name.Length-2, 1);
         
         // Now you can read it back to a Texture2D and save it
         RenderTexture.active = rt;

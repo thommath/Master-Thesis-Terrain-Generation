@@ -70,18 +70,39 @@ Shader "Custom/NewSurfaceShader"
             // put more per-instance properties here
         UNITY_INSTANCING_BUFFER_END(Props)
 
+        float weighter(float height, float lower, float lowerMerge, float upper, float mergeSize)
+        {
+            return (height > lower && height < upper-mergeSize)
+                + (height > (lower-lowerMerge) && height < lower) * ((height-(lower-lowerMerge)) / lowerMerge)
+                + (height > (upper-mergeSize) && height < upper) * (1-(height-(upper-mergeSize)) / mergeSize);
+        }
+
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             // Albedo comes from a texture tinted by color
             float4 c;
 
             float height = tex2D (_ReliefMap, IN.uv_MainTex).r;
+
+            float grassLine = 0.1;
+            float grassMergeSize = 0.01;
+
+            
+            float gravelLine = 0.25;
+            float gravelMergeSize = 0.02;
+            
+            float rockLine = 0.3;
+            float rockMergeSize = 0.05;
+
+            
+            float reliefLimit = 0.01;
+            float reliefMergeSize = 0.003;
             
 
-            float sandAmount = (height <= 0.09) + (height > 0.09 && height < 0.1) * (1-(height-0.09) * 100);
-            float grassAmount = (height > 0.1 && height < 0.24) + (height > 0.24 && height < 0.25) * (1-(height-0.24) * 100) + (height > 0.09 && height < 0.1) * ((height-0.09) * 100);
-            
-            float topRockAmount = (height > 0.25) + (height > 0.24 && height < 0.25) * ((height-0.24) * 100);
+            float sandAmount = weighter(height, 0, 0, grassLine, grassMergeSize);
+            float grassAmount = weighter(height, grassLine, grassMergeSize, gravelLine, gravelMergeSize);
+            float dirt2Amount = weighter(height, gravelLine, gravelMergeSize, rockLine, rockMergeSize);
+            float topRockAmount = weighter(height, rockLine, rockMergeSize, 1, 0);
 
             
             float relief = clamp(0, 1,
@@ -91,11 +112,15 @@ Shader "Custom/NewSurfaceShader"
                 abs(height - tex2D (_ReliefMap, IN.uv_MainTex + float2(0, 0.001)).r)
                 );
 
-            float reliefTextureWeight = (relief > 0.01) + (relief < 0.01 && relief > 0.005) * (1-(0.01 - relief) / 0.005); 
+            float reliefTextureWeight = (relief > reliefLimit)
+                + (relief < reliefLimit && relief > reliefLimit-reliefMergeSize) * ((relief - (reliefLimit - reliefMergeSize)) / reliefMergeSize);
+
+            reliefTextureWeight *= (height < gravelLine && reliefTextureWeight < 0.7) * sqrt(reliefTextureWeight) + (height >= gravelLine || reliefTextureWeight >= 0.7);
             float dirtAmount = reliefTextureWeight;
             sandAmount *= 1-reliefTextureWeight;
             grassAmount *= 1-reliefTextureWeight;
             topRockAmount *= 1-reliefTextureWeight;
+            dirt2Amount *= 1-reliefTextureWeight;
 
             
             float restriction = tex2D (_RestrictionMap, IN.uv_MainTex).r;
@@ -103,18 +128,19 @@ Shader "Custom/NewSurfaceShader"
             sandAmount *= restriction;
             grassAmount *= restriction;
             topRockAmount *= restriction;
+            dirt2Amount *= restriction;
             float roadAmount = 1-restriction;
             
 
             o.Normal =  UnpackNormal(tex2D (_BumpMap, IN.uv_MainTex*30)) * grassAmount +
                         UnpackNormal(tex2D (_SandBumpMap, IN.uv_MainTex*30)) * sandAmount +
-                        UnpackNormal(tex2D (_DirtBumpMap, IN.uv_MainTex*30)) * dirtAmount +
+                        UnpackNormal(tex2D (_DirtBumpMap, IN.uv_MainTex*30)) * (dirtAmount + dirt2Amount) +
                         UnpackNormal(tex2D (_RoadBumpMap, IN.uv_MainTex*60)) * roadAmount +
                         UnpackNormal(tex2D (_TopRockBumpMap, IN.uv_MainTex*30)) * topRockAmount;
             
             c = tex2D (_MainTex, IN.uv_MainTex*30) * grassAmount +
                 tex2D (_SandTex, IN.uv_MainTex*30) * sandAmount +
-                tex2D (_DirtTex, IN.uv_MainTex*30) * dirtAmount+
+                tex2D (_DirtTex, IN.uv_MainTex*30) * (dirtAmount + dirt2Amount)+
                 tex2D (_RoadTex, IN.uv_MainTex*60) * roadAmount+
                 tex2D (_TopRockTex, IN.uv_MainTex*30) * topRockAmount;
             c *= _Color;
