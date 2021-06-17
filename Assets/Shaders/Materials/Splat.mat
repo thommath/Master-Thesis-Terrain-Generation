@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 3a4d9a4a76492bd4983ce55afaa7bf26, type: 3}
+        m_Texture: {fileID: 2800000, guid: c84936e7aa6bf8046aa11bdca827387f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -48,7 +48,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 477a9ef0e8aeb604e8c3b14d976319b4, type: 3}
+        m_Texture: {fileID: 2800000, guid: 5368286f187f8264f8e1aa8ccac951a4, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -72,19 +72,27 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RoadBumpMap:
-        m_Texture: {fileID: 2800000, guid: c8596d1bb174a0449b1ae10e9bf9f7dd, type: 3}
+        m_Texture: {fileID: 2800000, guid: ccdfdf0bf268ad643b01b19bfda5e32e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RoadTex:
-        m_Texture: {fileID: 2800000, guid: 7a898633a201e194094cb439d2252b2a, type: 3}
+        m_Texture: {fileID: 2800000, guid: ef974f98b690ffc4094119371d1eeaf2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SandBumpMap:
-        m_Texture: {fileID: 2800000, guid: 342968921181ae046b43b456711321b7, type: 3}
+        m_Texture: {fileID: 2800000, guid: 5c55897ecf7768f46a4a4b98760df8a1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SandTex:
-        m_Texture: {fileID: 2800000, guid: bf14884021f4d0240a5d9a7cdc686676, type: 3}
+        m_Texture: {fileID: 2800000, guid: 97560f2552497f04ba67e46704fa9b1e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopRockBumpMap:
+        m_Texture: {fileID: 2800000, guid: 5543af3ee778fd040afd632a55b759dc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopRockTex:
+        m_Texture: {fileID: 2800000, guid: 71fdadbbc1da3f74fad3f49e1b55aff9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -105,6 +113,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 0.89384186, b: 0.6933962, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
