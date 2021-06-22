@@ -242,7 +242,7 @@ public class Laplace : MonoBehaviour
         SplineTerrain s = GetComponent<SplineTerrain>();
         
         noiseShader.SetFloat("scale", s.noiseScale);
-        noiseShader.SetFloat("textureDivTerrain", 1f * input.width / 2048f);
+        noiseShader.SetFloat("textureDivTerrain", 1f * 2048f / input.width);
 
         noiseShader.Dispatch(genKernelHandle, noiseSeed.width, noiseSeed.height, 1);
         

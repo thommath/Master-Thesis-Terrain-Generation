@@ -85,7 +85,22 @@ public class TerrainVisualizer : MonoBehaviour
     {
         HydraulicErosion erosion = this.gameObject.GetComponent<HydraulicErosion>();
         RenderTexture heightmap = erosion._inputHeight;
-        RenderTexture.active = heightmap;
+        RenderTexture result = new RenderTexture(heightmap.width, heightmap.height, 0, RenderTextureFormat.RFloat);
+
+        if (this.viewMode == ViewMode.HeightmapNoErosion)
+        {
+            RenderTexture.active = heightmap;
+        } else
+        {
+            
+            result.enableRandomWrite = true;
+            result.autoGenerateMips = false;
+            result.Create();
+            Laplace l = this.GetComponent<Laplace>();
+            l.SumTwoTextures(result, heightmap, erosion._stateTexture, 1, 0, 1, 0);
+            RenderTexture.active = result;
+        }
+        
         Texture2D tex = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RFloat, false);
         tex.ReadPixels(new Rect(0, 0, heightmap.width, heightmap.height), 0, 0);
 
@@ -96,7 +111,8 @@ public class TerrainVisualizer : MonoBehaviour
         System.IO.File.WriteAllBytes(path, bytes);
         AssetDatabase.ImportAsset(path);
         Debug.Log("Saved to " + path);
-        
+        result.Release();
+
         
     }
 
