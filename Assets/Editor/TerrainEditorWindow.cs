@@ -91,7 +91,8 @@ public class TerrainEditorWindow : EditorWindow
             {
                 foreach (var camera in terrain.GetComponentsInChildren<CameraScreenshot>())
                 {
-                    camera.name = camera.tag + " " + terrain.terrainResolutionExp +
+                    
+                    camera.name = camera.gameObject.name + " " + terrain.terrainResolutionExp +
                                   (terrain.erode ? "" : " no erosion");
                     camera.screenshot();
                 }
