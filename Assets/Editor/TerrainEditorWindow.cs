@@ -81,6 +81,22 @@ public class TerrainEditorWindow : EditorWindow
                 terrain.GetComponent<TerrainVisualizer>().saveToFile();
                 terrain.GetComponent<TerrainVisualizer>().loadFromFile();
             }
+            if (GUILayout.Button("Load texture"))
+            {
+                terrain.GetComponent<TerrainVisualizer>().loadFromFile();
+            }
+            
+            GUI.backgroundColor = new Color(241f / 255, 242f / 255, 1f / 255);
+            if (GUILayout.Button("Render images"))
+            {
+                foreach (var camera in terrain.GetComponentsInChildren<CameraScreenshot>())
+                {
+                    camera.name = camera.tag + " " + terrain.terrainResolutionExp +
+                                  (terrain.erode ? "" : " no erosion");
+                    camera.screenshot();
+                }
+            }
+            
             GUI.backgroundColor = before;
             GUILayout.Space(10);
 

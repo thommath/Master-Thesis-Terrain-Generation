@@ -6,6 +6,8 @@ public class CameraScreenshot : MonoBehaviour
     public int height = 1024;
 
     public bool getHeightFromCamera = false;
+
+    public string name = "Screenshot";
     
     public void screenshot()
     {
@@ -25,7 +27,7 @@ public class CameraScreenshot : MonoBehaviour
         cam.targetTexture = rt;
         cam.Render();
 
-        string name = "Screenshot" + cam.name.Substring(cam.name.Length-2, 1);
+        //string name = "Screenshot" + cam.name.Substring(cam.name.Length-2, 1);
         
         // Now you can read it back to a Texture2D and save it
         RenderTexture.active = rt;

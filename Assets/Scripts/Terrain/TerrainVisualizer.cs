@@ -144,7 +144,7 @@ public class TerrainVisualizer : MonoBehaviour
         Graphics.Blit(tex, rt);
         RenderTexture.active = rt;
         terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, rt.width, rt.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
-        terrain.materialTemplate.SetTexture("_ReliefMap", tex);
+        terrain.materialTemplate.SetTexture("_MainTex", tex);
         terrain.materialTemplate.SetTexture("_Restriction", tex);
         RenderTexture.active = null;
         rt.Release();
