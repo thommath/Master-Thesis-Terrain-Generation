@@ -27,8 +27,6 @@ public class CameraScreenshot : MonoBehaviour
         cam.targetTexture = rt;
         cam.Render();
 
-        //string name = "Screenshot" + cam.name.Substring(cam.name.Length-2, 1);
-        
         // Now you can read it back to a Texture2D and save it
         RenderTexture.active = rt;
         Texture2D tex2D = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, true);

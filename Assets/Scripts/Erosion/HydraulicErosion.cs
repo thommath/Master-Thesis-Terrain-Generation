@@ -199,8 +199,6 @@ public class HydraulicErosion : MonoBehaviour
         if (!_velocityTexture.IsCreated())
             _velocityTexture.Create();
 
-        // Graphics.Blit(heightmap, _stateTexture);
-
 
         Laplace l = this.GetComponent<Laplace>();
         l.ImageSmoothing(_stateTexture, settings.SmoothingIterationsOnStart);
@@ -280,17 +278,6 @@ public class HydraulicErosion : MonoBehaviour
         hydraulicShader.SetFloat("_DepositionRate", settings.DepositionRate);
 
         hydraulicShader.SetFloat("_Evaporation", settings.Evaporation);
-
-        // Unused floats
-        hydraulicShader.SetFloat("_RainRate", 0.012f);
-        hydraulicShader.SetFloat("_SedimentSofteningRate", 40f);
-        hydraulicShader.SetFloat("_MaxErosionDepth", 1f);
-
-        // Thermal erosion
-        hydraulicShader.SetFloat("_ThermalErosionRate", 1f);
-        hydraulicShader.SetFloat("_TalusAngleTangentCoeff", 0.8f);
-        hydraulicShader.SetFloat("_TalusAngleTangentBias", 0.1f);
-        hydraulicShader.SetFloat("_ThermalErosionTimeScale", 1f);
     }
 
     public void runErosion()
@@ -308,7 +295,6 @@ public class HydraulicErosion : MonoBehaviour
             }
 
         }
-        saveState();
         exportImages();
         updatedData.Invoke();
     }
@@ -355,21 +341,6 @@ public class HydraulicErosion : MonoBehaviour
         int addWaterKernelHandle = hydraulicShader.FindKernel("AddWaterEverywhere");
         hydraulicShader.SetTexture(addWaterKernelHandle, "HeightMap", _stateTexture);
         hydraulicShader.SetTexture(addWaterKernelHandle, "ErosionParams", _erosionParams);
-        //hydraulicShader.Dispatch(addWaterKernelHandle, _stateTexture.width, _stateTexture.height, 1);
-        /*
-        hydraulicShader.SetFloat("_Evaporation", 0.05f);
-        for (int n = 0; n < 100; n++)
-        {
-            hydraulicShader.Dispatch(FluxComputation, _stateTexture.width, _stateTexture.height, 1);
-
-            hydraulicShader.Dispatch(FluxApply, _stateTexture.width, _stateTexture.height, 1);
-
-            hydraulicShader.Dispatch(TiltAngle, _stateTexture.width, _stateTexture.height, 1);
-
-            hydraulicShader.Dispatch(HydraulicErosionKernel, _stateTexture.width, _stateTexture.height, 1);
-
-            hydraulicShader.Dispatch(SedimentAdvection, _stateTexture.width, _stateTexture.height, 1);
-        }*/
         hydraulicShader.SetFloat("_Evaporation", 0.9f);
         for (int n = 0; n < 100; n++)
         {
@@ -444,20 +415,6 @@ public class HydraulicErosion : MonoBehaviour
         updateShaderValues();
     }
 
-    public void loadState()
-    {
-        loadImage("_stateTexture", _stateTexture, TextureFormat.RGBAFloat);
-        loadImage("_velocityTexture", _velocityTexture, TextureFormat.RGBAFloat);
-        loadImage("_waterFluxTexture", _waterFluxTexture, TextureFormat.RGBAFloat);
-        loadImage("_terrainFluxTexture", _terrainFluxTexture, TextureFormat.RGBAFloat);
-    }
-    public void saveState()
-    {
-        saveImage("_stateTexture", _stateTexture, TextureFormat.RGBAFloat, false);
-        saveImage("_velocityTexture", _velocityTexture, TextureFormat.RGBAFloat, false);
-        saveImage("_waterFluxTexture", _waterFluxTexture, TextureFormat.RGBAFloat, false);
-        saveImage("_terrainFluxTexture", _terrainFluxTexture, TextureFormat.RGBAFloat, false);
-    }
 
     public void exportImages(string suffix = "")
     {
@@ -514,43 +471,8 @@ public class HydraulicErosion : MonoBehaviour
             }
         }
 
-
         File.WriteAllBytes(Application.dataPath + "/Images/Erosion/" + name + ".png", tex2D.EncodeToPNG());
         Debug.Log("Wrote image to " + Application.dataPath + "/Images/Erosion/" + name + ".png");
     }
-
-    private void saveImageNoLoss(string name, RenderTexture rt, TextureFormat tf = TextureFormat.RGBAFloat)
-    {
-
-        int width = rt.width;
-        int height = rt.height;
-        string filepath = Application.dataPath + "/Images/Erosion/" + name + ".exr";
-
-        Texture2D tex = new Texture2D(width, height, tf, false);
-
-        // Read screen contents into the texture
-        Graphics.SetRenderTarget(rt);
-        tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-        tex.Apply();
-
-        // Encode texture into the EXR
-        byte[] bytes = tex.EncodeToEXR(Texture2D.EXRFlags.CompressZIP);
-        File.WriteAllBytes(filepath, bytes);
-
-        Object.Destroy(tex);
-
-    }
-    private void loadImage(string name, RenderTexture tex, TextureFormat tf = TextureFormat.RGBAFloat, bool normalize = true)
-    {
-        Texture2D tempTex = new Texture2D(tex.width, tex.height, tf, false);
-        string filepath = Application.dataPath + "/Images/Erosion/" + name + ".exr";
-        if (File.Exists(filepath))
-        {
-            tempTex.LoadImage(File.ReadAllBytes(filepath));
-            Debug.Log("Loaded image from " + filepath);
-            Graphics.Blit(tempTex, tex);
-        }
-    }
-
 
 }

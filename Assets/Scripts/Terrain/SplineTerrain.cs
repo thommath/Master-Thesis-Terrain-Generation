@@ -116,7 +116,7 @@ public class SplineTerrain : MonoBehaviour
         
         // l.rasterizeTriangles(terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray(), this.height * 2, terrainSizeExp, splineSamplings, breakOnLevel);
 
-        testRasterizing tr = this.GetComponent<testRasterizing>();
+        RasterizeWithShader tr = this.GetComponent<RasterizeWithShader>();
         Dictionary<int, RasterizedData> dict = tr.rasterizeData(splines, terrainSizeExp, terrainResolutionExp, breakOnLevel, height * 2, splineSamplings);
         l.setRasterizedDataDict(dict);
         

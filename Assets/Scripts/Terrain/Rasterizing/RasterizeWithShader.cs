@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEditor;
 
-public class testRasterizing : MonoBehaviour
+public class RasterizeWithShader : MonoBehaviour
 {
     public ComputeShader computeShader;
 

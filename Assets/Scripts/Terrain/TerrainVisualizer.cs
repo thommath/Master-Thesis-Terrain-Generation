@@ -18,32 +18,7 @@ public class TerrainVisualizer : MonoBehaviour
     {
         loadFromFile();
     }
-/*
-    void OnValidate()
-    {
-        if (isListeningForChanges != listenForChanges)
-        {
-            if (isListeningForChanges)
-            {
-                this.gameObject.GetComponent<HydraulicErosion>().updatedData.RemoveListener(fastExport);
-                this.gameObject.GetComponent<SplineTerrain>().updatedData.RemoveListener(fastExport);
-            }
-            else
-            {
-                this.gameObject.GetComponent<HydraulicErosion>().updatedData.AddListener(fastExport);
-                this.gameObject.GetComponent<SplineTerrain>().updatedData.AddListener(fastExport);
-            }
-            isListeningForChanges = !isListeningForChanges;
-        }
-
-        if (Application.isEditor && !Application.isPlaying)
-        {
-            fastExport();
-        }
-
-        //exportToTerrain();
-    }
-*/
+    
     public void fastExport()
     {
         HydraulicErosion erosion = this.gameObject.GetComponent<HydraulicErosion>();
@@ -73,8 +48,6 @@ public class TerrainVisualizer : MonoBehaviour
             RenderTexture.active = result;
             terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, result.width, result.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
 
-            //terrain.materialTemplate.SetTexture("_StateTex", erosion._stateTexture);
-            //terrain.materialTemplate.SetTexture("_OriginalTex", heightmap);
             result.Release();
         }
         RenderTexture.active = null;
@@ -165,7 +138,6 @@ public class TerrainVisualizer : MonoBehaviour
 
     public void saveTexture()
     {
-
         Texture2D tex = GetTextureFromSurfaceShader(material, 2048, 2048);
         
         string path = "terrain.png";
@@ -173,6 +145,7 @@ public class TerrainVisualizer : MonoBehaviour
         AssetDatabase.ImportAsset(path);
         Debug.Log("Saved to " + path);
     }
+    
     public Texture2D GetTextureFromSurfaceShader(Material mat, int width, int height)
     {
         //Create render texture:
@@ -216,8 +189,8 @@ public class TerrainVisualizer : MonoBehaviour
         //Clean up:
         RenderTexture.active = null;
         temp.Release();
-        Destroy(quad);
-        Destroy(camGO);
+        DestroyImmediate(quad);
+        DestroyImmediate(camGO);
  
         return newTex;
     }
