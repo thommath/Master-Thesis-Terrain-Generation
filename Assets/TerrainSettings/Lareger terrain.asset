@@ -27,7 +27,7 @@ MonoBehaviour:
   MaxRainSize: 50
   MinRainSize: 16.4
   RainFrequency: 0
-  StopRainAfterTime: 6942
+  StopRainAfterTime: 10000
   RandomizedRain: 1
   TimeDelta: 0.25
   IterationsEachStep: 1

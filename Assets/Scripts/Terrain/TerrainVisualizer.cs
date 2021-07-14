@@ -144,8 +144,17 @@ public class TerrainVisualizer : MonoBehaviour
         Graphics.Blit(tex, rt);
         RenderTexture.active = rt;
         terrain.terrainData.CopyActiveRenderTextureToHeightmap(new RectInt(0, 0, rt.width, rt.height), new Vector2Int(0, 0), TerrainHeightmapSyncControl.HeightAndLod);
-        terrain.materialTemplate.SetTexture("_MainTex", tex);
-        terrain.materialTemplate.SetTexture("_Restriction", tex);
+
+        if (terrain.materialTemplate.shader.name == "Custom/NewSurfaceShader")
+        {
+            terrain.materialTemplate.SetTexture("_MainTex", tex);
+            Debug.Log("Loaded texture");
+            //terrain.materialTemplate.SetTexture("_Restriction", tex);
+        }
+        else
+        {
+            Debug.Log(terrain.materialTemplate.shader.name);
+        }
         RenderTexture.active = null;
         rt.Release();
         Debug.Log("Loaded terrain from " + path);

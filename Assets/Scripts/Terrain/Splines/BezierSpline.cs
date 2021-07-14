@@ -115,23 +115,28 @@ public class BezierSpline : MonoBehaviour {
 	private void OnDrawGizmos()
 	{
 		if (UnityEditor.Selection.activeGameObject == this.gameObject) return;
-		Gizmos.color = Color.yellow;
-		float points = 20 * this.points.Length;
-		for (float n = 0; n < points; n++)
+
+		if (true)
 		{
-			Gizmos.DrawLine(GetPoint(n / points), GetPoint((n + 1) / points));
+			Gizmos.color = Color.yellow;
+			float points = 20 * this.points.Length;
+			for (float n = 0; n < points; n++)
+			{
+				Gizmos.DrawLine(GetPoint(n / points), GetPoint((n + 1) / points));
+			}
+		}
+		else
+		{
+			for (int n = 0; n <= points.Length-2; n+=3)
+			{
+				Vector3 p0 = transform.TransformPoint(points[n]);
+				Vector3 p1 = transform.TransformPoint(points[n+1]);
+				Vector3 p2 = transform.TransformPoint(points[n+2]);
+				Vector3 p3 = transform.TransformPoint(points[n+3]);
+				Handles.DrawBezier(p0, p3, p1, p2, Color.white, null, 4f);
+			}
 		}
 		
-		/*
-		for (int n = 0; n <= points.Length-2; n+=3)
-		{
-			Vector3 p0 = transform.TransformPoint(points[n]);
-			Vector3 p1 = transform.TransformPoint(points[n+1]);
-			Vector3 p2 = transform.TransformPoint(points[n+2]);
-			Vector3 p3 = transform.TransformPoint(points[n+3]);
-			Handles.DrawBezier(p0, p3, p1, p2, Color.yellow, null, 2f);
-		}
-		*/
 		/*
 		Gizmos.color = Color.blue;
 

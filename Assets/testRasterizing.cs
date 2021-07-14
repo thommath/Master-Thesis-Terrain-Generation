@@ -74,8 +74,8 @@ public class testRasterizing : MonoBehaviour
         colorsGradients.SetData(mesh.colors);
 
         int gradientsKernelHandle = computeShader.FindKernel("RasterizeAverageGradients");
-        
-        computeShader.SetVector("gradientColorStart", new Vector4(0.7f, 0.3f, 0, 1f));
+        float gradientStart = 0.3f;
+        computeShader.SetVector("gradientColorStart", new Vector4(1f-gradientStart, gradientStart, 0, 1f));
         computeShader.SetVector("gradientColorEnd", new Vector4(1f, 0f, 0, 1f));
 
         computeShader.SetTexture(gradientsKernelHandle, "normal", normal);

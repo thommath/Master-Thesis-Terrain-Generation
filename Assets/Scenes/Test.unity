@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657892, g: 0.4964133, b: 0.57481736, a: 1}
+  m_IndirectSpecularColor: {r: 0.4449025, g: 0.49447173, b: 0.5736266, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,6 +123,129 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &52483048
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 52483049}
+  - component: {fileID: 52483050}
+  m_Layer: 0
+  m_Name: Unnamed terrain feature
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &52483049
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52483048}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 141.12, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1887730138}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &52483050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52483048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -1331.9104, y: 0, z: 0}
+  - {x: -100, y: 0, z: 0}
+  - {x: 100, y: 0, z: 0}
+  - {x: 1199.9688, y: 0, z: 0}
+  elevationConstraint: 1
+  noiseConstraint: 1
+  erosionConstraint: 0
+  warpConstraint: 1
+  minGridLevel: 0
+  maxGridLevel: 2147483647
+  metaPoints:
+  - position: 0.5
+    lineRadius: 1076.37
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 0.5
+    noiseRoughness: 0.5
+    warpA: 0
+    warpB: 0
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!1 &116792712
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 116792713}
+  - component: {fileID: 116792714}
+  m_Layer: 0
+  m_Name: Unnamed terrain feature
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &116792713
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116792712}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1218853980}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &116792714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116792712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: 47.05625, y: 850.6285, z: -110.31626}
+  - {x: -170.31245, y: 864.47107, z: -593.6667}
+  - {x: -367.05, y: 497.80334, z: -470.67432}
+  - {x: -705.4629, y: 357.31232, z: -950.42053}
+  elevationConstraint: 1
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 5
+  maxGridLevel: 2147483647
+  metaPoints: []
 --- !u!1 &246326897
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,7 +332,7 @@ MonoBehaviour:
   _waterFluxTexture: {fileID: 1000104860}
   _velocityTexture: {fileID: 1838547919}
   _terrainFluxTexture: {fileID: 1154326344}
-  _inputHeight: {fileID: 520874485}
+  _inputHeight: {fileID: 1927615038}
   _erosionParams: {fileID: 470578909}
   hydraulicShader: {fileID: 7200000, guid: 5a4bd05d51e42f64ebc121cc9da8686d, type: 3}
   settings: {fileID: 11400000, guid: 2990ff7fbd5e33347957e994fdd11f06, type: 2}
@@ -236,25 +359,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  height: 600
+  height: 1000
   terrainSizeExp: 11
-  terrainResolutionExp: 11
+  terrainResolutionExp: 9
   terrainSize: 2048
-  terrainResolution: 2048
+  terrainResolution: 512
   splineSamplings: 300
-  diffusionIterationMultiplier: 1.98
+  diffusionIterationMultiplier: 6.92
   breakOnLevel: 2
-  kernelType: 6
-  startHeight: 0.184
+  kernelType: 7
+  startHeight: 0.507
   postSmoothing: 0
   erode: 0
-  noiseScale: 10
-  noiseAmplitude: 10
+  noiseScale: 2
+  noiseAmplitude: 100
   saveImages: 1
-  heightmap: {fileID: 428174461}
-  normals: {fileID: 1018053754}
-  noise: {fileID: 0}
-  erosion: {fileID: 490156639}
+  heightmap: {fileID: 2129278464}
+  normals: {fileID: 1122244654}
+  erosion: {fileID: 1482528737}
   updatedData:
     m_PersistentCalls:
       m_Calls: []
@@ -286,8 +408,9 @@ Transform:
   m_Children:
   - {fileID: 772985209}
   - {fileID: 1887730138}
+  - {fileID: 1700467974}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!84 &331201227
 RenderTexture:
@@ -325,42 +448,210 @@ RenderTexture:
     m_WrapW: 1
   m_Dimension: 2
   m_VolumeDepth: 1
---- !u!84 &428174461
-RenderTexture:
+--- !u!1 &384694418
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 384694419}
+  - component: {fileID: 384694420}
+  m_Layer: 0
+  m_Name: Unnamed terrain feature (4)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &384694419
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384694418}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 141.12, z: 481}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1887730138}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &384694420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384694418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
   m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 2049
-  m_Height: 2049
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 52
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -1331.9104, y: 0, z: 0}
+  - {x: -100, y: 0, z: 0}
+  - {x: 100, y: 0, z: 0}
+  - {x: 1199.9688, y: 0, z: 0}
+  elevationConstraint: 1
+  noiseConstraint: 1
+  erosionConstraint: 0
+  warpConstraint: 1
+  minGridLevel: 0
+  maxGridLevel: 2147483647
+  metaPoints:
+  - position: 0.5
+    lineRadius: 1076.37
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 0.5
+    noiseRoughness: 0.75
+    warpA: 0
+    warpB: 0
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!1 &434699410
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 434699412}
+  - component: {fileID: 434699411}
+  m_Layer: 0
+  m_Name: River
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &434699411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434699410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -947.0734, y: 0, z: 968.9249}
+  - {x: -343.3083, y: 0, z: -286.88153}
+  - {x: 2.3402557, y: 0, z: 226.08276}
+  - {x: 831.993, y: 0, z: -889.4612}
+  elevationConstraint: 1
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 5
+  maxGridLevel: 10
+  metaPoints:
+  - position: 0.78
+    lineRadius: 0.5
+    gradientLengthLeft: 58.659283
+    gradientAngleLeft: 16.00879
+    gradientLengthRight: 67.578255
+    gradientAngleRight: 43.46927
+    noiseAmplitude: 1
+    noiseRoughness: 1
+    warpA: 1
+    warpB: 1
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!4 &434699412
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434699410}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 268, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &447699978
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 447699979}
+  - component: {fileID: 447699980}
+  m_Layer: 0
+  m_Name: River cliff
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &447699979
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447699978}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 492.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &447699980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447699978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -947.0734, y: 0, z: 968.9249}
+  - {x: -343.3083, y: 0, z: -286.88153}
+  - {x: 2.3402557, y: 0, z: 226.08276}
+  - {x: 831.993, y: 0, z: -889.4612}
+  elevationConstraint: 1
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 3
+  maxGridLevel: 10
+  metaPoints:
+  - position: 0.78
+    lineRadius: 0.5
+    gradientLengthLeft: 50
+    gradientAngleLeft: -2000
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 1
+    noiseRoughness: 1
+    warpA: 1
+    warpB: 1
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
 --- !u!84 &470578909
 RenderTexture:
   m_ObjectHideFlags: 0
@@ -390,78 +681,6 @@ RenderTexture:
   m_TextureSettings:
     serializedVersion: 2
     m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
---- !u!84 &490156639
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 2049
-  m_Height: 2049
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 52
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
---- !u!84 &520874485
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 2049
-  m_Height: 2049
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 52
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 0
     m_Aniso: 1
     m_MipBias: 0
     m_WrapU: 1
@@ -500,18 +719,18 @@ Terrain:
   m_TreeDistance: 5000
   m_TreeBillboardDistance: 50
   m_TreeCrossFadeLength: 5
-  m_TreeMaximumFullLODCount: 50
-  m_DetailObjectDistance: 80
+  m_TreeMaximumFullLODCount: 290
+  m_DetailObjectDistance: 250
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 1
-  m_SplatMapDistance: 799
+  m_SplatMapDistance: 20000
   m_HeightmapMaximumLOD: 0
   m_ShadowCastingMode: 2
   m_DrawHeightmap: 1
   m_DrawInstanced: 0
   m_DrawTreesAndFoliage: 1
   m_ReflectionProbeUsage: 1
-  m_MaterialTemplate: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  m_MaterialTemplate: {fileID: 10651, guid: 0000000000000000f000000000000000, type: 0}
   m_BakeLightProbesForTrees: 1
   m_PreserveTreePrototypeLayers: 0
   m_DeringLightProbesForTrees: 1
@@ -545,42 +764,210 @@ Transform:
   m_Father: {fileID: 246326904}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!84 &962670144
-RenderTexture:
+--- !u!1 &900999862
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 900999864}
+  - component: {fileID: 900999863}
+  m_Layer: 0
+  m_Name: Hill
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &900999863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900999862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
   m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 480
-  m_Height: 480
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 1
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -613.7405, y: 263.64935, z: 440.2924}
+  - {x: -508.60004, y: 574.37836, z: -381.0608}
+  - {x: 2.3402557, y: 788.83923, z: 226.08276}
+  - {x: 544.3768, y: 337.4265, z: -458.8697}
+  elevationConstraint: 1
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 4
+  maxGridLevel: 6
+  metaPoints:
+  - position: 0.78
+    lineRadius: 0.5
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 1
+    noiseRoughness: 1
+    warpA: 1
+    warpB: 1
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!4 &900999864
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900999862}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 369.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &934185042
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 934185043}
+  - component: {fileID: 934185044}
+  m_Layer: 0
+  m_Name: Unnamed terrain feature (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &934185043
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 934185042}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 141.12, z: 1003}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1887730138}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &934185044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 934185042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -1331.9104, y: 0, z: 0}
+  - {x: -100, y: 0, z: 0}
+  - {x: 100, y: 0, z: 0}
+  - {x: 1199.9688, y: 0, z: 0}
+  elevationConstraint: 1
+  noiseConstraint: 1
+  erosionConstraint: 0
+  warpConstraint: 1
+  minGridLevel: 0
+  maxGridLevel: 2147483647
+  metaPoints:
+  - position: 0.5
+    lineRadius: 1076.37
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 0.5
+    noiseRoughness: 1
+    warpA: 0
+    warpB: 0
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!1 &968471840
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 968471841}
+  - component: {fileID: 968471842}
+  m_Layer: 0
+  m_Name: Unnamed terrain feature
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &968471841
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968471840}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 268, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1218853980}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &968471842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968471840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -613.7405, y: 263.64935, z: 440.2924}
+  - {x: -508.60004, y: 574.37836, z: -381.0608}
+  - {x: 2.3402557, y: 788.83923, z: 226.08276}
+  - {x: 544.3768, y: 337.4265, z: -458.8697}
+  elevationConstraint: 1
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 5
+  maxGridLevel: 22
+  metaPoints:
+  - position: 0.78
+    lineRadius: 0.5
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 1
+    noiseRoughness: 1
+    warpA: 1
+    warpB: 1
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
 --- !u!84 &1000104860
 RenderTexture:
   m_ObjectHideFlags: 0
@@ -617,7 +1004,7 @@ RenderTexture:
     m_WrapW: 1
   m_Dimension: 2
   m_VolumeDepth: 1
---- !u!84 &1018053754
+--- !u!84 &1122244654
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -631,8 +1018,8 @@ RenderTexture:
   m_DownscaleFallback: 0
   m_IsAlphaChannelOptional: 0
   serializedVersion: 3
-  m_Width: 2049
-  m_Height: 2049
+  m_Width: 513
+  m_Height: 513
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthFormat: 0
@@ -689,6 +1076,241 @@ RenderTexture:
     m_WrapW: 1
   m_Dimension: 2
   m_VolumeDepth: 1
+--- !u!1 &1218853979
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1218853980}
+  m_Layer: 0
+  m_Name: Ridge lines
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1218853980
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218853979}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 116792713}
+  - {fileID: 968471841}
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1244532135
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1244532137}
+  - component: {fileID: 1244532136}
+  m_Layer: 0
+  m_Name: Sharp crack
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1244532136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1244532135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -947.0734, y: 0, z: 968.9249}
+  - {x: -343.3083, y: 0, z: -286.88153}
+  - {x: 2.3402557, y: 0, z: 226.08276}
+  - {x: 831.993, y: 0, z: -889.4612}
+  elevationConstraint: 1
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 10
+  maxGridLevel: 11
+  metaPoints:
+  - position: 0.78
+    lineRadius: 21.4
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 1
+    noiseRoughness: 1
+    warpA: 1
+    warpB: 1
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!4 &1244532137
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1244532135}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 268, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1267326156
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1267326157}
+  m_Layer: 0
+  m_Name: Ridge line
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1267326157
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1267326156}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 2094319434}
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &1482528737
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 3
+  m_Width: 513
+  m_Height: 513
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 52
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+--- !u!1 &1578114906
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1578114907}
+  - component: {fileID: 1578114908}
+  m_Layer: 0
+  m_Name: Unnamed terrain feature (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1578114907
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578114906}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 141.12, z: -496}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1887730138}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1578114908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578114906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -1331.9104, y: 0, z: 0}
+  - {x: -100, y: 0, z: 0}
+  - {x: 100, y: 0, z: 0}
+  - {x: 1199.9688, y: 0, z: 0}
+  elevationConstraint: 1
+  noiseConstraint: 1
+  erosionConstraint: 0
+  warpConstraint: 1
+  minGridLevel: 0
+  maxGridLevel: 2147483647
+  metaPoints:
+  - position: 0.5
+    lineRadius: 1076.37
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 0.5
+    noiseRoughness: 0.25
+    warpA: 0
+    warpB: 0
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
 --- !u!1 &1700467970
 GameObject:
   m_ObjectHideFlags: 0
@@ -741,7 +1363,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 962670144}
+  m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -763,8 +1385,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb4b37b7988a43f78d5ba51a3e294de2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 1024
-  height: 1024
+  width: 2048
+  height: 2048
+  getHeightFromCamera: 0
+  name: Screenshot 8
 --- !u!81 &1700467973
 AudioListener:
   m_ObjectHideFlags: 0
@@ -780,13 +1404,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1700467970}
-  m_LocalRotation: {x: 0.1827608, y: -0.4552185, z: 0.09542085, w: 0.8661811}
-  m_LocalPosition: {x: 917, y: 607, z: -871}
+  m_LocalRotation: {x: 0.29519886, y: -0.30487815, z: 0.09946745, w: 0.90000737}
+  m_LocalPosition: {x: 570, y: 1257, z: -859}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 23.796, y: -55.462, z: -0.068}
+  m_Father: {fileID: 246326904}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 36.3, y: -37.45, z: -0.068}
 --- !u!84 &1838547919
 RenderTexture:
   m_ObjectHideFlags: 0
@@ -850,9 +1474,185 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 2094319434}
+  - {fileID: 934185043}
+  - {fileID: 384694419}
+  - {fileID: 52483049}
+  - {fileID: 1578114907}
+  - {fileID: 1950516771}
   m_Father: {fileID: 246326904}
   m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &1927615038
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 3
+  m_Width: 513
+  m_Height: 513
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 52
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+--- !u!1 &1950516770
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1950516771}
+  - component: {fileID: 1950516772}
+  m_Layer: 0
+  m_Name: Unnamed terrain feature (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1950516771
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950516770}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 141.12, z: -957}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1887730138}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1950516772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950516770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -1331.9104, y: 0, z: 0}
+  - {x: -100, y: 0, z: 0}
+  - {x: 100, y: 0, z: 0}
+  - {x: 1199.9688, y: 0, z: 0}
+  elevationConstraint: 1
+  noiseConstraint: 1
+  erosionConstraint: 0
+  warpConstraint: 1
+  minGridLevel: 0
+  maxGridLevel: 2147483647
+  metaPoints:
+  - position: 0.5
+    lineRadius: 1076.37
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 0.5
+    noiseRoughness: 0
+    warpA: 0
+    warpB: 0
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!1 &1974052987
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1974052989}
+  - component: {fileID: 1974052988}
+  m_Layer: 0
+  m_Name: River (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1974052988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1974052987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -947.0734, y: 0, z: 968.9249}
+  - {x: -343.3083, y: 0, z: -286.88153}
+  - {x: 2.3402557, y: 0, z: 226.08276}
+  - {x: 831.993, y: 0, z: -889.4612}
+  elevationConstraint: 1
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 5
+  maxGridLevel: 8
+  metaPoints:
+  - position: 0.78
+    lineRadius: 0.5
+    gradientLengthLeft: 1
+    gradientAngleLeft: 0
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 1
+    noiseRoughness: 1
+    warpA: 1
+    warpB: 1
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!4 &1974052989
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1974052987}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 268, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2040936624
 GameObject:
@@ -882,8 +1682,8 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 0.51
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -893,9 +1693,9 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
+    m_Bias: 0.058
+    m_NormalBias: 1.27
+    m_NearPlane: 1.04
     m_CullingMatrixOverride:
       e00: 1
       e01: 0
@@ -925,7 +1725,7 @@ Light:
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
+  m_BounceIntensity: 0.1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
@@ -940,13 +1740,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2040936624}
-  m_LocalRotation: {x: 0.40821788, y: 0.23456976, z: -0.10938167, w: 0.8754261}
+  m_LocalRotation: {x: 0.38552433, y: 0.4831072, z: -0.24988438, w: 0.745343}
   m_LocalPosition: {x: -41.36, y: 72.41, z: 71.64}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 50, y: 30, z: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 54.7, y: 65.9, z: 0}
 --- !u!1 &2094319433
 GameObject:
   m_ObjectHideFlags: 0
@@ -972,10 +1772,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2094319433}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 268, z: 0}
+  m_LocalPosition: {x: 0, y: 167.43, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1887730138}
+  m_Father: {fileID: 1267326157}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2094319435
@@ -991,19 +1791,73 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: -634.87006, y: 0, z: 617.27295}
-  - {x: -432.9804, y: 404.25403, z: -381.0608}
-  - {x: 491.17596, y: 389.32715, z: 522.237}
-  - {x: 755.44604, y: 0, z: -632.85657}
+  - {x: -613.7405, y: 263.64935, z: 440.2924}
+  - {x: -508.60004, y: 574.37836, z: -381.0608}
+  - {x: 2.3402557, y: 788.83923, z: 226.08276}
+  - {x: 544.3768, y: 337.4265, z: -458.8697}
   elevationConstraint: 1
-  noiseConstraint: 1
-  erosionConstraint: 1
-  warpConstraint: 1
-  minGridLevel: 4
-  maxGridLevel: 2147483647
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 6
+  maxGridLevel: 22
   metaPoints:
   - position: 0.78
     lineRadius: 0.5
+    gradientLengthLeft: 22.628134
+    gradientAngleLeft: -64.571106
+    gradientLengthRight: 1
+    gradientAngleRight: 0
+    noiseAmplitude: 1
+    noiseRoughness: 1
+    warpA: 1
+    warpB: 1
+    erosionRain: 1
+    erosionHardness: 1
+    sedimentCapacity: 1
+--- !u!1 &2102857237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2102857239}
+  - component: {fileID: 2102857238}
+  m_Layer: 0
+  m_Name: Crack
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2102857238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2102857237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b154883273c2845f39445c8015d81639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: -947.0734, y: 0, z: 968.9249}
+  - {x: -343.3083, y: 0, z: -286.88153}
+  - {x: 2.3402557, y: 0, z: 226.08276}
+  - {x: 831.993, y: 0, z: -889.4612}
+  elevationConstraint: 1
+  noiseConstraint: 0
+  erosionConstraint: 0
+  warpConstraint: 0
+  minGridLevel: 8
+  maxGridLevel: 10
+  metaPoints:
+  - position: 0.78
+    lineRadius: 0.47
     gradientLengthLeft: 1
     gradientAngleLeft: 0
     gradientLengthRight: 1
@@ -1015,16 +1869,53 @@ MonoBehaviour:
     erosionRain: 1
     erosionHardness: 1
     sedimentCapacity: 1
-  - position: 0.23
-    lineRadius: 0.5
-    gradientLengthLeft: 1
-    gradientAngleLeft: 0
-    gradientLengthRight: 122.73982
-    gradientAngleRight: 0
-    noiseAmplitude: 0
-    noiseRoughness: 0
-    warpA: 0
-    warpB: 0
-    erosionRain: 0
-    erosionHardness: 0
-    sedimentCapacity: 0
+--- !u!4 &2102857239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2102857237}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 268, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &2129278464
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 3
+  m_Width: 513
+  m_Height: 513
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 52
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1

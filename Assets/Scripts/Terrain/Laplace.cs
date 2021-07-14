@@ -246,7 +246,10 @@ public class Laplace : MonoBehaviour
 
         noiseShader.Dispatch(genKernelHandle, noiseSeed.width, noiseSeed.height, 1);
         
-        saveImage("pure noise " + input.width, noise);
+        RenderTexture noiseresult = createRenderTexture(input.width, 0, input.depth, input.format);
+        SumTwoTextures(noiseresult, result, noise, 0, 0, 0.5f, 0.5f);
+        saveImage("pure noise " + input.width, noiseresult, true);
+        noiseresult.Release();
 
         SumTwoTextures(result, input, noise, 1, 0, s.noiseAmplitude * 0.005f * (100f / s.height), 0f);
         noise.Release();
@@ -520,35 +523,56 @@ public class Laplace : MonoBehaviour
         laplace.Dispatch(SumTwoTextures, image.width, image.height, 1);
     }
 
-
-    private void saveImage(string name, RenderTexture tex, bool useExr = false)
+    private void saveImage(string name, RenderTexture tex, bool normalize = false)
     {
         if (!saveImages) return;
+        // Now you can read it back to a Texture2D and save it
+        RenderTexture tempRT = RenderTexture.GetTemporary(tex.width, tex.height, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
+        Graphics.Blit(tex, tempRT);
+        RenderTexture.active = tempRT;
+        Texture2D tex2D = new Texture2D(tex.width, tex.height, TextureFormat.RGBAFloat, true);
+        tex2D.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0, false);
+        tex2D.Apply();
+        RenderTexture.active = null;
 
-        if (useExr)
+        Vector4 scaling = new Vector4(0.00001f, 0.00001f, 0.00001f, 0.00001f);
+        if (normalize)
         {
-            RenderTexture.active = tex;
-            Texture2D tex2D = new Texture2D(tex.width, tex.height, TextureFormat.RGBAFloat, false);
-            tex2D.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0, false);
-            tex2D.Apply();
-            RenderTexture.active = null;
-            System.IO.File.WriteAllBytes(Application.dataPath + "/Images/" + name + ".exr", tex2D.EncodeToEXR(Texture2D.EXRFlags.None));
-            Debug.Log("Wrote image to " + Application.dataPath + "/Images/" + name + ".exr");
-            RenderTexture.active = null;
-        }
-        else
+            for(int x = 0; x < tex2D.width; x++)
+            {
+                for (int y = 0; y < tex2D.height; y++)
+                {
+                    Color c = tex2D.GetPixel(x, y);
+                    scaling = new Vector4(
+                        Mathf.Max(c.r, scaling.x),
+                        Mathf.Max(c.g, scaling.y),
+                        Mathf.Max(c.b, scaling.z),
+                        Mathf.Max(c.a, scaling.w)
+                    );
+                }
+            }
+        } else
         {
-            // Now you can read it back to a Texture2D and save it
-            RenderTexture.active = tex;
-            Texture2D tex2D = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, true);
-            tex2D.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0, false);
-            tex2D.Apply();
-            RenderTexture.active = null;
-            System.IO.File.WriteAllBytes(Application.dataPath + "/Images/" + name + ".png", tex2D.EncodeToPNG());
-            Debug.Log("Wrote image to " + Application.dataPath + "/Images/" + name + ".png");
-            RenderTexture.active = null;
+            scaling = new Vector4(1, 1, 1, 1);
         }
 
+        for (int x = 0; x < tex2D.width; x++)
+        {
+            for (int y = 0; y < tex2D.height; y++)
+            {
+                Color c = tex2D.GetPixel(x, y);
+                tex2D.SetPixel(x, y, new Color(
+                    c.r / scaling.x,
+                    c.g / scaling.y,
+                    c.b / scaling.z,
+                    c.a / scaling.w
+                ));
+            }
+        }
+
+
+        System.IO.File.WriteAllBytes(Application.dataPath + "/Images/" + name + ".png", tex2D.EncodeToPNG());
+        Debug.Log("Wrote image to " + Application.dataPath + "/Images/" + name + ".png");
     }
 
 }

@@ -112,15 +112,19 @@ float scale;
 
 float textureDivTerrain;
 
-float2 Tpre(uint2 id, float2 p)
+float2 Tpre(uint2 id, float2 p, float k)
 {
-    const float a = warp[id].r;
+    const float a = warp[id].r*1;
     const float b = warp[id].g;
     
     const float seed1 = 50;
-    const float seed2 = 150;
+    const float seed2 = 10;
+
+    const float2 bp = 1 * p;
+
+    const float scale = 1 * k * b + a * 1/ (k+1);
     
-    return p + float2(a * perlinNoise(float3(seed1 + b * p, 1)), a * perlinNoise(float3(seed2 + b * p, 1)));
+    return p + scale * float2(perlinNoise(float3(bp, seed1)), perlinNoise(float3(bp, seed2)));
 }
 
 
@@ -140,8 +144,8 @@ void GenerateNoise(uint3 id : SV_DispatchThreadID)
 
     for (float k = 0; k < n; k++) {
         sum += (1 / (pow(r, k * (1 - R)))) *
-            perlinNoise(float3(Tpre(id.xy, scale * pow(r, k) * float2(x, y)), 1));
+            perlinNoise(float3(Tpre(id.xy, scale * pow(r, k) * float2(x, y), k), 1));
     }
-    
-    result[id.xy] = sum * A;
+    const float res = sum * A;
+    result[id.xy] = float4(res, res, res, 1);
 }

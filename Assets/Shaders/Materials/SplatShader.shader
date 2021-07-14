@@ -108,6 +108,10 @@ Shader "Custom/NewSurfaceShader"
 
         float weighter(float height, float lower, float lowerMerge, float upper, float mergeSize)
         {
+            if (height < upper-mergeSize && (lower == 0 || lowerMerge == 0))
+            {
+                return 1;
+            }
             return (height > lower && height < upper-mergeSize)
                 + (height > (lower-lowerMerge) && height < lower && lowerMerge > 0) * ((height-(lower-lowerMerge)) / lowerMerge)
                 + (height > (upper-mergeSize) && height < upper) * (1-(height-(upper-mergeSize)) / mergeSize);
@@ -138,7 +142,7 @@ Shader "Custom/NewSurfaceShader"
 
             float sandAmount = weighter(height, 0, 0, grassLine, grassMergeSize);
             float grassAmount = weighter(height, grassLine, grassMergeSize, gravelLine*_UseSteepLayer+rockLine*_NotUseSteepLayer, gravelMergeSize*_UseSteepLayer+rockMergeSize*_NotUseSteepLayer);
-            float dirt2Amount = weighter(height, gravelLine, gravelMergeSize, rockLine, rockMergeSize)*rockMergeSize;
+            float dirt2Amount = weighter(height, gravelLine, gravelMergeSize, rockLine, rockMergeSize);
             float topRockAmount = weighter(height, rockLine, rockMergeSize, 1, 0);
 
             
