@@ -5,6 +5,7 @@ using UnityEngine;
 public class TerrainVisualizer : MonoBehaviour
 {
     public Terrain terrain;
+    public Material material;
 
     //public enum ViewMode { Heightmap, HeightmapAndWater, Water, Erosion, Sediment, HeightMapWithSediment, HeightmapNoErosion, TerrainAngle, ErosionWithSediment };
     public enum ViewMode { Heightmap, HeightmapNoErosion };
@@ -135,7 +136,7 @@ public class TerrainVisualizer : MonoBehaviour
             Debug.Log("Did not find terrain at  " + path);
             return;
         }
-            
+        
         Texture2D tex = new Texture2D(rt.width, rt.height, TextureFormat.RFloat, false);
         byte[] bytes = System.IO.File.ReadAllBytes(path);
         tex.LoadRawTextureData(bytes);
@@ -158,7 +159,67 @@ public class TerrainVisualizer : MonoBehaviour
         RenderTexture.active = null;
         rt.Release();
         Debug.Log("Loaded terrain from " + path);
+
+        saveTexture();
+    }
+
+    public void saveTexture()
+    {
+
+        Texture2D tex = GetTextureFromSurfaceShader(material, 2048, 2048);
         
+        string path = "terrain.png";
+        System.IO.File.WriteAllBytes(path, tex.EncodeToPNG());
+        AssetDatabase.ImportAsset(path);
+        Debug.Log("Saved to " + path);
+    }
+    public Texture2D GetTextureFromSurfaceShader(Material mat, int width, int height)
+    {
+        //Create render texture:
+        RenderTexture temp = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+ 
+        //Create a Quad:
+        GameObject quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        MeshRenderer rend = quad.GetComponent<MeshRenderer>();
+        rend.material = mat;
+        Vector3 quadScale = quad.transform.localScale;
+        quad.transform.position = Vector3.forward;
+ 
+        //Setup camera:
+        GameObject camGO = new GameObject("CaptureCam");
+        Camera cam = camGO.AddComponent<Camera>();
+        cam.renderingPath = RenderingPath.Forward;
+        cam.orthographic = true;
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = new Color(1, 1, 1, 0);
+        if (cam.rect.width < 1 || cam.rect.height < 1)
+        {
+            cam.rect = new Rect(cam.rect.x, cam.rect.y, 1, 1);
+        }
+        cam.orthographicSize = 0.5f;
+        cam.rect = new Rect(0, 0, quadScale.x, quadScale.y);
+        cam.aspect = quadScale.x / quadScale.y;
+        cam.targetTexture = temp;
+        cam.allowHDR = false;
+ 
+ 
+        //Capture image and write to the render texture:
+        cam.Render();
+        temp = cam.targetTexture;
+ 
+        //Apply changes:
+        Texture2D newTex = new Texture2D(temp.width, temp.height, TextureFormat.ARGB32, true, true);
+        RenderTexture.active = temp;
+        newTex.ReadPixels(new Rect(0, 0, temp.width, temp.height), 0, 0);
+        newTex.Apply();
+ 
+        //Clean up:
+        RenderTexture.active = null;
+        temp.Release();
+        Destroy(quad);
+        Destroy(camGO);
+ 
+        return newTex;
     }
 
 }

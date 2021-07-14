@@ -24,14 +24,8 @@ public class Laplace : MonoBehaviour
 
     public void setRasterizedDataDict(Dictionary<int, RasterizedData> dict)
     {
-        this.rasterizedDataDict = dict;
+        rasterizedDataDict = dict;
     }
-
-    public void rasterizeTriangles(BezierSpline[] splines, int maxHeight, int terrainSizeExp, int resolution = 50, int breakOn = 1)
-    {
-        Rasterize.rasterizeSplines(splines, rasterizedDataDict, terrainSizeExp, maxHeight, resolution, breakOn);
-    }
-
 
     private RenderTexture createRenderTexture(int size, int layer, int depth, RenderTextureFormat tf = RenderTextureFormat.ARGBFloat)
     {

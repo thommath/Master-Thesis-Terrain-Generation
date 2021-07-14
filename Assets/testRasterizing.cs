@@ -308,7 +308,7 @@ public class testRasterizing : MonoBehaviour
 
         foreach (BezierSpline spline in splines)
         {
-            spline.rasterizingData = RasterizingTriangles.getSplineData(spline, 0, maxHeight, resolution);
+            spline.rasterizingData = TesselateSplineLineAndGradients.getSplineData(spline, 0, maxHeight, resolution);
         }
 
         Dictionary<int, RasterizedData> dict = new Dictionary<int, RasterizedData>();
