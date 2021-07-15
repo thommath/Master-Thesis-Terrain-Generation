@@ -249,6 +249,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 1024
   height: 1024
+  getHeightFromCamera: 0
+  name: Screenshot
 --- !u!81 &769589300
 AudioListener:
   m_ObjectHideFlags: 0
@@ -347,6 +349,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 2048
   height: 1024
+  getHeightFromCamera: 0
+  name: Screenshot
 --- !u!81 &1557062681
 AudioListener:
   m_ObjectHideFlags: 0
@@ -439,7 +443,7 @@ TerrainCollider:
   m_GameObject: {fileID: 1828363228}
   m_Material: {fileID: 0}
   m_Enabled: 1
-  m_TerrainData: {fileID: 15600000, guid: 0579937b222cfb64c87d68b2413a4e78, type: 2}
+  m_TerrainData: {fileID: 15600000, guid: 2d726536cd891fc479461873f975b4fe, type: 2}
   m_EnableTreeColliders: 1
 --- !u!218 &1828363230
 Terrain:
@@ -450,7 +454,7 @@ Terrain:
   m_GameObject: {fileID: 1828363228}
   m_Enabled: 1
   serializedVersion: 6
-  m_TerrainData: {fileID: 15600000, guid: 0579937b222cfb64c87d68b2413a4e78, type: 2}
+  m_TerrainData: {fileID: 15600000, guid: 2d726536cd891fc479461873f975b4fe, type: 2}
   m_TreeDistance: 5000
   m_TreeBillboardDistance: 50
   m_TreeCrossFadeLength: 5
