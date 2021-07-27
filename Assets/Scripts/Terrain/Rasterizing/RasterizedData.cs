@@ -4,21 +4,6 @@ using UnityEngine;
 
 public struct RasterizedData
 {
-    public RasterizedData(Texture2D tseedHeightmap, Texture2D tRestrictions, Texture2D tseedNormals, Texture2D tNoise)
-    {
-        this.tseedHeightmap = tseedHeightmap;
-        this.tRestrictions = tRestrictions;
-        this.tseedNormals = tseedNormals;
-        this.tNoise = tNoise;
-
-        this.seedHeightmap = null;
-        this.restrictions = null;
-        this.seedNormals = null;
-        this.noise = null;
-        this.erosion = null;
-        this.warp = null;
-    }
-
     public void release()
     {
         if (this.seedHeightmap != null && this.seedHeightmap.IsCreated())
@@ -42,12 +27,6 @@ public struct RasterizedData
             this.erosion.Release();
         }
     }
-
-    public Texture2D tseedHeightmap;
-    public Texture2D tRestrictions;
-    public Texture2D tseedNormals;
-    public Texture2D tNoise;
-    
     
     public RenderTexture seedHeightmap;
     public RenderTexture restrictions;

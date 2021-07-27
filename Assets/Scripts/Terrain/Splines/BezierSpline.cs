@@ -116,64 +116,12 @@ public class BezierSpline : MonoBehaviour {
 	{
 		if (UnityEditor.Selection.activeGameObject == this.gameObject) return;
 
-		if (true)
-		{
-			Gizmos.color = Color.yellow;
-			float points = 20 * this.points.Length;
-			for (float n = 0; n < points; n++)
-			{
-				Gizmos.DrawLine(GetPoint(n / points), GetPoint((n + 1) / points));
-			}
-		}
-		else
-		{
-			for (int n = 0; n <= points.Length-2; n+=3)
-			{
-				Vector3 p0 = transform.TransformPoint(points[n]);
-				Vector3 p1 = transform.TransformPoint(points[n+1]);
-				Vector3 p2 = transform.TransformPoint(points[n+2]);
-				Vector3 p3 = transform.TransformPoint(points[n+3]);
-				Handles.DrawBezier(p0, p3, p1, p2, Color.white, null, 4f);
-			}
-		}
-		
-		/*
-		Gizmos.color = Color.blue;
-
+		Gizmos.color = Color.yellow;
+		float points = 20 * this.points.Length;
 		for (float n = 0; n < points; n++)
 		{
-			Vector3 from = GetPoint(n / points);
-			Vector3 to = GetPoint((n+1) / points);
-
-			Vector2 from2d = new Vector2(from.x, from.z);
-			Vector2 to2d = new Vector2(to.x, to.z);
-
-			Vector2 p = Vector2.Perpendicular(from2d - to2d).normalized * 4;
-
-			if (p.x <= 0)
-			{
-				Gizmos.color = Color.red;
-			}
-			else if (p.x <= 0)
-			{
-				Gizmos.color = Color.green;
-			}
-			else 
-			{
-				Gizmos.color = Color.yellow;
-			}
-			Gizmos.DrawLine(new Vector3(from2d.x, 0, from2d.y), new Vector3(from2d.x + p.x, 0, from2d.y + p.y));
-			Gizmos.DrawLine(new Vector3(from2d.x, 0, from2d.y), new Vector3(from2d.x - p.x, 0, from2d.y - p.y));
-
-
-			Gizmos.color = Color.blue;
-			Gizmos.DrawLine(new Vector3(from2d.x, 0, from2d.y), new Vector3(to2d.x, 0, to2d.y));
+			Gizmos.DrawLine(GetPoint(n / points), GetPoint((n + 1) / points));
 		}
-		*/
-		/*for (int n = 0; n < CurveCount; n+=1)
-		{
-			drawGizmosCurve(n*3);
-		}*/
 	}
 
 

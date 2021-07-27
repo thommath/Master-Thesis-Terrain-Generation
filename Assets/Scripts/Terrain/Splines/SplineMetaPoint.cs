@@ -31,8 +31,6 @@ public class SplineMetaPoint
 	[Range(0, 1f)]
 	public float erosionRain = 1f;
 	[Range(0, 1f)]
-	public float erosionHardness = 1f;
-	[Range(0, 1f)]
 	public float sedimentCapacity = 1f;
 	
 

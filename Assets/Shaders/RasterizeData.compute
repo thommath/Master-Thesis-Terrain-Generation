@@ -445,11 +445,6 @@ void RasterizeAverageThickLines(uint3 id : SV_DispatchThreadID)
 [numthreads(4,4,1)]
 void FillTextures(uint3 id : SV_DispatchThreadID)
 {
-    /*    restriction[id.xy] = restriction[id.xy].w * (length(restriction[id.xy].xy) > 0
-                                                         ? float4(normalize(restriction[id.xy].xy), 0, 1)
-                                                         : float4(0, 0, 0, 1)) + float4(1, 0, 0, 1) * (1 - restriction[id.xy
-                                                         ].w);
-    */
     restriction[id.xy] = restriction[id.xy].w * restriction[id.xy] + float4(1, 0, 0, 1) * (1 - restriction[id.xy].w);
     normal[id.xy] =
         float4(

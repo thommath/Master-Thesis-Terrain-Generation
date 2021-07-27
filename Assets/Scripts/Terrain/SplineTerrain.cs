@@ -26,22 +26,22 @@ public class SplineTerrain : MonoBehaviour
 
     [Header("Rasterizing")]
     [Range(20, 500)]
-    public int splineSamplings = 200;
+    public int splineSamplings = 300;
 
     [Header("Diffusion")]
     [Range(0.0f, 20)]
-    public float diffusionIterationMultiplier = 10;
+    public float diffusionIterationMultiplier = 2;
 
     [Range(1, 10)]
     public int breakOnLevel = 2;
 
     [Range(1, 7)]
-    public int kernelType = 1;
+    public int kernelType = 6;
 
     [Range(0f, 1f)]
-    public float startHeight = 0;
+    public float startHeight;
 
-    [Range(0, 30)] public int postSmoothing = 0;
+    [Range(0, 30)] public int postSmoothing;
 
     [Header("Erosion")]
     public bool erode = false;
@@ -239,23 +239,6 @@ public class SplineTerrain : MonoBehaviour
         saveImage("_heightmap", heightmap, TextureFormat.RFloat);
         saveImage("_erosion", erosion);
     }
-    private void loadState()
-    {
-        loadImage("_normals", normals);
-        loadImage("_heightmap", heightmap, TextureFormat.RFloat);
-    }
-
-    private void loadImage(string name, RenderTexture tex, TextureFormat tf = TextureFormat.RGBAFloat)
-    {
-        Texture2D tempTex = new Texture2D(tex.width, tex.height, tf, false);
-        string filepath = Application.dataPath + "/Images/" + name + ".png";
-        if (File.Exists(filepath))
-        {
-            tempTex.LoadImage(File.ReadAllBytes(filepath));
-            Debug.Log("Loaded image from " + Application.dataPath + "/Images/" + name + ".png");
-            Graphics.Blit(tempTex, tex);
-        }
-    }
 
     private void saveImage(string name, RenderTexture tex, TextureFormat tf = TextureFormat.RGBA32)
     {
@@ -267,31 +250,6 @@ public class SplineTerrain : MonoBehaviour
         RenderTexture.active = null;
         System.IO.File.WriteAllBytes(Application.dataPath + "/Images/" + name + ".png", tex2D.EncodeToPNG());
         Debug.Log("Wrote image to " + Application.dataPath + "/Images/" + name + ".png");
-    }
-
-    public void saveRAW()
-    {
-        RenderTexture.active = heightmap;
-        Texture2D tex = new Texture2D(heightmap.width, heightmap.height, TextureFormat.RFloat, true);
-        tex.ReadPixels(new Rect(0, 0, heightmap.width, heightmap.height), 0, 0, false);
-        tex.Apply();
-        RenderTexture.active = null;
-
-        System.IO.File.WriteAllBytes(Application.dataPath + "/" + "Terrain" + ".png", tex.EncodeToPNG());
-        Debug.Log("Wrote image to " + Application.dataPath + "/" + "Terrain" + ".png");
-
-        byte[] rawBytes = new byte[tex.width * tex.height];
-
-        for (int y = 0; y < tex.height; y++)
-        {
-            for (int x  = 0; x < tex.width; x++)
-            {
-                rawBytes[y * tex.width + x] = Convert.ToByte(Math.Min(Mathf.RoundToInt(tex.GetPixel(x, y).r * 255), 255));
-            }
-        }
-
-        System.IO.File.WriteAllBytes(Application.dataPath + "/" + "Terrain" + ".raw", rawBytes);
-        Debug.Log("Wrote image to " + Application.dataPath + "/" + "Terrain" + ".raw");
     }
 
 

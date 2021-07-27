@@ -280,25 +280,6 @@ public class HydraulicErosion : MonoBehaviour
         hydraulicShader.SetFloat("_Evaporation", settings.Evaporation);
     }
 
-    public void runErosion()
-    {
-        RenderBehaviour rb = this.GetComponent<RenderBehaviour>();
-
-        updateShaderValues();
-        for (int i = 0; i < settings.IterationsEachStep; i++)
-        {
-            runStep();
-
-            if (rb != null)
-            {
-                rb.filmStep(time);
-            }
-
-        }
-        exportImages();
-        updatedData.Invoke();
-    }
-
     public void runStep()
     {
         time += settings.TimeDelta;
@@ -331,6 +312,13 @@ public class HydraulicErosion : MonoBehaviour
         hydraulicShader.Dispatch(HydraulicErosionKernel, _stateTexture.width, _stateTexture.height, 1);
 
         hydraulicShader.Dispatch(SedimentAdvection, _stateTexture.width, _stateTexture.height, 1);
+        
+        
+        RenderBehaviour rb = GetComponent<RenderBehaviour>();
+        if (rb != null)
+        {
+            rb.filmStep(time);
+        }
     }
 
     public void evaporate()

@@ -15,41 +15,12 @@ public class TerrainInspector : Editor
 
         if (GUILayout.Button("Solve terrain"))
         {
-            //Undo.RecordObject(spline, "Add Curve");
-            foreach ( BezierSpline spline in terrain.splines)
-            {
-                if (spline.rasterizingData != null)
-                {
-                    spline.rasterizingData = null;
-                }
-            }
             terrain.runSolver();
-
-            //EditorUtility.SetDirty(spline);
+            terrain.GetComponent<TerrainVisualizer>().fastExport();
+            terrain.GetComponent<TerrainVisualizer>().saveToFile();
+            terrain.GetComponent<TerrainVisualizer>().loadFromFile();
         }
 
-
-        if (GUILayout.Button("Save RAW"))
-        {
-            terrain.saveRAW();
-        }
     }
 
-    public void OnEnable()
-    {
-        // Subscribe to callback
-        EditorApplication.update += MyUpdate;
-
-    }
-
-    public void OnDisable()
-    {
-        // Unsubscribe from callback
-        EditorApplication.update -= MyUpdate;
-    }
-
-    private void MyUpdate()
-    {
-        terrain = target as SplineTerrain;
-    }
 }

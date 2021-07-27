@@ -39,7 +39,6 @@ public class RasterizeWithShader : MonoBehaviour
         float warpB;
 
         float erosionRain;
-        float erosionHardness;
         float sedimentCapacity;
 
         public MetaPoint(SplineMetaPoint metaPoint)
@@ -57,7 +56,6 @@ public class RasterizeWithShader : MonoBehaviour
             warpB = metaPoint.warpB;
             
             erosionRain = metaPoint.erosionRain;
-            erosionHardness = metaPoint.erosionHardness;
             sedimentCapacity = metaPoint.sedimentCapacity;
 
         }
@@ -200,8 +198,7 @@ public class RasterizeWithShader : MonoBehaviour
             ComputeBuffer metaPointsBuffer = null;
             if (spline.metaPoints.Length > 0)
             {
-                int type = 1 << 4 + 1 << 3;
-                metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 13, ComputeBufferType.Default, ComputeBufferMode.Immutable);
+                metaPointsBuffer = new ComputeBuffer(spline.metaPoints.Length, sizeof(float) * 12, ComputeBufferType.Default, ComputeBufferMode.Immutable);
                 metaPointsBuffer.SetData(spline.getSortedMetaPoints().Select(metaPoint => new MetaPoint(metaPoint))
                     .ToArray());
             }
@@ -209,7 +206,7 @@ public class RasterizeWithShader : MonoBehaviour
             {
                 // Meta points has to be set so we write a buffer as small as possible
                 metaPointsBuffer = new ComputeBuffer(1, sizeof(float), ComputeBufferType.Default, ComputeBufferMode.SubUpdates);
-                Unity.Collections.NativeArray<float> dd = metaPointsBuffer.BeginWrite<float>(0, 1);
+                metaPointsBuffer.BeginWrite<float>(0, 1);
                 metaPointsBuffer.EndWrite<float>(1);
             }
             computeShader.SetBuffer(gradientsKernelHandle, "metaPoints", metaPointsBuffer);
@@ -221,10 +218,7 @@ public class RasterizeWithShader : MonoBehaviour
             computeShader.Dispatch(gradientsKernelHandle, splinesBuffer.count, 1, 1);
             
             splinesBuffer.Release();
-            if (metaPointsBuffer != null)
-            {
-                metaPointsBuffer.Release();
-            }
+            metaPointsBuffer.Release();
         }
         ///////////////
         ///
@@ -302,9 +296,6 @@ public class RasterizeWithShader : MonoBehaviour
     public Dictionary<int, RasterizedData> rasterizeData(BezierSpline[] splines, int terrainSizeExp, int textureSizeExp, int breakOnLevel, int maxHeight, int resolution)
     {
         //float time = Time.realtimeSinceStartup;
-        //Transform terrainFeatures = this.gameObject.transform.GetComponentsInChildren<Transform>()
-        //    .FirstOrDefault(x => x.CompareTag("TerrainFeatures"));
-        //BezierSpline[] splines = terrainFeatures.GetComponentsInChildren<BezierSpline>().ToArray();
 
         foreach (BezierSpline spline in splines)
         {

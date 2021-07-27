@@ -185,8 +185,6 @@ public class TerrainEditorWindow : EditorWindow
                 GUILayout.Space(5);
                 float erosionRain = EditorGUILayout.Slider("Erosion Rain", metaPoint.erosionRain, 0, 1);
                 metaPoint.erosionRain = erosionRain;
-                float erosionHardness = EditorGUILayout.Slider("Erosion hardness", metaPoint.erosionHardness, 0, 1);
-                metaPoint.erosionHardness = erosionHardness;
                 float sedimentCapacity = EditorGUILayout.Slider("Erosion hardness", metaPoint.sedimentCapacity, 0, 1);
                 metaPoint.sedimentCapacity = sedimentCapacity;
             }
